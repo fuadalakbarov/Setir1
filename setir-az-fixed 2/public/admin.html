@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sətir.az - Admin Panel</title>
+    <style>
+        :root {
+            --primary: #dc2626;
+            --primary-hover: #b91c1c;
+            --bg: #f8fafc;
+            --text: #0f172a;
+            --border: #e2e8f0;
+        }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 2rem;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            border: 1px solid var(--border);
+        }
+        h2 { margin-top: 0; color: #1e293b; display: flex; justify-content: space-between; align-items: center; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1.5rem;
+        }
+        th, td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        th { background: #f1f5f9; color: #475569; font-weight: 600; }
+        tr:hover { background: #f8fafc; }
+        .badge {
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .badge-free { background: #e2e8f0; color: #475569; }
+        .badge-individual { background: #dbeafe; color: #1e40af; }
+        .badge-biznes { background: #fef08a; color: #854d0e; }
+        .btn-back {
+            font-size: 0.95rem;
+            color: #2563eb;
+            text-decoration: none;
+        }
+        .btn-back:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>
+        <span>🛡️ Sətir.az Admin İdarəetmə Paneli</span>
+        <a href="/app" class="btn-back">← İşçi Panelə Qayıt</a>
+    </h2>
+    <p>Qeydiyyatdan keçmiş istifadəçilərin siyahısı və onların cari paket statusları:</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Ad Soyad</th>
+                <th>E-poçt</th>
+                <th>Paket Tipi</th>
+                <th>Qeydiyyat Tarixi</th>
+            </tr>
+        </thead>
+        <tbody id="users-table-body">
+            <tr>
+                <td colspan="5" style="text-align: center; color: #64748b;">İstifadəçilər yüklənir...</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<script>
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+        window.location.href = '/login';
+    }
+
+    async function fetchUsers() {
+        try {
+            const res = await fetch('/api/admin/users', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            
+            if (!res.ok) {
+                if(res.status === 403) {
+                    alert('Bu səhifəyə giriş icazəniz yoxdur! Yalnız adminlər daxil ola bilər.');
+                }
+                window.location.href = '/app';
+                return;
+            }
+
+            const users = await res.json();
+            const tbody = document.getElementById('users-table-body');
+            tbody.innerHTML = '';
+
+            if(users.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center;">Heç bir istifadəçi tapılmadı.</td></tr>`;
+                return;
+            }
+
+            users.forEach(user => {
+                const tr = document.createElement('tr');
+                let badgeClass = 'badge-free';
+                if(user.plan === 'fərdi') badgeClass = 'badge-individual';
+                if(user.plan === 'biznes') badgeClass = 'badge-biznes';
+
+                tr.innerHTML = `
+                    <td>${user.id}</td>
+                    <td><b>${user.name || 'Qeyd edilməyib'}</b></td>
+                    <td>${user.email}</td>
+                    <td><span class="badge ${badgeClass}">${user.plan.toUpperCase()}</span></td>
+                    <td>${new Date(user.created_at).toLocaleDateString('az-AZ')}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+        } catch (err) {
+            console.error('İstifadəçiləri yükləyərkən xəta:', err);
+        }
+    }
+
+    fetchUsers();
+</script>
+</body>
+</html>
