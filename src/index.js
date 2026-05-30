@@ -24,7 +24,7 @@ app.use(passport.session());
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: "http://localhost:3000/api/auth/google/callback"
+    callbackURL: "https://setir1.onrender.com/api/auth/google/callback"
 }, (accessToken, refreshToken, profile, cb) => {
     console.log('Google profil alındı:', profile.displayName);
     return cb(null, profile);
