@@ -356,6 +356,131 @@
         .spinner.active { display: block; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
+        /* ── GRAMMARLY PANEL ── */
+        .grammar-layout {
+            display: flex;
+            flex: 1;
+            gap: 0;
+            min-height: 0;
+            overflow: hidden;
+        }
+        .grammar-text-area {
+            flex: 1;
+            overflow-y: auto;
+            font-family: 'IBM Plex Sans', sans-serif;
+            font-size: 0.9rem;
+            line-height: 1.85;
+            color: #1a2340;
+            padding: 4px 0;
+            min-height: 0;
+        }
+        .grammar-text-area .gr-word {
+            display: inline;
+            border-bottom: 2.5px solid #e53e3e;
+            cursor: pointer;
+            border-radius: 1px;
+            transition: background 0.15s;
+            position: relative;
+        }
+        .grammar-text-area .gr-word:hover,
+        .grammar-text-area .gr-word.active {
+            background: rgba(229,62,62,0.12);
+            border-radius: 3px;
+        }
+        .grammar-text-area .gr-word.gr-style {
+            border-bottom-color: #3b82f6;
+        }
+        .grammar-text-area .gr-word.gr-style:hover,
+        .grammar-text-area .gr-word.gr-style.active {
+            background: rgba(59,130,246,0.12);
+        }
+        .grammar-sidebar {
+            width: 200px;
+            flex-shrink: 0;
+            border-left: 1px solid rgba(100,140,200,0.2);
+            overflow-y: auto;
+            padding: 4px 0 4px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+        .grammar-sidebar:empty::before {
+            content: 'Emal et düyməsinə basın';
+            font-size: 0.75rem;
+            color: #8a9bb8;
+            display: block;
+            padding: 8px 0;
+        }
+        .gr-suggestion {
+            background: #fff;
+            border: 1px solid rgba(100,140,200,0.25);
+            border-radius: 9px;
+            padding: 9px 11px;
+            cursor: pointer;
+            transition: all 0.15s;
+            border-left: 3px solid #e53e3e;
+        }
+        .gr-suggestion.gr-style-sug {
+            border-left-color: #3b82f6;
+        }
+        .gr-suggestion:hover {
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transform: translateY(-1px);
+        }
+        .gr-suggestion.highlighted {
+            background: rgba(229,62,62,0.06);
+            box-shadow: 0 2px 10px rgba(229,62,62,0.15);
+        }
+        .gr-suggestion.gr-style-sug.highlighted {
+            background: rgba(59,130,246,0.06);
+        }
+        .gr-orig {
+            font-size: 0.72rem;
+            color: #e53e3e;
+            text-decoration: line-through;
+            margin-bottom: 2px;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+        .gr-style-sug .gr-orig { color: #3b82f6; }
+        .gr-fix {
+            font-size: 0.78rem;
+            font-weight: 500;
+            color: #1a2340;
+        }
+        .gr-apply-btn {
+            display: inline-block;
+            margin-top: 5px;
+            font-size: 0.68rem;
+            background: #3b82f6;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 3px 9px;
+            cursor: pointer;
+            font-family: 'IBM Plex Sans', sans-serif;
+            transition: background 0.15s;
+        }
+        .gr-apply-btn:hover { background: #2563eb; }
+        .gr-count-badge {
+            font-size: 0.7rem;
+            background: rgba(229,62,62,0.12);
+            color: #e53e3e;
+            border-radius: 20px;
+            padding: 2px 8px;
+            font-weight: 600;
+            margin-left: 6px;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+        .gr-divider {
+            font-size: 0.65rem;
+            color: #8a9bb8;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            padding: 4px 0 2px;
+            border-top: 1px solid rgba(100,140,200,0.15);
+            margin-top: 2px;
+        }
+
         /* Limit warning */
         .limit-bar {
             display: none;
@@ -552,12 +677,16 @@
                 <span class="panel-label">Nəticə</span>
                 <button class="copy-btn" id="copy-btn" onclick="copyResult()">Kopyala</button>
             </div>
-            <div class="output-wrap">
+            <div class="output-wrap" id="output-wrap-normal">
                 <div class="output-placeholder" id="output-placeholder">
                     <div class="big-icon">✨</div>
                     <p>Nəticə burada görünəcək</p>
                 </div>
                 <div class="output-text" id="output-text"></div>
+            </div>
+            <div class="grammar-layout" id="grammar-layout" style="display:none;">
+                <div class="grammar-text-area" id="grammar-text-area"></div>
+                <div class="grammar-sidebar" id="grammar-sidebar"></div>
             </div>
           </div>
         </div>
@@ -740,14 +869,24 @@ async function processText() {
     row.querySelectorAll('select').forEach(sel => { opts[sel.id.replace('opt-','')] = sel.value; });
 
     try {
+        const payload = { text, tool: currentTool, options: opts };
+        if (currentTool === 'grammar') {
+            payload.grammarFormat = true;
+            payload.formatInstruction = 'Hər xətanı aşağıdakı formatda ver (hər biri yeni sətirdə): "SƏHV_SÖZ" -> "DÜZƏLİŞ" (xəta növü). Məsələn: "gəldi" -> "gəldi" (imla). Yalnız bu formatda cavab ver, başqa izahat vermə.';
+        }
         const res = await fetch('/api/ai/process', {
             method: 'POST',
             headers: authHeaders(),
-            body: JSON.stringify({ text, tool: currentTool, options: opts })
+            body: JSON.stringify(payload)
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Xəta baş verdi');
-        showOutput(data.result);
+        const inputText = text;
+        if (currentTool === 'grammar') {
+            showGrammarOutput(data.result, inputText);
+        } else {
+            showOutput(data.result);
+        }
         usageCount++;
         document.getElementById('usage-count').innerText = usageCount;
         if (usageCount >= 4) document.getElementById('limit-bar').classList.add('show');
@@ -771,6 +910,7 @@ function clearOutput() {
     document.getElementById('output-placeholder').style.display = 'flex';
     document.getElementById('output-text').classList.remove('visible');
     document.getElementById('copy-btn').classList.remove('visible');
+    clearGrammarOutput();
 }
 
 function updateChar() {
@@ -779,7 +919,12 @@ function updateChar() {
 }
 
 async function copyResult() {
-    const text = document.getElementById('output-text').innerText;
+    let text;
+    if (currentTool === 'grammar' && document.getElementById('grammar-layout').style.display !== 'none') {
+        text = document.getElementById('grammar-text-area').innerText;
+    } else {
+        text = document.getElementById('output-text').innerText;
+    }
     await navigator.clipboard.writeText(text);
     const btn = document.getElementById('copy-btn');
     btn.innerText = '✓ Kopyalandı';
@@ -833,6 +978,157 @@ async function submitPayment() {
 function logout() { localStorage.removeItem('setir_token'); window.location.href = '/login'; }
 
 loadUser();
+
+// ── GRAMMARLY-STYLE GRAMMAR DISPLAY ──
+function parseGrammarResult(raw) {
+    // Parse the AI result to extract corrections
+    // Format expected: lines like "WRONG -> CORRECT [type]" or numbered list
+    // We'll try multiple formats
+    const corrections = [];
+    
+    // Try to find patterns: "word" -> "correction" or similar
+    const lines = raw.split('\n').filter(l => l.trim());
+    const arrowPat = /["«"]?(.+?)["»"]?\s*(?:->|→|:)\s*["«"]?(.+?)["»"]?\s*(?:\((.+?)\))?$/;
+    
+    lines.forEach(line => {
+        const m = line.match(arrowPat);
+        if (m && m[1] && m[2] && m[1].trim() !== m[2].trim()) {
+            corrections.push({
+                wrong: m[1].trim().replace(/^["«»"]+|["«»"]+$/g, ''),
+                fix: m[2].trim().replace(/^["«»"]+|["«»"]+$/g, ''),
+                type: (m[3] || 'qrammatika').toLowerCase()
+            });
+        }
+    });
+    return corrections;
+}
+
+function showGrammarOutput(raw, inputText) {
+    const corrections = parseGrammarResult(raw);
+    
+    if (corrections.length === 0 || currentTool !== 'grammar') {
+        // Fall back to normal output
+        document.getElementById('grammar-layout').style.display = 'none';
+        document.getElementById('output-wrap-normal').style.display = 'flex';
+        showOutput(raw);
+        return;
+    }
+
+    // Switch to grammar layout
+    document.getElementById('output-wrap-normal').style.display = 'none';
+    document.getElementById('grammar-layout').style.display = 'flex';
+    document.getElementById('copy-btn').classList.add('visible');
+
+    // Build highlighted text
+    let html = inputText;
+    const applied = new Set();
+
+    // Sort by length desc to avoid partial replacements
+    const sorted = [...corrections].sort((a, b) => b.wrong.length - a.wrong.length);
+
+    sorted.forEach((c, idx) => {
+        if (applied.has(c.wrong.toLowerCase())) return;
+        applied.add(c.wrong.toLowerCase());
+        const typeClass = c.type.includes('üslub') || c.type.includes('stil') || c.type.includes('style') ? 'gr-style' : '';
+        const escaped = c.wrong.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const re = new RegExp(`(?<![\\w\\u0400-\\u04FF])(${escaped})(?![\\w\\u0400-\\u04FF])`, 'gi');
+        html = html.replace(re, (match) => {
+            return `<span class="gr-word ${typeClass}" data-wrong="${encodeURIComponent(c.wrong)}" data-fix="${encodeURIComponent(c.fix)}" data-idx="${idx}" onclick="applyFix(this)">${match}</span>`;
+        });
+    });
+
+    const textArea = document.getElementById('grammar-text-area');
+    textArea.innerHTML = html.replace(/\n/g, '<br>');
+
+    // Build sidebar suggestions
+    const sidebar = document.getElementById('grammar-sidebar');
+    sidebar.innerHTML = '';
+
+    let grammarItems = [];
+    let styleItems = [];
+
+    sorted.forEach((c, idx) => {
+        const isStyle = c.type.includes('üslub') || c.type.includes('stil') || c.type.includes('style');
+        const div = document.createElement('div');
+        div.className = 'gr-suggestion' + (isStyle ? ' gr-style-sug' : '');
+        div.setAttribute('data-idx', idx);
+        div.setAttribute('data-wrong', encodeURIComponent(c.wrong));
+        div.setAttribute('data-fix', encodeURIComponent(c.fix));
+        div.innerHTML = `
+            <div class="gr-orig">${c.wrong}</div>
+            <div class="gr-fix">${c.fix}</div>
+            <button class="gr-apply-btn" onclick="applySidebarFix(this, '${encodeURIComponent(c.wrong)}', '${encodeURIComponent(c.fix)}')">Düzəlt ✓</button>
+        `;
+        div.addEventListener('mouseenter', () => highlightWord(idx, true));
+        div.addEventListener('mouseleave', () => highlightWord(idx, false));
+        if (isStyle) styleItems.push(div);
+        else grammarItems.push(div);
+    });
+
+    if (grammarItems.length > 0) {
+        const d = document.createElement('div');
+        d.className = 'gr-divider';
+        d.innerHTML = `Qrammatika <span class="gr-count-badge">${grammarItems.length}</span>`;
+        sidebar.appendChild(d);
+        grammarItems.forEach(el => sidebar.appendChild(el));
+    }
+    if (styleItems.length > 0) {
+        const d = document.createElement('div');
+        d.className = 'gr-divider';
+        d.style.borderTopColor = 'rgba(59,130,246,0.2)';
+        d.innerHTML = `<span style="color:#3b82f6">Üslub <span class="gr-count-badge" style="background:rgba(59,130,246,0.12);color:#3b82f6">${styleItems.length}</span></span>`;
+        sidebar.appendChild(d);
+        styleItems.forEach(el => sidebar.appendChild(el));
+    }
+}
+
+function highlightWord(idx, on) {
+    document.querySelectorAll(`.gr-word[data-idx="${idx}"]`).forEach(el => {
+        if (on) el.classList.add('active'); else el.classList.remove('active');
+    });
+    const sug = document.querySelector(`.gr-suggestion[data-idx="${idx}"]`);
+    if (sug) { if (on) sug.classList.add('highlighted'); else sug.classList.remove('highlighted'); }
+}
+
+function applyFix(span) {
+    const wrong = decodeURIComponent(span.getAttribute('data-wrong'));
+    const fix = decodeURIComponent(span.getAttribute('data-fix'));
+    const idx = span.getAttribute('data-idx');
+    // Replace span with plain text fix
+    span.replaceWith(document.createTextNode(fix));
+    // Remove sidebar suggestion
+    const sug = document.querySelector(`.gr-suggestion[data-idx="${idx}"]`);
+    if (sug) sug.style.opacity = '0.35';
+    // Also update input textarea
+    const ta = document.getElementById('input-text');
+    const re = new RegExp(`(?<![\\w\\u0400-\\u04FF])(${wrong.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})(?![\\w\\u0400-\\u04FF])`, 'i');
+    ta.value = ta.value.replace(re, fix);
+}
+
+function applySidebarFix(btn, wrongEnc, fixEnc) {
+    const wrong = decodeURIComponent(wrongEnc);
+    const fix = decodeURIComponent(fixEnc);
+    const sug = btn.closest('.gr-suggestion');
+    const idx = sug.getAttribute('data-idx');
+    // Fix in text area
+    document.querySelectorAll(`.gr-word[data-idx="${idx}"]`).forEach(span => {
+        span.replaceWith(document.createTextNode(fix));
+    });
+    sug.style.opacity = '0.35';
+    sug.style.pointerEvents = 'none';
+    // Update input
+    const ta = document.getElementById('input-text');
+    const re = new RegExp(`(?<![\\w\\u0400-\\u04FF])(${wrong.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})(?![\\w\\u0400-\\u04FF])`, 'gi');
+    ta.value = ta.value.replace(re, fix);
+}
+
+function clearGrammarOutput() {
+    document.getElementById('grammar-layout').style.display = 'none';
+    document.getElementById('output-wrap-normal').style.display = 'flex';
+    document.getElementById('grammar-text-area').innerHTML = '';
+    document.getElementById('grammar-sidebar').innerHTML = '';
+}
+
 </script>
 </body>
 </html>
