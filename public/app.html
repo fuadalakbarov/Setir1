@@ -1,463 +1,971 @@
 <!DOCTYPE html>
 <html lang="az">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sətir.az</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'IBM Plex Sans',sans-serif;background:#f9fafb;height:100vh;overflow:hidden;display:flex}
-.sidebar{width:220px;background:#fff;border-right:1px solid #e5e7eb;display:flex;flex-direction:column;flex-shrink:0;height:100vh}
-.sidebar-logo{padding:20px 16px 12px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #e5e7eb}
-.logo-icon{width:32px;height:32px;background:#15803d;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px}
-.logo-text{font-size:18px;font-weight:600;color:#111827}
-.sidebar-nav{flex:1;padding:8px 0}
-.nav-item{display:flex;align-items:center;gap:10px;padding:9px 16px;cursor:pointer;color:#374151;font-size:14px;font-weight:400;border-radius:0;transition:background .15s}
-.nav-item:hover{background:#f3f4f6}
-.nav-item.active{background:#f0fdf4;color:#15803d;font-weight:500}
-.nav-item svg{width:18px;height:18px;flex-shrink:0;opacity:.7}
-.nav-item.active svg{opacity:1}
-.nav-badge{margin-left:auto;background:#3b82f6;color:#fff;border-radius:999px;font-size:11px;font-weight:600;padding:1px 7px}
-.sidebar-bottom{border-top:1px solid #e5e7eb;padding:12px 16px}
-.user-row{display:flex;align-items:center;gap:10px}
-.user-avatar{width:32px;height:32px;border-radius:50%;background:#dbeafe;color:#1d4ed8;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600}
-.user-info{flex:1;min-width:0}
-.user-name{font-size:13px;font-weight:500;color:#111827;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.user-email{font-size:11px;color:#6b7280;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.main{flex:1;overflow:hidden;display:flex;flex-direction:column;height:100vh}
-.main-header{background:#fff;border-bottom:1px solid #e5e7eb;padding:14px 24px;display:flex;align-items:center;gap:12px}
-.main-title{font-size:22px;font-weight:600;color:#111827;flex:1}
-.btn-new{display:flex;align-items:center;gap:6px;background:#15803d;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:14px;font-weight:500;cursor:pointer;transition:background .15s}
-.btn-new:hover{background:#166534}
-.btn-upload{display:flex;align-items:center;gap:6px;background:#fff;color:#374151;border:1px solid #d1d5db;border-radius:8px;padding:8px 14px;font-size:14px;cursor:pointer;transition:background .15s}
-.btn-upload:hover{background:#f9fafb}
-.search-box{display:flex;align-items:center;gap:8px;border:1px solid #d1d5db;border-radius:8px;padding:7px 12px;background:#fff;min-width:200px}
-.search-box input{border:none;outline:none;font-size:14px;color:#374151;background:transparent;width:100%}
-.search-box svg{width:16px;height:16px;color:#9ca3af;flex-shrink:0}
-.docs-area{flex:1;overflow-y:auto;padding:24px}
-.section-label{font-size:13px;color:#6b7280;font-weight:500;margin-bottom:14px;text-transform:uppercase;letter-spacing:.05em}
-.docs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-bottom:28px}
-.doc-card{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:16px;cursor:pointer;transition:box-shadow .15s,border-color .15s;position:relative}
-.doc-card:hover{box-shadow:0 2px 8px rgba(0,0,0,.08);border-color:#d1d5db}
-.doc-card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px}
-.doc-type-badge{background:#f3f4f6;color:#374151;font-size:11px;font-weight:500;border-radius:6px;padding:3px 8px}
-.doc-type-badge.score{background:#eff6ff;color:#1d4ed8}
-.doc-menu{background:none;border:none;cursor:pointer;color:#9ca3af;padding:2px;border-radius:4px;display:flex;align-items:center;justify-content:center}
-.doc-menu:hover{background:#f3f4f6;color:#374151}
-.doc-title{font-size:14px;font-weight:600;color:#111827;margin-bottom:6px;line-height:1.4}
-.doc-preview{font-size:12px;color:#6b7280;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.doc-date{font-size:11px;color:#9ca3af;margin-top:10px}
-.editor-view{display:none;flex:1;overflow:hidden}
-.editor-view.active{display:flex}
-.editor-main{flex:1;display:flex;flex-direction:column;overflow:hidden}
-.editor-toolbar{background:#fff;border-bottom:1px solid #e5e7eb;padding:8px 20px;display:flex;align-items:center;gap:4px;flex-wrap:wrap}
-.toolbar-btn{background:none;border:none;padding:5px 8px;border-radius:5px;cursor:pointer;color:#374151;font-size:13px;display:flex;align-items:center;gap:4px;transition:background .15s}
-.toolbar-btn:hover{background:#f3f4f6}
-.toolbar-sep{width:1px;background:#e5e7eb;height:20px;margin:0 6px}
-.editor-body{flex:1;overflow-y:auto;padding:40px 60px;background:#fff}
-.editor-content{max-width:680px;margin:0 auto;font-size:15px;line-height:1.8;color:#111827;outline:none;min-height:400px}
-.editor-content p{margin-bottom:12px}
-.word-count{font-size:12px;color:#9ca3af;padding:8px 60px;border-top:1px solid #e5e7eb;background:#fafafa}
-.ai-panel{width:280px;background:#fff;border-left:1px solid #e5e7eb;display:flex;flex-direction:column;height:100%;overflow:hidden}
-.ai-panel-header{padding:14px 16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between}
-.ai-panel-title{font-size:14px;font-weight:600;color:#111827;display:flex;align-items:center;gap:8px}
-.ai-dot{width:8px;height:8px;background:#15803d;border-radius:50%}
-.ai-close{background:none;border:none;cursor:pointer;color:#9ca3af;padding:4px;border-radius:4px;display:flex;align-items:center}
-.ai-close:hover{background:#f3f4f6;color:#374151}
-.ai-score-section{padding:16px;border-bottom:1px solid #e5e7eb}
-.ai-score-label{font-size:12px;color:#6b7280;margin-bottom:8px}
-.ai-score-row{display:flex;align-items:baseline;gap:4px;margin-bottom:8px}
-.ai-score-num{font-size:36px;font-weight:600;color:#111827}
-.ai-score-total{font-size:14px;color:#9ca3af}
-.score-bar{height:6px;background:#e5e7eb;border-radius:3px;overflow:hidden;margin-bottom:10px}
-.score-fill{height:100%;background:#15803d;border-radius:3px;transition:width .5s}
-.issue-row{display:flex;align-items:center;gap:8px;padding:5px 0;cursor:pointer}
-.issue-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.issue-dot.red{background:#ef4444}
-.issue-dot.blue{background:#3b82f6}
-.issue-count{background:#f3f4f6;border-radius:999px;font-size:12px;font-weight:600;padding:1px 8px;color:#374151}
-.issue-label{font-size:13px;color:#374151}
-.ai-proofreader{padding:16px;border-bottom:1px solid #e5e7eb}
-.proofreader-header{display:flex;align-items:center;justify-content:space-between;cursor:pointer;margin-bottom:8px}
-.proofreader-title{font-size:13px;font-weight:600;color:#111827;display:flex;align-items:center;gap:6px}
-.proofreader-icon{width:22px;height:22px;background:#dcfce7;border-radius:6px;display:flex;align-items:center;justify-content:center}
-.ai-suggestion-text{font-size:12px;color:#6b7280;line-height:1.5}
-.ai-chat{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px}
-.ai-message{background:#f3f4f6;border-radius:10px;padding:10px 12px;font-size:13px;color:#374151;line-height:1.5}
-.ai-message.user{background:#eff6ff;color:#1d4ed8;align-self:flex-end;max-width:90%}
-.ai-input-row{padding:12px 16px;border-top:1px solid #e5e7eb;display:flex;gap:8px;align-items:center}
-.ai-input{flex:1;border:1px solid #d1d5db;border-radius:8px;padding:8px 12px;font-size:13px;outline:none;color:#374151;font-family:inherit}
-.ai-input:focus{border-color:#15803d}
-.ai-send{background:#15803d;color:#fff;border:none;border-radius:8px;width:32px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
-.ai-send:hover{background:#166534}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sətir.az</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0d1520;
+            --surface: rgba(10, 16, 32, 0.60);
+            --surface2: rgba(230, 235, 245, 0.70);
+            --border: rgba(100, 140, 200, 0.25);
+            --accent: #3b82f6;
+            --accent2: #60a5fa;
+            --text-sidebar: #e2e8f0;
+            --text-muted: #8a9bb8;
+            --text-dim: #a0b0cc;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --sidebar-w: 260px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'IBM Plex Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text-sidebar);
+            min-height: 100vh;
+            display: flex;
+            overflow: hidden;
+            background-image:
+                radial-gradient(ellipse at 20% 50%, rgba(59,130,246,0.08) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 20%, rgba(96,165,250,0.05) 0%, transparent 50%);
+        }
+
+        /* ── SIDEBAR ── */
+        .sidebar {
+            width: var(--sidebar-w);
+            min-height: 100vh;
+            background: rgba(8, 14, 28, 0.95);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+            flex-shrink: 0;
+            backdrop-filter: blur(12px);
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 20px 18px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sidebar-logo img {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .brand {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: #e8f0ff;
+            letter-spacing: -0.02em;
+        }
+
+        .brand span { color: var(--accent2); }
+
+        .sidebar-section {
+            padding: 12px 10px 4px;
+        }
+
+        .sidebar-section-title {
+            font-size: 0.65rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            padding: 4px 8px 8px;
+        }
+
+        .tool-item {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 8px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.82rem;
+            color: var(--text-dim);
+            transition: all 0.15s ease;
+            position: relative;
+            margin-bottom: 2px;
+        }
+
+        .tool-item:hover {
+            background: rgba(59,130,246,0.1);
+            color: #c8d8f0;
+        }
+
+        .tool-item.active {
+            background: rgba(59,130,246,0.18);
+            color: #e8f2ff;
+            font-weight: 500;
+        }
+
+        .tool-item .icon { font-size: 0.9rem; }
+
+        .tool-item .locked {
+            margin-left: auto;
+            font-size: 0.58rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            background: rgba(245,158,11,0.15);
+            color: var(--warning);
+            border: 1px solid rgba(245,158,11,0.3);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding: 12px 10px;
+            border-top: 1px solid var(--border);
+        }
+
+        .user-card {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+            margin-bottom: 10px;
+        }
+
+        .user-avatar {
+            width: 34px;
+            height: 34px;
+            background: linear-gradient(135deg, var(--accent), #8b5cf6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+
+        .user-meta { min-width: 0; }
+
+        .user-name {
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text-sidebar);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .user-plan {
+            font-size: 0.68rem;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            margin-top: 2px;
+        }
+
+        .user-plan.free { color: var(--text-muted); }
+        .user-plan.ferdi { color: var(--accent2); }
+        .user-plan.biznes { color: var(--success); }
+
+        .upgrade-btn {
+            width: 100%;
+            background: linear-gradient(135deg, var(--accent), #6366f1);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 0.78rem;
+            font-weight: 600;
+            padding: 9px 12px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            font-family: inherit;
+            margin-bottom: 6px;
+        }
+
+        .upgrade-btn:hover { opacity: 0.88; }
+
+        .logout-btn {
+            width: 100%;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            padding: 7px 12px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.15s;
+        }
+
+        .logout-btn:hover {
+            border-color: rgba(100,140,200,0.5);
+            color: var(--text-dim);
+        }
+
+        /* ── MAIN ── */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow: auto;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 24px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(8,14,28,0.7);
+            backdrop-filter: blur(8px);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .topbar-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #d0ddf5;
+        }
+
+        .usage-badge {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border);
+            padding: 4px 12px;
+            border-radius: 20px;
+        }
+
+        .workspace {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 24px;
+        }
+
+        .panel {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-inner {
+            background: rgba(10,18,36,0.7);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            min-height: 480px;
+            overflow: hidden;
+            backdrop-filter: blur(6px);
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .panel-label {
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        .copy-btn {
+            font-size: 0.72rem;
+            font-weight: 500;
+            color: var(--accent2);
+            background: rgba(59,130,246,0.1);
+            border: 1px solid rgba(59,130,246,0.25);
+            padding: 4px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.15s;
+            display: none;
+        }
+
+        .copy-btn.visible { display: block; }
+        .copy-btn.copied { color: var(--success); border-color: rgba(16,185,129,0.3); background: rgba(16,185,129,0.08); }
+        .copy-btn:hover { background: rgba(59,130,246,0.2); }
+
+        .options-row {
+            padding: 10px 18px 0;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .opt-select {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            font-size: 0.75rem;
+            padding: 6px 10px;
+            border-radius: 7px;
+            font-family: inherit;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .opt-select:focus { border-color: var(--accent); }
+
+        textarea {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #c8d8f0;
+            font-size: 0.88rem;
+            line-height: 1.7;
+            padding: 16px 18px;
+            resize: none;
+            font-family: inherit;
+            outline: none;
+        }
+
+        textarea::placeholder { color: rgba(140,160,200,0.4); }
+
+        .char-count {
+            padding: 6px 18px;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-family: 'IBM Plex Mono', monospace;
+            text-align: right;
+        }
+
+        .process-btn {
+            margin: 0 18px 16px;
+            background: linear-gradient(135deg, var(--accent) 0%, #6366f1 100%);
+            border: none;
+            border-radius: 9px;
+            color: #fff;
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 11px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: opacity 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .process-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .process-btn:not(:disabled):hover { opacity: 0.88; }
+
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            display: none;
+        }
+
+        .spinner.active { display: block; }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .output-wrap {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 18px;
+            position: relative;
+        }
+
+        .output-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            gap: 10px;
+            color: rgba(140,160,200,0.3);
+        }
+
+        .big-icon { font-size: 2.5rem; }
+
+        .output-placeholder p { font-size: 0.82rem; }
+
+        .output-text {
+            font-size: 0.88rem;
+            line-height: 1.75;
+            color: #c8d8f0;
+            white-space: pre-wrap;
+            display: none;
+        }
+
+        .output-text.visible { display: block; }
+
+        /* Limit bar */
+        .limit-bar {
+            margin: 0 24px 16px;
+            background: rgba(245,158,11,0.08);
+            border: 1px solid rgba(245,158,11,0.25);
+            border-radius: 9px;
+            padding: 10px 16px;
+            font-size: 0.78rem;
+            color: var(--warning);
+            display: none;
+        }
+
+        .limit-bar.show { display: block; }
+        .limit-bar a { color: var(--accent2); text-decoration: none; }
+
+        /* ── MODALS ── */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(5,10,20,0.85);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .modal-overlay.show { display: flex; }
+
+        .modal {
+            background: #0e1828;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 28px 30px;
+            width: 100%;
+            max-width: 440px;
+            color: var(--text-sidebar);
+        }
+
+        .modal h2 {
+            font-size: 1.15rem;
+            margin-bottom: 8px;
+        }
+
+        .modal p {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+
+        .plans-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .plan-card {
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .plan-card.selected {
+            border-color: var(--accent);
+            background: rgba(59,130,246,0.08);
+        }
+
+        .plan-name { font-size: 0.78rem; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+        .plan-price { font-size: 1.4rem; font-weight: 700; color: #e8f0ff; font-family: 'IBM Plex Mono', monospace; }
+        .plan-price span { font-size: 0.72rem; color: var(--text-muted); }
+        .plan-desc { font-size: 0.72rem; color: var(--text-muted); margin-top: 6px; }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 4px;
+        }
+
+        .btn-cancel {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            padding: 9px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .btn-continue {
+            background: var(--accent);
+            border: none;
+            color: #fff;
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 9px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .btn-continue:hover { background: #2563eb; }
+
+        .pay-info {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            font-size: 0.82rem;
+            line-height: 1.8;
+            margin-bottom: 14px;
+            color: var(--text-dim);
+        }
+
+        .pay-input {
+            width: 100%;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-sidebar);
+            font-size: 0.82rem;
+            padding: 10px 14px;
+            font-family: 'IBM Plex Mono', monospace;
+            outline: none;
+            margin-bottom: 16px;
+        }
+
+        .pay-input:focus { border-color: var(--accent); }
+
+        /* ── SCROLLBAR ── */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(100,140,200,0.2); border-radius: 2px; }
+    </style>
 </head>
 <body>
 
-<div class="sidebar">
-  <div class="sidebar-logo">
-    <div class="logo-icon">S</div>
-    <span class="logo-text">Sətir.az</span>
-  </div>
-  <nav class="sidebar-nav">
-    <div class="nav-item active" onclick="showDocs()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
-      Sənədlər
+<!-- SIDEBAR -->
+<aside class="sidebar">
+    <div class="sidebar-logo">
+        <div class="brand">Sətir<span>.az</span></div>
     </div>
-    <div class="nav-item" onclick="showView('version')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>
-      Versiya tarixi
+
+    <div class="sidebar-section">
+        <div class="sidebar-section-title">Əsas Alətlər</div>
+        <div class="tool-item active" data-tool="grammar" onclick="setTool(this)">
+            <span class="icon">✍️</span> Qrammatika & İmla
+        </div>
+        <div class="tool-item" data-tool="tone" onclick="setTool(this)">
+            <span class="icon">🎭</span> Ton Dəyişdirmə
+        </div>
+        <div class="tool-item" data-tool="improve" onclick="setTool(this)">
+            <span class="icon">💡</span> Mətn Təkmilləşdirmə
+        </div>
+        <div class="tool-item" data-tool="vocab" onclick="setTool(this)">
+            <span class="icon">📚</span> Söz Ehtiyatı
+        </div>
+        <div class="tool-item" data-tool="plagiarism" onclick="setTool(this)">
+            <span class="icon">🔍</span> Plagiat Yoxlanışı
+        </div>
+        <div class="tool-item" data-tool="summary" onclick="setTool(this)">
+            <span class="icon">📋</span> Xülasə Çıxarma
+        </div>
+        <div class="tool-item" data-tool="generate" onclick="setTool(this)">
+            <span class="icon">⚡</span> AI Mətn Yaratma
+        </div>
+        <div class="tool-item" data-tool="rewrite" onclick="setTool(this)">
+            <span class="icon">🔄</span> Yenidən Yazma
+        </div>
     </div>
-    <div class="nav-item" onclick="showView('trash')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3,6 5,6 21,6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
-      Zibil
+
+    <div class="sidebar-section">
+        <div class="sidebar-section-title">İdarə Yazışmaları</div>
+        <div class="tool-item" data-tool="protokol" data-locked="true" onclick="setTool(this)">
+            <span class="icon">📄</span> Protokol
+            <span class="locked">Biznes</span>
+        </div>
+        <div class="tool-item" data-tool="emr" data-locked="true" onclick="setTool(this)">
+            <span class="icon">📜</span> Əmr
+            <span class="locked">Biznes</span>
+        </div>
+        <div class="tool-item" data-tool="qerar" data-locked="true" onclick="setTool(this)">
+            <span class="icon">⚖️</span> Qərar
+            <span class="locked">Biznes</span>
+        </div>
+        <div class="tool-item" data-tool="mektub" data-locked="true" onclick="setTool(this)">
+            <span class="icon">✉️</span> Rəsmi Məktub
+            <span class="locked">Biznes</span>
+        </div>
+        <div class="tool-item" data-tool="arayis" data-locked="true" onclick="setTool(this)">
+            <span class="icon">📑</span> Arayış
+            <span class="locked">Biznes</span>
+        </div>
+        <div class="tool-item" data-tool="xidmeti" data-locked="true" onclick="setTool(this)">
+            <span class="icon">🗒️</span> Xidməti Yazı
+            <span class="locked">Biznes</span>
+        </div>
     </div>
-    <div class="nav-item" onclick="showView('account')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-      Hesab
+
+    <div class="sidebar-footer">
+        <div class="user-card">
+            <div class="user-avatar" id="user-avatar">?</div>
+            <div class="user-meta">
+                <div class="user-name" id="user-name">Yüklənir...</div>
+                <div class="user-plan free" id="user-plan">Pulsuz Paket</div>
+            </div>
+        </div>
+        <button class="upgrade-btn" onclick="showUpgrade()">⚡ Yükselt — 4.99 AZN/ay</button>
+        <button class="logout-btn" onclick="logout()">Çıxış</button>
     </div>
-    <div class="nav-item" onclick="showView('apps')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-      Tətbiqlər
-      <span class="nav-badge">3</span>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+    <div class="topbar">
+        <span class="topbar-title" id="topbar-title">✍️ Qrammatika & İmla Yoxlanışı</span>
+        <span class="usage-badge">Bu gün: <span id="usage-count">0</span>/5 sorğu</span>
     </div>
-  </nav>
-  <div class="sidebar-bottom">
-    <div class="nav-item" style="padding:8px 0;font-size:12px;color:#9ca3af;gap:6px">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-      Dəstək
+
+    <div class="workspace">
+        <!-- Input Panel -->
+        <div class="panel">
+          <div class="panel-inner">
+            <div class="panel-header">
+                <span class="panel-label" id="input-label">Mətni daxil edin</span>
+            </div>
+            <div class="options-row" id="options-row"></div>
+            <textarea id="input-text" placeholder="Mətninizi buraya yazın..." oninput="updateChar()"></textarea>
+            <div class="char-count"><span id="char-count">0</span> simvol</div>
+            <button class="process-btn" id="process-btn" onclick="processText()">
+                <span id="btn-text">Emal Et</span>
+                <span class="spinner" id="spinner"></span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Output Panel -->
+        <div class="panel">
+          <div class="panel-inner">
+            <div class="panel-header">
+                <span class="panel-label">Nəticə</span>
+                <button class="copy-btn" id="copy-btn" onclick="copyResult()">Kopyala</button>
+            </div>
+            <div class="output-wrap">
+                <div class="output-placeholder" id="output-placeholder">
+                    <div class="big-icon">✨</div>
+                    <p>Nəticə burada görünəcək</p>
+                </div>
+                <div class="output-text" id="output-text"></div>
+            </div>
+          </div>
+        </div>
     </div>
-    <div class="nav-item" style="padding:8px 0;font-size:12px;color:#9ca3af;gap:6px" onclick="doSignOut()">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-      Çıxış
+
+    <div class="limit-bar" id="limit-bar">
+        ⚠️ Gündəlik limitiniz dolmaq üzrədir. <a href="#" onclick="showUpgrade()">Limitsiz istifadə üçün yüksəldin →</a>
     </div>
-    <div class="user-row">
-      <div class="user-avatar">FA</div>
-      <div class="user-info">
-        <div class="user-name">Fuad Alakbarov</div>
-        <div class="user-email">fuadalakbarov@gmail.com</div>
-      </div>
+</main>
+
+<!-- Upgrade Modal -->
+<div class="modal-overlay" id="upgrade-modal">
+    <div class="modal">
+        <h2>Planınızı Yüksəldin</h2>
+        <p>Limitsiz sorğu, bütün alətlər və daha çoxu üçün abunə olun.</p>
+        <div class="plans-grid">
+            <div class="plan-card selected" onclick="selectPlan(this,'ferdi')">
+                <div class="plan-name">Fərdi</div>
+                <div class="plan-price">4.99 <span>AZN/ay</span></div>
+                <div class="plan-desc">Limitsiz sorğu, bütün əsas alətlər</div>
+            </div>
+            <div class="plan-card" onclick="selectPlan(this,'biznes')">
+                <div class="plan-name">Biznes</div>
+                <div class="plan-price">19.99 <span>AZN/ay</span></div>
+                <div class="plan-desc">Hər şey + İdarə yazışmaları modulları</div>
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-cancel" onclick="closeModal('upgrade-modal')">Ləğv et</button>
+            <button class="btn-continue" onclick="showPayment()">Davam et →</button>
+        </div>
     </div>
-  </div>
 </div>
 
-<div class="main" id="mainArea">
-  <div id="docsView" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
-    <div class="main-header">
-      <span class="main-title">Sənədlər</span>
-      <div class="search-box" style="margin-right:auto;margin-left:16px">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input id="searchInput" type="text" placeholder="Sənəd axtar..." oninput="filterDocs()">
-      </div>
-      <button class="btn-upload" onclick="uploadDoc()">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16,16 12,12 8,16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0018 9h-1.26A8 8 0 103 16.3"/></svg>
-        Yüklə
-      </button>
-      <button class="btn-new" onclick="createNewDoc()">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Yeni sənəd
-      </button>
+<!-- Payment Modal -->
+<div class="modal-overlay" id="payment-modal">
+    <div class="modal">
+        <h2>Ödəniş</h2>
+        <div class="pay-info" id="pay-info">Yüklənir...</div>
+        <p style="font-size:0.8rem; color: var(--text-muted); margin-bottom: 12px;">Ödənişi etdikdən sonra əməliyyat nömrəsini daxil edin:</p>
+        <input class="pay-input" id="transaction-id" placeholder="Əməliyyat nömrəsi (məs: AZ123456)" />
+        <div class="modal-actions">
+            <button class="btn-cancel" onclick="closeModal('payment-modal')">Geri</button>
+            <button class="btn-continue" onclick="submitPayment()">Göndər</button>
+        </div>
     </div>
-    <div class="docs-area" id="docsArea">
-      <div class="section-label">Son</div>
-      <div class="docs-grid" id="docsGrid"></div>
-    </div>
-  </div>
-
-  <div class="editor-view" id="editorView">
-    <div class="editor-main">
-      <div class="main-header" style="gap:8px">
-        <button class="toolbar-btn" onclick="showDocs()" style="color:#6b7280;gap:4px;font-size:13px">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15,18 9,12 15,6"/></svg>
-          Sənədlər
-        </button>
-        <span id="editorDocTitle" contenteditable="true" style="font-size:15px;font-weight:500;color:#111827;flex:1;outline:none;border-bottom:1px solid transparent;padding:2px 4px" onfocus="this.style.borderBottomColor='#15803d'" onblur="this.style.borderBottomColor='transparent'">Başlıqsız sənəd</span>
-        <button class="btn-upload" style="font-size:13px;padding:6px 12px" onclick="shareDoc()">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-          Paylaş
-        </button>
-        <button class="btn-new" style="font-size:13px;padding:6px 14px" onclick="toggleAI()">AI Chat</button>
-      </div>
-      <div class="editor-toolbar">
-        <select id="formatSelect" style="border:1px solid #e5e7eb;border-radius:5px;padding:4px 8px;font-size:13px;color:#374151;background:#fff;cursor:pointer" onchange="applyFormat('formatBlock',this.value)">
-          <option value="p">Normal</option>
-          <option value="h1">Başlıq 1</option>
-          <option value="h2">Başlıq 2</option>
-          <option value="h3">Başlıq 3</option>
-        </select>
-        <div class="toolbar-sep"></div>
-        <button class="toolbar-btn" onclick="applyFormat('bold')" title="Qalın"><b>K</b></button>
-        <button class="toolbar-btn" onclick="applyFormat('italic')" title="Kursiv"><i>K</i></button>
-        <button class="toolbar-btn" onclick="applyFormat('underline')" title="Altı xəttli"><u>K</u></button>
-        <div class="toolbar-sep"></div>
-        <button class="toolbar-btn" onclick="applyFormat('justifyLeft')">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="17" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="17" y1="18" x2="3" y2="18"/></svg>
-        </button>
-        <button class="toolbar-btn" onclick="applyFormat('justifyCenter')">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="10" x2="6" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="18" y1="18" x2="6" y2="18"/></svg>
-        </button>
-        <button class="toolbar-btn" onclick="applyFormat('justifyRight')">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="21" y1="10" x2="7" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="21" y1="18" x2="7" y2="18"/></svg>
-        </button>
-        <div class="toolbar-sep"></div>
-        <button class="toolbar-btn" onclick="applyFormat('insertUnorderedList')">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/><line x1="4" y1="6" x2="4.01" y2="6"/><line x1="4" y1="12" x2="4.01" y2="12"/><line x1="4" y1="18" x2="4.01" y2="18"/></svg>
-        </button>
-        <button class="toolbar-btn" onclick="applyFormat('insertOrderedList')">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><path d="M4 6h1v4"/><path d="M4 10H6"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>
-        </button>
-        <button class="toolbar-btn" onclick="createLink()">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
-        </button>
-        <div class="toolbar-sep"></div>
-        <button class="toolbar-btn" onclick="document.execCommand('undo')">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 00-9-9 9 9 0 00-6 2.3L3 13"/></svg>
-        </button>
-        <button class="toolbar-btn" onclick="document.execCommand('redo')">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 019-9 9 9 0 016 2.3l3 2.7"/></svg>
-        </button>
-        <div class="toolbar-sep"></div>
-        <button class="toolbar-btn" onclick="saveDoc()" id="saveBtn" style="color:#15803d;font-size:12px;font-weight:500">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17,21 17,13 7,13 7,21"/><polyline points="7,3 7,8 15,8"/></svg>
-          Saxla
-        </button>
-        <button class="toolbar-btn" onclick="printDoc()" style="font-size:12px">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 6,2 18,2 18,9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-          Çap et
-        </button>
-      </div>
-      <div class="editor-body">
-        <div class="editor-content" id="editorContent" contenteditable="true" oninput="updateWordCount()" spellcheck="false"></div>
-      </div>
-      <div class="word-count" id="wordCountBar">0 söz</div>
-    </div>
-
-    <div class="ai-panel" id="aiPanel">
-      <div class="ai-panel-header">
-        <div class="ai-panel-title">
-          <div class="ai-dot"></div>
-          AI Chat
-        </div>
-        <button class="ai-close" onclick="toggleAI()">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
-      </div>
-      <div class="ai-score-section">
-        <div class="ai-score-label">Yazı keyfiyyəti</div>
-        <div class="ai-score-row">
-          <span class="ai-score-num" id="scoreNum">56</span>
-          <span class="ai-score-total">/ 100</span>
-        </div>
-        <div class="score-bar"><div class="score-fill" id="scoreFill" style="width:56%"></div></div>
-        <div class="issue-row">
-          <div class="issue-dot red"></div>
-          <span class="issue-count" id="correctCount">11</span>
-          <span class="issue-label">Düzgünlük</span>
-        </div>
-        <div class="issue-row">
-          <div class="issue-dot blue"></div>
-          <span class="issue-count" id="clarityCount">10</span>
-          <span class="issue-label">Aydınlıq</span>
-        </div>
-      </div>
-      <div class="ai-proofreader">
-        <div class="proofreader-header">
-          <div class="proofreader-title">
-            <div class="proofreader-icon">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-            </div>
-            Sətir Korrektor
-          </div>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2"><polyline points="9,18 15,12 9,6"/></svg>
-        </div>
-        <div class="ai-suggestion-text">Yazınızı yaxşılaşdırmaq üçün mətnə baxın. AI xətaları müəyyən edib düzəltmə təkliflər verəcək.</div>
-      </div>
-      <div class="ai-chat" id="aiChat">
-        <div class="ai-message">Salam! Mən Sətir AI-yam. Yazınızı ən yaxşı versiyaya çatdırmaqda kömək edə bilərəm. Mətnə baxmağımı istəyirsinizsə, soruşun.</div>
-      </div>
-      <div class="ai-input-row">
-        <input class="ai-input" id="aiInput" type="text" placeholder="AI-a sual soruş..." onkeydown="if(event.key==='Enter')sendAiMsg()">
-        <button class="ai-send" onclick="sendAiMsg()">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22,2 15,22 11,13 2,9"/></svg>
-        </button>
-      </div>
-    </div>
-  </div>
 </div>
 
 <script>
-const DOCS_KEY = 'setir_docs_v2';
+// ── Tool config ──
+const TOOLS = {
+    grammar:   { title: '✍️ Qrammatika & İmla Yoxlanışı', label: 'Yoxlanılacaq mətni daxil edin', options: [], placeholder: 'Mətni buraya yazın. Qrammatika, imla və durğu işarəsi xətaları düzəldiləcək...' },
+    tone:      { title: '🎭 Ton Dəyişdirmə', label: 'Mətni daxil edin', options: [{ id:'tone', label:'Ton', values: ['Rəsmi', 'Neytral', 'Mehriban', 'Peşəkar', 'Qısa və aydın'] }], placeholder: 'Tonunu dəyişmək istədiyiniz mətni yazın...' },
+    improve:   { title: '💡 Mətn Təkmilləşdirmə', label: 'Mətni daxil edin', options: [{ id:'style', label:'Üslub', values: ['Ümumi', 'Akademik', 'Biznes', 'Publisistik'] }], placeholder: 'Təkmilləşdirilməsini istədiyiniz mətni yazın...' },
+    vocab:     { title: '📚 Söz Ehtiyatı Zənginləşdirmə', label: 'Mətni daxil edin', options: [], placeholder: 'Söz ehtiyatını zənginləşdirmək istədiyiniz mətni yazın...' },
+    plagiarism:{ title: '🔍 Plagiat & Orijinallıq Yoxlanışı', label: 'Yoxlanılacaq mətni daxil edin', options: [], placeholder: 'Orijinallığını yoxlamaq istədiyiniz mətni yazın...' },
+    summary:   { title: '📋 Xülasə Çıxarma', label: 'Uzun mətni daxil edin', options: [{ id:'length', label:'Uzunluq', values: ['Qısa (2-3 cümlə)', 'Orta (1 paraqraf)', 'Ətraflı (3-5 paraqraf)'] }], placeholder: 'Xülasəsini çıxarmaq istədiyiniz mətni yazın...' },
+    generate:  { title: '⚡ AI Mətn Yaratma', label: 'Mövzu və ya təlimat yazın', options: [{ id:'type', label:'Mətn növü', values: ['Email / Məktub', 'Esse / Məqalə', 'CV / Müraciət', 'Sosial media postu', 'Prezentasiya mətni', 'Breynstörm'] }], placeholder: 'Nə yazmaq istədiyinizi qısaca izah edin...' },
+    rewrite:   { title: '🔄 Yenidən Yazma', label: 'Mətni daxil edin', options: [{ id:'mode', label:'Rejim', values: ['Sadələşdir', 'Genişləndir', 'Rəsmiləşdir', 'Qısalt', 'Fərqli üslubda yaz'] }], placeholder: 'Yenidən yazılmasını istədiyiniz mətni daxil edin...' },
+    protokol:  { title: '📄 Protokol Generasiyası', label: 'İclasın gedişatını yazın', options: [], placeholder: 'İclasın qısa gedişatını, iştirakçıları və qərarları yazın...' },
+    emr:       { title: '📜 Əmr Yazma', label: 'Əmrin mövzusunu yazın', options: [], placeholder: 'Əmrin mövzusunu və əsas məzmununu qısaca izah edin...' },
+    qerar:     { title: '⚖️ Qərar Hazırlama', label: 'Qərarın mövzusunu yazın', options: [], placeholder: 'Qərarın mövzusunu və əsas müddəalarını izah edin...' },
+    mektub:    { title: '✉️ Rəsmi Məktub', label: 'Məktubun məzmununu yazın', options: [], placeholder: 'Məktubun mövzusunu, göndərəni, alanı və əsas məzmunu izah edin...' },
+    arayis:    { title: '📑 Arayış Hazırlama', label: 'Arayışın mövzusunu yazın', options: [], placeholder: 'Arayışın mövzusunu və lazımi məlumatları yazın...' },
+    xidmeti:   { title: '🗒️ Xidməti Yazı / İzahat', label: 'Mövzunu yazın', options: [], placeholder: 'Xidməti yazının mövzusunu və əsas məzmununu izah edin...' },
+};
 
-function getDocs(){
-  try{const d=localStorage.getItem(DOCS_KEY);return d?JSON.parse(d):getDefaultDocs();}
-  catch(e){return getDefaultDocs();}
-}
-function saveDocs(docs){try{localStorage.setItem(DOCS_KEY,JSON.stringify(docs));}catch(e){}}
-function getDefaultDocs(){
-  return [
-    {id:1,title:'Yerli İdman Maliyyəsi',content:'Hörmətli Xanım/Cənab,\n\nUmid edirəm bu məktub sizi yaxşı halda tapır. İctimai xəbərlərdən öyrəndim ki, şirkətiniz ya yerli uşaqların idman komandasını maliyyələşdirəcək, ya da iki konsert üçün ödəniş edəcəksiniz.\n\nBu iki tədbirə maliyyə dəstəyi verməyin üstünlüklərini diqqətinizə çatdırmaq istəyirəm.',date:'1 həftə əvvəl',type:'S',score:56},
-    {id:2,title:'Biz əməkdaşlıq edirik...',content:'Biz onlarla bir çox sahədə əməkdaşlıq edirik.',date:'1 il əvvəl',type:'Classic',score:72},
-    {id:3,title:'Siz nə edəcəksiniz',content:'Gələn şənbə bu vaxt nə edəcəksiniz?',date:'1 il əvvəl',type:'Classic',score:68},
-    {id:4,title:'Qeydlər - Fuad',content:'FUAD ALAKBAROV\nSAHƏ QEYDLƏRİ #2\nBaşlıq: FUAD...',date:'4 il əvvəl',type:'Classic',score:80},
-    {id:5,title:'Memo #1',content:'Fuad Alakbarov\nTƏHSİL 405\nMemo #1...',date:'4 il əvvəl',type:'Classic',score:75},
-    {id:6,title:'Ədəbiyyat icmalı...',content:'ERKƏN BAŞLANĞIC DENVER MODELİ...',date:'4 il əvvəl',type:'Classic',score:65},
-    {id:7,title:'Öz-özünü qiymətləndirmə',content:'Öz-özünü qiymətləndirmə – TƏHSİL 490\nTələbələr növ xüsusiyyətlərini müəyyən edəcəklər...',date:'4 il əvvəl',type:'Classic',score:70},
-    {id:8,title:'Fəsil 9 Xülasəsi',content:'Fəsil 9 Xülasəsi - Ədəbiyyatın Sintezi və Şərhi...',date:'4 il əvvəl',type:'Classic',score:82},
-  ];
-}
+let currentTool = 'grammar';
+let selectedPlan = 'ferdi';
+let usageCount = 0;
+const DAILY_LIMIT = 5;
 
-let docs = getDocs();
-let currentDocId = null;
+// ── Token idarəsi ──
+(function() {
+    const params = new URLSearchParams(window.location.search);
+    const urlToken = params.get('token');
+    if (urlToken) {
+        localStorage.setItem('setir_token', urlToken);
+        const url = new URL(window.location);
+        url.searchParams.delete('token');
+        window.history.replaceState({}, document.title, url.pathname);
+    }
+})();
 
-function renderDocs(list){
-  const grid = document.getElementById('docsGrid');
-  if(!list.length){grid.innerHTML='<p style="color:#9ca3af;font-size:14px;grid-column:1/-1">Sənəd tapılmadı.</p>';return;}
-  grid.innerHTML = list.map(d=>`
-    <div class="doc-card" onclick="openDoc(${d.id})">
-      <div class="doc-card-top">
-        <span class="doc-type-badge ${d.id===1?'score':''}">${d.id===1?'S':d.type||'Classic'}</span>
-        <button class="doc-menu" onclick="event.stopPropagation();docMenu(${d.id})">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
-        </button>
-      </div>
-      <div class="doc-title">${d.title}</div>
-      <div class="doc-preview">${d.content}</div>
-      <div class="doc-date">Redaktə edildi: ${d.date}</div>
-    </div>
-  `).join('');
+function getToken() {
+    return localStorage.getItem('setir_token');
 }
 
-function filterDocs(){
-  const q=document.getElementById('searchInput').value.toLowerCase();
-  renderDocs(docs.filter(d=>d.title.toLowerCase().includes(q)||d.content.toLowerCase().includes(q)));
-}
-
-function showDocs(){
-  document.getElementById('docsView').style.display='flex';
-  document.getElementById('editorView').classList.remove('active');
-  setNavActive(0);
-  renderDocs(docs);
-}
-
-function showView(v){setNavActive(['docs','version','trash','account','apps'].indexOf(v)+1||0);}
-function setNavActive(idx){document.querySelectorAll('.nav-item').forEach((el,i)=>el.classList.toggle('active',i===idx));}
-
-function openDoc(id){
-  const doc=docs.find(d=>d.id===id);if(!doc)return;
-  currentDocId=id;
-  document.getElementById('editorDocTitle').textContent=doc.title;
-  document.getElementById('editorContent').innerHTML=doc.content.replace(/\n/g,'<br>');
-  document.getElementById('scoreNum').textContent=doc.score||56;
-  document.getElementById('scoreFill').style.width=(doc.score||56)+'%';
-  document.getElementById('docsView').style.display='none';
-  document.getElementById('editorView').classList.add('active');
-  updateWordCount();
-  setNavActive(-1);
-}
-
-function createNewDoc(){
-  const id=Date.now();
-  const doc={id,title:'Yeni sənəd',content:'',date:'İndi',type:'Classic',score:0};
-  docs.unshift(doc);saveDocs(docs);openDoc(id);
-}
-
-function saveDoc(){
-  if(!currentDocId)return;
-  const idx=docs.findIndex(d=>d.id===currentDocId);if(idx<0)return;
-  const content=document.getElementById('editorContent').innerText;
-  const title=document.getElementById('editorDocTitle').textContent.trim()||'Başlıqsız sənəd';
-  docs[idx].content=content;docs[idx].title=title;docs[idx].date='İndi';
-  saveDocs(docs);
-  const btn=document.getElementById('saveBtn');
-  if(btn){
-    const orig=btn.innerHTML;
-    btn.innerHTML=btn.innerHTML.replace('Saxla','Saxlandı ✓');
-    btn.style.color='#15803d';
-    setTimeout(()=>{btn.innerHTML=orig;},1500);
-  }
-}
-
-function shareDoc(){
-  const title=document.getElementById('editorDocTitle').textContent;
-  navigator.clipboard&&navigator.clipboard.writeText(window.location.href).then(()=>alert('"'+title+'" — link kopyalandı!')).catch(()=>alert('Link kopyalana bilmədi.'));
-}
-
-function printDoc(){window.print();}
-
-function uploadDoc(){
-  const input=document.createElement('input');input.type='file';input.accept='.txt,.md,.html';
-  input.onchange=e=>{
-    const file=e.target.files[0];if(!file)return;
-    const reader=new FileReader();
-    reader.onload=ev=>{
-      const id=Date.now();
-      docs.unshift({id,title:file.name.replace(/\.[^.]+$/,''),content:ev.target.result.substring(0,2000),date:'İndi',type:'Classic',score:60});
-      saveDocs(docs);renderDocs(docs);
+function authHeaders() {
+    const token = getToken();
+    return {
+        'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
     };
-    reader.readAsText(file);
-  };
-  input.click();
 }
 
-function docMenu(id){
-  const doc=docs.find(d=>d.id===id);if(!doc)return;
-  const action=prompt('"'+doc.title+'" üçün əməliyyat seçin:\n1. Adını dəyişdir\n2. Sil\n\nNömrə daxil edin:');
-  if(action==='1'){
-    const t=prompt('Yeni başlıq:',doc.title);
-    if(t){doc.title=t;saveDocs(docs);renderDocs(docs);}
-  }else if(action==='2'){
-    if(confirm('"'+doc.title+'" silinsin?')){docs=docs.filter(d=>d.id!==id);saveDocs(docs);renderDocs(docs);}
-  }
+// ── User yüklənməsi ──
+async function loadUser() {
+    try {
+        const token = getToken();
+        if (!token) { window.location.href = '/login'; return; }
+        const res = await fetch('/api/auth/me', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!res.ok) { window.location.href = '/login'; return; }
+        const user = await res.json();
+        const name = user.displayName || user.name || 'İstifadəçi';
+        document.getElementById('user-name').innerText = name;
+        document.getElementById('user-avatar').innerText = name.charAt(0).toUpperCase();
+        const plan = user.plan || 'pulsuz';
+        const planEl = document.getElementById('user-plan');
+        if (plan === 'ferdi') {
+            planEl.innerText = 'Fərdi Paket';
+            planEl.className = 'user-plan ferdi';
+        } else if (plan === 'biznes') {
+            planEl.innerText = 'Biznes Paketi';
+            planEl.className = 'user-plan biznes';
+            unlockBiznes();
+        } else {
+            planEl.innerText = 'Pulsuz Paket';
+            planEl.className = 'user-plan free';
+        }
+        if (plan !== 'pulsuz' && plan !== 'free') {
+            document.querySelector('.upgrade-btn').style.display = 'none';
+        }
+    } catch (e) {
+        window.location.href = '/login';
+    }
 }
 
-function doSignOut(){if(confirm('Çıxış etmək istəyirsiniz?'))alert('Çıxış edildi.');}
-
-function applyFormat(cmd,val){document.execCommand(cmd,false,val||null);document.getElementById('editorContent').focus();}
-function createLink(){const url=prompt('Link ünvanı:','https://');if(url)document.execCommand('createLink',false,url);}
-
-function updateWordCount(){
-  const text=document.getElementById('editorContent').innerText.trim();
-  const count=text?text.split(/\s+/).length:0;
-  document.getElementById('wordCountBar').textContent=count+' söz';
-  const score=Math.min(100,Math.max(0,count>0?Math.min(100,40+Math.round(count/5)):0));
-  document.getElementById('scoreNum').textContent=score;
-  document.getElementById('scoreFill').style.width=score+'%';
-  document.getElementById('correctCount').textContent=Math.max(0,Math.round((100-score)/9));
-  document.getElementById('clarityCount').textContent=Math.max(0,Math.round((100-score)/10));
+function unlockBiznes() {
+    document.querySelectorAll('[data-locked]').forEach(el => {
+        el.removeAttribute('data-locked');
+        const lock = el.querySelector('.locked');
+        if (lock) lock.remove();
+    });
 }
 
-let aiVisible=true;
-function toggleAI(){
-  aiVisible=!aiVisible;
-  document.getElementById('aiPanel').style.display=aiVisible?'flex':'none';
+// ── Alət dəyişdirmə ──
+function setTool(el) {
+    const tool = el.getAttribute('data-tool');
+    const locked = el.getAttribute('data-locked');
+    if (locked) { showUpgrade(); return; }
+    document.querySelectorAll('.tool-item').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    currentTool = tool;
+    const cfg = TOOLS[tool];
+    document.getElementById('topbar-title').innerText = cfg.title;
+    document.getElementById('input-label').innerText = cfg.label;
+    document.getElementById('input-text').placeholder = cfg.placeholder;
+    // options render
+    const row = document.getElementById('options-row');
+    row.innerHTML = '';
+    cfg.options.forEach(opt => {
+        const sel = document.createElement('select');
+        sel.className = 'opt-select';
+        sel.id = 'opt-' + opt.id;
+        opt.values.forEach(v => {
+            const o = document.createElement('option');
+            o.value = v; o.text = v;
+            sel.appendChild(o);
+        });
+        row.appendChild(sel);
+    });
+    clearOutput();
 }
 
-const aiReplies=[
-  'Mətninizdə bəzi qrammatik xətalar var. Cümlə quruluşlarını yoxlayın.',
-  'Yazınız yaxşı strukturlaşdırılıb. Əlaqədar ifadələri daha aydın edə bilərsiniz.',
-  'Bu cümləni daha qısa etmək oxunaqlılığı artırar.',
-  'Mətndə təkrarlanan sözlər var. Sinonimlərdən istifadə edin.',
-  'Keçid sözlərindən daha çox istifadə etmək yazınızın axıcılığını artırar.',
-  'Aktiv cümlə quruluşu passivdən daha güclü təsir bağışlayır.',
-  'Başlıq daha cəlbedici ola bilər — oxucunun diqqətini çəkən bir sual və ya ifadə seçin.',
-];
+// ── Mətn emalı ──
+async function processText() {
+    const text = document.getElementById('input-text').value.trim();
+    if (!text) { alert('Zəhmət olmasa mətn daxil edin.'); return; }
+    if (usageCount >= DAILY_LIMIT) { showUpgrade(); return; }
 
-function sendAiMsg(){
-  const input=document.getElementById('aiInput');
-  const msg=input.value.trim();if(!msg)return;
-  const chat=document.getElementById('aiChat');
-  chat.innerHTML+=`<div class="ai-message user">${escHtml(msg)}</div>`;
-  input.value='';chat.scrollTop=chat.scrollHeight;
-  setTimeout(()=>{
-    chat.innerHTML+=`<div class="ai-message">${aiReplies[Math.floor(Math.random()*aiReplies.length)]}</div>`;
-    chat.scrollTop=chat.scrollHeight;
-  },600);
+    const btn = document.getElementById('process-btn');
+    const spinner = document.getElementById('spinner');
+    const btnText = document.getElementById('btn-text');
+    btn.disabled = true;
+    spinner.classList.add('active');
+    btnText.style.display = 'none';
+    document.getElementById('output-placeholder').style.display = 'flex';
+    document.getElementById('output-text').classList.remove('visible');
+    document.getElementById('copy-btn').classList.remove('visible');
+
+    // seçilmiş options topla
+    const opts = {};
+    const row = document.getElementById('options-row');
+    row.querySelectorAll('select').forEach(sel => {
+        opts[sel.id.replace('opt-', '')] = sel.value;
+    });
+
+    try {
+        const res = await fetch('/api/ai/process', {
+            method: 'POST',
+            headers: authHeaders(),
+            body: JSON.stringify({ text, tool: currentTool, options: opts })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Xəta baş verdi');
+        showOutput(data.result);
+        usageCount++;
+        document.getElementById('usage-count').innerText = usageCount;
+        if (usageCount >= 4) document.getElementById('limit-bar').classList.add('show');
+    } catch (err) {
+        showOutput('❌ Xəta: ' + err.message);
+    } finally {
+        btn.disabled = false;
+        spinner.classList.remove('active');
+        btnText.style.display = 'inline';
+    }
 }
 
-function escHtml(t){return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function showOutput(text) {
+    document.getElementById('output-placeholder').style.display = 'none';
+    const out = document.getElementById('output-text');
+    out.innerText = text;
+    out.classList.add('visible');
+    document.getElementById('copy-btn').classList.add('visible');
+}
 
-renderDocs(docs);
+function clearOutput() {
+    document.getElementById('output-placeholder').style.display = 'flex';
+    document.getElementById('output-text').classList.remove('visible');
+    document.getElementById('copy-btn').classList.remove('visible');
+}
+
+function updateChar() {
+    const len = document.getElementById('input-text').value.length;
+    document.getElementById('char-count').innerText = len;
+}
+
+async function copyResult() {
+    const text = document.getElementById('output-text').innerText;
+    await navigator.clipboard.writeText(text);
+    const btn = document.getElementById('copy-btn');
+    btn.innerText = '✓ Kopyalandı';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.innerText = 'Kopyala'; btn.classList.remove('copied'); }, 2000);
+}
+
+// ── Upgrade & Ödəniş ──
+function showUpgrade() {
+    document.getElementById('upgrade-modal').classList.add('show');
+}
+
+function closeModal(id) {
+    document.getElementById(id).classList.remove('show');
+}
+
+function selectPlan(el, plan) {
+    document.querySelectorAll('.plan-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedPlan = plan;
+}
+
+const CARD_NUMBER = 'XXXX XXXX XXXX XXXX'; // Öz kart nömrəni bura yaz
+
+function showPayment() {
+    closeModal('upgrade-modal');
+    const price = selectedPlan === 'ferdi' ? '4.99' : '19.99';
+    const name  = selectedPlan === 'ferdi' ? 'Fərdi Paket' : 'Biznes Paketi';
+    document.getElementById('pay-info').innerHTML = `
+        <strong>Plan:</strong> ${name}<br>
+        <strong>Məbləğ:</strong> ${price} AZN/ay<br><br>
+        Aşağıdakı kart nömrəsinə köçürün:<br>
+        <strong style="font-family:'IBM Plex Mono';font-size:1rem;letter-spacing:0.05em;">${CARD_NUMBER}</strong><br><br>
+        <span style="font-size:0.8rem;color:var(--text-muted);">Kapital Bank / M10 / ABB ilə köçürə bilərsiniz</span>
+    `;
+    document.getElementById('payment-modal').classList.add('show');
+}
+
+async function submitPayment() {
+    const txId = document.getElementById('transaction-id').value.trim();
+    if (!txId) { alert('Əməliyyat nömrəsini daxil edin.'); return; }
+    try {
+        const res = await fetch('/api/subscription/request', {
+            method: 'POST',
+            headers: authHeaders(),
+            body: JSON.stringify({ plan: selectedPlan, transaction_id: txId })
+        });
+        if (res.ok) {
+            closeModal('payment-modal');
+            alert('✅ Sorğunuz qəbul edildi! Admin təsdiqindən sonra planınız aktivləşəcək (adətən 1-2 saat ərzində).');
+        } else {
+            alert('Xəta baş verdi. Yenidən cəhd edin.');
+        }
+    } catch (e) {
+        alert('Server ilə əlaqə xətası.');
+    }
+}
+
+function logout() {
+    localStorage.removeItem('setir_token');
+    window.location.href = '/login';
+}
+
+// İlk yüklənmə
+loadUser();
 </script>
 </body>
 </html>
