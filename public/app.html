@@ -363,123 +363,277 @@
             gap: 0;
             min-height: 0;
             overflow: hidden;
+            position: relative;
         }
         .grammar-text-area {
             flex: 1;
             overflow-y: auto;
             font-family: 'IBM Plex Sans', sans-serif;
             font-size: 0.9rem;
-            line-height: 1.85;
+            line-height: 2;
             color: #1a2340;
-            padding: 4px 0;
+            padding: 4px 10px 4px 2px;
             min-height: 0;
-        }
-        .grammar-text-area .gr-word {
-            display: inline;
-            border-bottom: 2.5px solid #e53e3e;
-            cursor: pointer;
-            border-radius: 1px;
-            transition: background 0.15s;
             position: relative;
         }
-        .grammar-text-area .gr-word:hover,
-        .grammar-text-area .gr-word.active {
-            background: rgba(229,62,62,0.12);
-            border-radius: 3px;
+        /* Grammarly-style underlines */
+        .gr-word {
+            display: inline;
+            cursor: pointer;
+            position: relative;
+            border-radius: 2px;
+            transition: background 0.12s;
+            /* wavy red underline via background-image */
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='3'%3E%3Cpath d='M0 2.5 Q1.5 0 3 2.5 Q4.5 5 6 2.5' stroke='%23e53e3e' stroke-width='1.2' fill='none'/%3E%3C/svg%3E");
+            background-repeat: repeat-x;
+            background-position: 0 100%;
+            background-size: 6px 3px;
+            padding-bottom: 3px;
         }
-        .grammar-text-area .gr-word.gr-style {
-            border-bottom-color: #3b82f6;
+        .gr-word.gr-clarity {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='3'%3E%3Cpath d='M0 2.5 Q1.5 0 3 2.5 Q4.5 5 6 2.5' stroke='%23f59e0b' stroke-width='1.2' fill='none'/%3E%3C/svg%3E");
         }
-        .grammar-text-area .gr-word.gr-style:hover,
-        .grammar-text-area .gr-word.gr-style.active {
-            background: rgba(59,130,246,0.12);
+        .gr-word.gr-style {
+            background-image: none;
+            border-bottom: 1.5px solid #94a3b8;
+            text-decoration-style: dotted;
         }
+        .gr-word:hover, .gr-word.active {
+            background-color: rgba(229,62,62,0.1);
+        }
+        .gr-word.gr-clarity:hover, .gr-word.gr-clarity.active {
+            background-color: rgba(245,158,11,0.1);
+        }
+        .gr-word.gr-style:hover, .gr-word.gr-style.active {
+            background-color: rgba(148,163,184,0.15);
+        }
+        /* Tooltip popup on hover */
+        .gr-word .gr-tooltip {
+            display: none;
+            position: absolute;
+            bottom: calc(100% + 6px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e2a45;
+            color: #fff;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 0.75rem;
+            white-space: nowrap;
+            z-index: 999;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+            pointer-events: none;
+            min-width: 120px;
+            text-align: left;
+        }
+        .gr-word .gr-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 5px solid transparent;
+            border-top-color: #1e2a45;
+        }
+        .gr-word .gr-tooltip .tt-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #94a3b8;
+            margin-bottom: 3px;
+        }
+        .gr-word .gr-tooltip .tt-fix {
+            font-weight: 600;
+            font-size: 0.82rem;
+            color: #60a5fa;
+        }
+        .gr-word .gr-tooltip .tt-hint {
+            font-size: 0.7rem;
+            color: #94a3b8;
+            margin-top: 2px;
+        }
+        .gr-word:hover .gr-tooltip { display: block; }
+
+        /* Sidebar */
         .grammar-sidebar {
-            width: 200px;
+            width: 210px;
             flex-shrink: 0;
-            border-left: 1px solid rgba(100,140,200,0.2);
+            border-left: 1px solid rgba(100,140,200,0.18);
             overflow-y: auto;
-            padding: 4px 0 4px 12px;
+            padding: 0 0 8px 0;
             display: flex;
             flex-direction: column;
-            gap: 7px;
+            background: rgba(248,250,255,0.6);
         }
-        .grammar-sidebar:empty::before {
-            content: 'Emal et düyməsinə basın';
-            font-size: 0.75rem;
-            color: #8a9bb8;
-            display: block;
-            padding: 8px 0;
+        /* Score header */
+        .gr-score-header {
+            padding: 12px 14px 10px;
+            border-bottom: 1px solid rgba(100,140,200,0.15);
         }
-        .gr-suggestion {
-            background: #fff;
-            border: 1px solid rgba(100,140,200,0.25);
-            border-radius: 9px;
-            padding: 9px 11px;
-            cursor: pointer;
-            transition: all 0.15s;
-            border-left: 3px solid #e53e3e;
+        .gr-score-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #6a80a0;
+            margin-bottom: 6px;
         }
-        .gr-suggestion.gr-style-sug {
-            border-left-color: #3b82f6;
+        .gr-score-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-        .gr-suggestion:hover {
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            transform: translateY(-1px);
-        }
-        .gr-suggestion.highlighted {
-            background: rgba(229,62,62,0.06);
-            box-shadow: 0 2px 10px rgba(229,62,62,0.15);
-        }
-        .gr-suggestion.gr-style-sug.highlighted {
-            background: rgba(59,130,246,0.06);
-        }
-        .gr-orig {
-            font-size: 0.72rem;
-            color: #e53e3e;
-            text-decoration: line-through;
-            margin-bottom: 2px;
+        .gr-score-num {
+            font-size: 1.5rem;
+            font-weight: 700;
+            line-height: 1;
+            color: #1a2340;
             font-family: 'IBM Plex Mono', monospace;
         }
-        .gr-style-sug .gr-orig { color: #3b82f6; }
+        .gr-score-num span {
+            font-size: 0.75rem;
+            font-weight: 400;
+            color: #6a80a0;
+        }
+        .gr-score-bar-wrap {
+            flex: 1;
+            height: 5px;
+            background: rgba(100,140,200,0.15);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .gr-score-bar {
+            height: 100%;
+            border-radius: 3px;
+            background: linear-gradient(90deg, #f59e0b, #10b981);
+            transition: width 0.7s ease;
+        }
+        /* Category rows */
+        .gr-cat-row {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 5px 14px 0;
+        }
+        .gr-cat-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .gr-cat-name {
+            font-size: 0.72rem;
+            color: #4a5568;
+            flex: 1;
+        }
+        .gr-cat-count {
+            font-size: 0.7rem;
+            font-weight: 600;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+        /* Section title */
+        .gr-section-title {
+            font-size: 0.62rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #6a80a0;
+            padding: 10px 14px 5px;
+        }
+        /* Suggestion cards */
+        .gr-suggestion {
+            margin: 0 8px 6px;
+            background: #fff;
+            border: 1px solid rgba(100,140,200,0.2);
+            border-radius: 10px;
+            padding: 10px 12px;
+            cursor: pointer;
+            transition: all 0.15s;
+            position: relative;
+            overflow: hidden;
+        }
+        .gr-suggestion::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 3px;
+            background: #e53e3e;
+            border-radius: 3px 0 0 3px;
+        }
+        .gr-suggestion.gr-clarity-sug::before { background: #f59e0b; }
+        .gr-suggestion.gr-style-sug::before { background: #94a3b8; }
+        .gr-suggestion:hover {
+            border-color: rgba(100,140,200,0.4);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .gr-suggestion.highlighted {
+            border-color: rgba(229,62,62,0.3);
+            background: rgba(229,62,62,0.04);
+        }
+        .gr-suggestion.gr-clarity-sug.highlighted {
+            border-color: rgba(245,158,11,0.3);
+            background: rgba(245,158,11,0.04);
+        }
+        .gr-suggestion.done {
+            opacity: 0.38;
+            pointer-events: none;
+        }
+        .gr-type-tag {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: #e53e3e;
+            margin-bottom: 3px;
+            font-weight: 600;
+        }
+        .gr-clarity-sug .gr-type-tag { color: #f59e0b; }
+        .gr-style-sug .gr-type-tag { color: #94a3b8; }
+        .gr-orig {
+            font-size: 0.75rem;
+            color: #8a9bb8;
+            text-decoration: line-through;
+            margin-bottom: 1px;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+        .gr-arrow {
+            font-size: 0.7rem;
+            color: #cbd5e1;
+            margin: 1px 0;
+        }
         .gr-fix {
-            font-size: 0.78rem;
-            font-weight: 500;
+            font-size: 0.8rem;
+            font-weight: 600;
             color: #1a2340;
         }
         .gr-apply-btn {
-            display: inline-block;
-            margin-top: 5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 7px;
             font-size: 0.68rem;
             background: #3b82f6;
             color: #fff;
             border: none;
-            border-radius: 5px;
-            padding: 3px 9px;
+            border-radius: 6px;
+            padding: 4px 10px;
             cursor: pointer;
             font-family: 'IBM Plex Sans', sans-serif;
             transition: background 0.15s;
+            font-weight: 500;
         }
         .gr-apply-btn:hover { background: #2563eb; }
-        .gr-count-badge {
-            font-size: 0.7rem;
-            background: rgba(229,62,62,0.12);
-            color: #e53e3e;
-            border-radius: 20px;
-            padding: 2px 8px;
-            font-weight: 600;
-            margin-left: 6px;
-            font-family: 'IBM Plex Mono', monospace;
+        .gr-dismiss-btn {
+            position: absolute;
+            top: 8px; right: 8px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #cbd5e1;
+            font-size: 0.8rem;
+            line-height: 1;
+            padding: 2px;
+            border-radius: 4px;
+            transition: color 0.1s;
         }
-        .gr-divider {
-            font-size: 0.65rem;
-            color: #8a9bb8;
-            text-transform: uppercase;
-            letter-spacing: 0.07em;
-            padding: 4px 0 2px;
-            border-top: 1px solid rgba(100,140,200,0.15);
-            margin-top: 2px;
-        }
+        .gr-dismiss-btn:hover { color: #64748b; }
 
         /* Limit warning */
         .limit-bar {
@@ -686,7 +840,31 @@
             </div>
             <div class="grammar-layout" id="grammar-layout" style="display:none;">
                 <div class="grammar-text-area" id="grammar-text-area"></div>
-                <div class="grammar-sidebar" id="grammar-sidebar"></div>
+                <div class="grammar-sidebar" id="grammar-sidebar">
+                    <div class="gr-score-header">
+                        <div class="gr-score-label">Yazı keyfiyyəti</div>
+                        <div class="gr-score-row">
+                            <div class="gr-score-num" id="gr-score-num">—<span>/100</span></div>
+                            <div class="gr-score-bar-wrap"><div class="gr-score-bar" id="gr-score-bar" style="width:0%"></div></div>
+                        </div>
+                        <div class="gr-cat-row" style="margin-top:8px">
+                            <div class="gr-cat-dot" style="background:#e53e3e"></div>
+                            <div class="gr-cat-name">Düzgünlük</div>
+                            <div class="gr-cat-count" id="gr-cat-correctness" style="color:#e53e3e">—</div>
+                        </div>
+                        <div class="gr-cat-row">
+                            <div class="gr-cat-dot" style="background:#f59e0b"></div>
+                            <div class="gr-cat-name">Aydınlıq</div>
+                            <div class="gr-cat-count" id="gr-cat-clarity" style="color:#f59e0b">—</div>
+                        </div>
+                        <div class="gr-cat-row">
+                            <div class="gr-cat-dot" style="background:#94a3b8"></div>
+                            <div class="gr-cat-name">Üslub</div>
+                            <div class="gr-cat-count" id="gr-cat-style" style="color:#94a3b8">—</div>
+                        </div>
+                    </div>
+                    <div id="gr-suggestions-body"></div>
+                </div>
             </div>
           </div>
         </div>
@@ -981,112 +1159,148 @@ loadUser();
 
 // ── GRAMMARLY-STYLE GRAMMAR DISPLAY ──
 function parseGrammarResult(raw) {
-    // Parse the AI result to extract corrections
-    // Format expected: lines like "WRONG -> CORRECT [type]" or numbered list
-    // We'll try multiple formats
     const corrections = [];
-    
-    // Try to find patterns: "word" -> "correction" or similar
     const lines = raw.split('\n').filter(l => l.trim());
     const arrowPat = /["«"]?(.+?)["»"]?\s*(?:->|→|:)\s*["«"]?(.+?)["»"]?\s*(?:\((.+?)\))?$/;
-    
     lines.forEach(line => {
         const m = line.match(arrowPat);
         if (m && m[1] && m[2] && m[1].trim() !== m[2].trim()) {
             corrections.push({
                 wrong: m[1].trim().replace(/^["«»"]+|["«»"]+$/g, ''),
                 fix: m[2].trim().replace(/^["«»"]+|["«»"]+$/g, ''),
-                type: (m[3] || 'qrammatika').toLowerCase()
+                type: (m[3] || 'düzgünlük').toLowerCase()
             });
         }
     });
     return corrections;
 }
 
+function getWordType(type) {
+    if (type.includes('üslub') || type.includes('stil') || type.includes('style')) return 'style';
+    if (type.includes('aydın') || type.includes('clarity') || type.includes('ifadə')) return 'clarity';
+    return 'correctness';
+}
+
+function animateScore(target) {
+    const numEl = document.getElementById('gr-score-num');
+    const barEl = document.getElementById('gr-score-bar');
+    let cur = 0;
+    const step = Math.ceil(target / 30);
+    const iv = setInterval(() => {
+        cur = Math.min(cur + step, target);
+        numEl.innerHTML = cur + '<span>/100</span>';
+        barEl.style.width = cur + '%';
+        if (cur >= target) clearInterval(iv);
+    }, 18);
+}
+
 function showGrammarOutput(raw, inputText) {
     const corrections = parseGrammarResult(raw);
-    
+
     if (corrections.length === 0 || currentTool !== 'grammar') {
-        // Fall back to normal output
         document.getElementById('grammar-layout').style.display = 'none';
         document.getElementById('output-wrap-normal').style.display = 'flex';
         showOutput(raw);
         return;
     }
 
-    // Switch to grammar layout
     document.getElementById('output-wrap-normal').style.display = 'none';
     document.getElementById('grammar-layout').style.display = 'flex';
     document.getElementById('copy-btn').classList.add('visible');
 
-    // Build highlighted text
-    let html = inputText;
+    const sorted = [...corrections].sort((a, b) => b.wrong.length - a.wrong.length);
     const applied = new Set();
 
-    // Sort by length desc to avoid partial replacements
-    const sorted = [...corrections].sort((a, b) => b.wrong.length - a.wrong.length);
-
+    // Build underlined text
+    let html = inputText;
     sorted.forEach((c, idx) => {
-        if (applied.has(c.wrong.toLowerCase())) return;
-        applied.add(c.wrong.toLowerCase());
-        const typeClass = c.type.includes('üslub') || c.type.includes('stil') || c.type.includes('style') ? 'gr-style' : '';
+        const key = c.wrong.toLowerCase();
+        if (applied.has(key)) return;
+        applied.add(key);
+        const wtype = getWordType(c.type);
+        const typeClass = wtype === 'style' ? 'gr-style' : wtype === 'clarity' ? 'gr-clarity' : '';
+        const typeLabel = wtype === 'style' ? 'Üslub' : wtype === 'clarity' ? 'Aydınlıq' : 'Düzgünlük';
         const escaped = c.wrong.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        const re = new RegExp(`(?<![\\w\\u0400-\\u04FF])(${escaped})(?![\\w\\u0400-\\u04FF])`, 'gi');
+        const re = new RegExp('(?<![\\w\\u0400-\\u04FF])(' + escaped + ')(?![\\w\\u0400-\\u04FF])', 'gi');
         html = html.replace(re, (match) => {
-            return `<span class="gr-word ${typeClass}" data-wrong="${encodeURIComponent(c.wrong)}" data-fix="${encodeURIComponent(c.fix)}" data-idx="${idx}" onclick="applyFix(this)">${match}</span>`;
+            return '<span class="gr-word ' + typeClass + '" data-wrong="' + encodeURIComponent(c.wrong) + '" data-fix="' + encodeURIComponent(c.fix) + '" data-idx="' + idx + '" onclick="applyFix(this)">' +
+                match +
+                '<span class="gr-tooltip"><div class="tt-label">' + typeLabel + '</div><div class="tt-fix">→ ' + c.fix + '</div><div class="tt-hint">Düzəltmək üçün klik edin</div></span>' +
+            '</span>';
         });
     });
 
-    const textArea = document.getElementById('grammar-text-area');
-    textArea.innerHTML = html.replace(/\n/g, '<br>');
+    document.getElementById('grammar-text-area').innerHTML = html.replace(/\n/g, '<br>');
 
-    // Build sidebar suggestions
-    const sidebar = document.getElementById('grammar-sidebar');
-    sidebar.innerHTML = '';
-
-    let grammarItems = [];
-    let styleItems = [];
-
-    sorted.forEach((c, idx) => {
-        const isStyle = c.type.includes('üslub') || c.type.includes('stil') || c.type.includes('style');
-        const div = document.createElement('div');
-        div.className = 'gr-suggestion' + (isStyle ? ' gr-style-sug' : '');
-        div.setAttribute('data-idx', idx);
-        div.setAttribute('data-wrong', encodeURIComponent(c.wrong));
-        div.setAttribute('data-fix', encodeURIComponent(c.fix));
-        div.innerHTML = `
-            <div class="gr-orig">${c.wrong}</div>
-            <div class="gr-fix">${c.fix}</div>
-            <button class="gr-apply-btn" onclick="applySidebarFix(this, '${encodeURIComponent(c.wrong)}', '${encodeURIComponent(c.fix)}')">Düzəlt ✓</button>
-        `;
-        div.addEventListener('mouseenter', () => highlightWord(idx, true));
-        div.addEventListener('mouseleave', () => highlightWord(idx, false));
-        if (isStyle) styleItems.push(div);
-        else grammarItems.push(div);
+    // Counts
+    let cCount = 0, clCount = 0, stCount = 0;
+    const seen = new Set();
+    sorted.forEach(c => {
+        if (seen.has(c.wrong.toLowerCase())) return;
+        seen.add(c.wrong.toLowerCase());
+        const t = getWordType(c.type);
+        if (t === 'correctness') cCount++;
+        else if (t === 'clarity') clCount++;
+        else stCount++;
     });
 
-    if (grammarItems.length > 0) {
-        const d = document.createElement('div');
-        d.className = 'gr-divider';
-        d.innerHTML = `Qrammatika <span class="gr-count-badge">${grammarItems.length}</span>`;
-        sidebar.appendChild(d);
-        grammarItems.forEach(el => sidebar.appendChild(el));
-    }
-    if (styleItems.length > 0) {
-        const d = document.createElement('div');
-        d.className = 'gr-divider';
-        d.style.borderTopColor = 'rgba(59,130,246,0.2)';
-        d.innerHTML = `<span style="color:#3b82f6">Üslub <span class="gr-count-badge" style="background:rgba(59,130,246,0.12);color:#3b82f6">${styleItems.length}</span></span>`;
-        sidebar.appendChild(d);
-        styleItems.forEach(el => sidebar.appendChild(el));
-    }
+    const total = corrections.length;
+    const score = Math.max(10, Math.min(95, Math.round(100 - total * 4.5 - Math.random() * 5)));
+    animateScore(score);
+    document.getElementById('gr-cat-correctness').textContent = cCount || '—';
+    document.getElementById('gr-cat-clarity').textContent = clCount || '—';
+    document.getElementById('gr-cat-style').textContent = stCount || '—';
+
+    // Build suggestion cards
+    const body = document.getElementById('gr-suggestions-body');
+    body.innerHTML = '';
+
+    const groups = [
+        { label: 'Düzgünlük', wtype: 'correctness', cls: '' },
+        { label: 'Aydınlıq', wtype: 'clarity', cls: 'gr-clarity-sug' },
+        { label: 'Üslub', wtype: 'style', cls: 'gr-style-sug' }
+    ];
+
+    const seenCards = new Set();
+    groups.forEach(g => {
+        const items = sorted.filter(c => {
+            const key = c.wrong.toLowerCase();
+            if (seenCards.has(key)) return false;
+            if (getWordType(c.type) !== g.wtype) return false;
+            seenCards.add(key);
+            return true;
+        });
+        if (!items.length) return;
+
+        const title = document.createElement('div');
+        title.className = 'gr-section-title';
+        title.textContent = g.label;
+        body.appendChild(title);
+
+        items.forEach((c, i) => {
+            const idx = sorted.indexOf(c);
+            const div = document.createElement('div');
+            div.className = 'gr-suggestion ' + g.cls;
+            div.setAttribute('data-idx', idx);
+            div.innerHTML =
+                '<div class="gr-type-tag">' + g.label + '</div>' +
+                '<div class="gr-orig">' + c.wrong + '</div>' +
+                '<div class="gr-arrow">↓</div>' +
+                '<div class="gr-fix">' + c.fix + '</div>' +
+                '<button class="gr-apply-btn" onclick="applySidebarFix(this,\'' + encodeURIComponent(c.wrong) + '\',\'' + encodeURIComponent(c.fix) + '\')">✓ Düzəlt</button>' +
+                '<button class="gr-dismiss-btn" onclick="dismissSuggestion(this)" title="Keç">✕</button>';
+            div.addEventListener('mouseenter', () => highlightWord(idx, true));
+            div.addEventListener('mouseleave', () => highlightWord(idx, false));
+            body.appendChild(div);
+        });
+    });
 }
 
 function highlightWord(idx, on) {
-    document.querySelectorAll(`.gr-word[data-idx="${idx}"]`).forEach(el => {
+    document.querySelectorAll('.gr-word[data-idx="' + idx + '"]').forEach(el => {
         if (on) el.classList.add('active'); else el.classList.remove('active');
     });
-    const sug = document.querySelector(`.gr-suggestion[data-idx="${idx}"]`);
+    const sug = document.querySelector('.gr-suggestion[data-idx="' + idx + '"]');
     if (sug) { if (on) sug.classList.add('highlighted'); else sug.classList.remove('highlighted'); }
 }
 
@@ -1094,15 +1308,13 @@ function applyFix(span) {
     const wrong = decodeURIComponent(span.getAttribute('data-wrong'));
     const fix = decodeURIComponent(span.getAttribute('data-fix'));
     const idx = span.getAttribute('data-idx');
-    // Replace span with plain text fix
     span.replaceWith(document.createTextNode(fix));
-    // Remove sidebar suggestion
-    const sug = document.querySelector(`.gr-suggestion[data-idx="${idx}"]`);
-    if (sug) sug.style.opacity = '0.35';
-    // Also update input textarea
+    const sug = document.querySelector('.gr-suggestion[data-idx="' + idx + '"]');
+    if (sug) sug.classList.add('done');
     const ta = document.getElementById('input-text');
-    const re = new RegExp(`(?<![\\w\\u0400-\\u04FF])(${wrong.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})(?![\\w\\u0400-\\u04FF])`, 'i');
+    const re = new RegExp('(?<![\\w\\u0400-\\u04FF])(' + wrong.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')(?![\\w\\u0400-\\u04FF])', 'i');
     ta.value = ta.value.replace(re, fix);
+    updateRemainingCount();
 }
 
 function applySidebarFix(btn, wrongEnc, fixEnc) {
@@ -1110,25 +1322,45 @@ function applySidebarFix(btn, wrongEnc, fixEnc) {
     const fix = decodeURIComponent(fixEnc);
     const sug = btn.closest('.gr-suggestion');
     const idx = sug.getAttribute('data-idx');
-    // Fix in text area
-    document.querySelectorAll(`.gr-word[data-idx="${idx}"]`).forEach(span => {
-        span.replaceWith(document.createTextNode(fix));
-    });
-    sug.style.opacity = '0.35';
-    sug.style.pointerEvents = 'none';
-    // Update input
+    document.querySelectorAll('.gr-word[data-idx="' + idx + '"]').forEach(span => span.replaceWith(document.createTextNode(fix)));
+    sug.classList.add('done');
     const ta = document.getElementById('input-text');
-    const re = new RegExp(`(?<![\\w\\u0400-\\u04FF])(${wrong.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})(?![\\w\\u0400-\\u04FF])`, 'gi');
+    const re = new RegExp('(?<![\\w\\u0400-\\u04FF])(' + wrong.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')(?![\\w\\u0400-\\u04FF])', 'gi');
     ta.value = ta.value.replace(re, fix);
+    updateRemainingCount();
+}
+
+function dismissSuggestion(btn) {
+    const sug = btn.closest('.gr-suggestion');
+    const idx = sug.getAttribute('data-idx');
+    sug.classList.add('done');
+    document.querySelectorAll('.gr-word[data-idx="' + idx + '"]').forEach(el => {
+        el.style.backgroundImage = 'none';
+        el.style.borderBottom = 'none';
+        el.style.cursor = 'default';
+    });
+    updateRemainingCount();
+}
+
+function updateRemainingCount() {
+    const remaining = document.querySelectorAll('.gr-suggestion:not(.done)').length;
+    if (remaining === 0) {
+        document.getElementById('gr-score-num').innerHTML = '100<span>/100</span>';
+        document.getElementById('gr-score-bar').style.width = '100%';
+    }
 }
 
 function clearGrammarOutput() {
     document.getElementById('grammar-layout').style.display = 'none';
     document.getElementById('output-wrap-normal').style.display = 'flex';
     document.getElementById('grammar-text-area').innerHTML = '';
-    document.getElementById('grammar-sidebar').innerHTML = '';
+    document.getElementById('gr-suggestions-body').innerHTML = '';
+    document.getElementById('gr-score-num').innerHTML = '—<span>/100</span>';
+    document.getElementById('gr-score-bar').style.width = '0%';
+    document.getElementById('gr-cat-correctness').textContent = '—';
+    document.getElementById('gr-cat-clarity').textContent = '—';
+    document.getElementById('gr-cat-style').textContent = '—';
 }
-
 </script>
 </body>
 </html>
