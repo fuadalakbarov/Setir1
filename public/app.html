@@ -7,410 +7,468 @@
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg:        #1a1f2e;
-            --bg2:       #222840;
-            --surface:   #2a3045;
-            --surface2:  #323a52;
-            --border:    rgba(120,150,210,0.22);
+            --bg:        #151923;
+            --sidebar-bg:#1a2030;
+            --panel-bg:  #1e2538;
+            --panel-hdr: #242d42;
+            --surface:   #2a3350;
+            --surface2:  #303a55;
+            --border:    rgba(120,150,220,0.18);
             --accent:    #3b82f6;
             --accent2:   #60a5fa;
-            --text-main: #dde6f8;
-            --text-dim:  #9fb3d4;
-            --text-muted:#6b82a8;
+            --text-main: #d8e4f8;
+            --text-dim:  #8fa8cc;
+            --text-muted:#5a7299;
             --success:   #10b981;
             --warning:   #f59e0b;
-            --sidebar-w: 240px;
+            --sidebar-w: 232px;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        body {
+        html, body {
+            height: 100%;
             font-family: 'IBM Plex Sans', sans-serif;
             background: var(--bg);
             color: var(--text-main);
-            min-height: 100vh;
-            display: flex;
             overflow: hidden;
         }
 
-        /* ══════════════════════════════
-           SIDEBAR
-        ══════════════════════════════ */
+        .layout {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+        }
+
+        /* ══════ SIDEBAR ══════ */
         .sidebar {
             width: var(--sidebar-w);
-            min-height: 100vh;
-            background: #1e2438;
+            height: 100vh;
+            background: var(--sidebar-bg);
             border-right: 1px solid var(--border);
             display: flex;
             flex-direction: column;
             flex-shrink: 0;
             overflow-y: auto;
+            overflow-x: hidden;
         }
 
         .sidebar-logo {
-            padding: 18px 16px 14px;
+            padding: 16px 16px 13px;
             border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
         }
 
         .brand {
             font-family: 'IBM Plex Mono', monospace;
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: #e8f0ff;
-            letter-spacing: -0.02em;
+            font-size: 1.15rem; font-weight: 600;
+            color: #e8f0ff; letter-spacing: -0.02em;
         }
-
         .brand span { color: var(--accent2); }
 
-        .sidebar-section { padding: 10px 8px 4px; }
+        .sidebar-section { padding: 8px 6px 2px; }
 
         .sidebar-section-title {
-            font-size: 0.63rem;
-            font-weight: 700;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
+            font-size: 0.6rem; font-weight: 700;
+            letter-spacing: 0.1em; text-transform: uppercase;
             color: var(--text-muted);
-            padding: 6px 10px 8px;
+            padding: 6px 10px 7px;
         }
 
         .tool-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 9px 10px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.83rem;
+            display: flex; align-items: center; gap: 8px;
+            padding: 8px 10px; border-radius: 7px;
+            cursor: pointer; font-size: 0.82rem;
             color: var(--text-dim);
-            transition: all 0.15s;
-            margin-bottom: 1px;
-            position: relative;
+            transition: all 0.14s; margin-bottom: 1px;
         }
-
-        .tool-item:hover {
-            background: rgba(59,130,246,0.12);
-            color: var(--text-main);
-        }
-
-        .tool-item.active {
-            background: rgba(59,130,246,0.2);
-            color: #e4edff;
-            font-weight: 500;
-        }
-
-        .tool-item .icon { font-size: 0.9rem; flex-shrink: 0; }
-
-        .tool-item .label-text {
-            flex: 1;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
+        .tool-item:hover  { background: rgba(59,130,246,0.11); color: var(--text-main); }
+        .tool-item.active { background: rgba(59,130,246,0.18); color: #e2edff; font-weight: 500; }
+        .tool-item .icon  { font-size: 0.88rem; flex-shrink: 0; }
+        .tool-item .lbl   { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
         .locked {
-            flex-shrink: 0;
-            font-size: 0.58rem;
-            font-weight: 700;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-            background: rgba(245,158,11,0.18);
-            color: #fbbf24;
-            border: 1px solid rgba(245,158,11,0.35);
-            padding: 2px 6px;
-            border-radius: 4px;
+            flex-shrink: 0; font-size: 0.56rem; font-weight: 700;
+            letter-spacing: 0.05em; text-transform: uppercase;
+            background: rgba(245,158,11,0.15); color: #fbbf24;
+            border: 1px solid rgba(245,158,11,0.32);
+            padding: 2px 5px; border-radius: 4px;
         }
 
-        /* ── Sidebar footer ── */
         .sidebar-footer {
-            margin-top: auto;
-            padding: 12px 10px;
-            border-top: 1px solid var(--border);
+            margin-top: auto; padding: 10px 8px 12px;
+            border-top: 1px solid var(--border); flex-shrink: 0;
         }
 
         .user-card {
-            display: flex;
-            align-items: center;
-            gap: 9px;
-            padding: 8px;
-            margin-bottom: 10px;
+            display: flex; align-items: center; gap: 9px;
+            padding: 7px 8px; margin-bottom: 9px;
         }
 
         .user-avatar {
-            width: 34px; height: 34px;
+            width: 32px; height: 32px;
             background: linear-gradient(135deg, var(--accent), #8b5cf6);
             border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            font-weight: 700; font-size: 0.85rem;
-            flex-shrink: 0;
+            font-weight: 700; font-size: 0.82rem; flex-shrink: 0;
         }
 
-        .user-meta { min-width: 0; }
-
         .user-name {
-            font-size: 0.82rem; font-weight: 500;
-            color: var(--text-main);
+            font-size: 0.8rem; font-weight: 500; color: var(--text-main);
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
 
-        .user-plan { font-size: 0.68rem; font-weight: 600; margin-top: 2px; }
-        .user-plan.free    { color: var(--text-muted); }
-        .user-plan.ferdi   { color: var(--accent2); }
-        .user-plan.biznes  { color: var(--success); }
+        .user-plan { font-size: 0.66rem; font-weight: 600; margin-top: 1px; }
+        .user-plan.free   { color: var(--text-muted); }
+        .user-plan.ferdi  { color: var(--accent2); }
+        .user-plan.biznes { color: var(--success); }
 
         .upgrade-btn {
-            width: 100%;
-            background: linear-gradient(135deg, #2563eb, #6366f1);
-            border: none; border-radius: 8px;
-            color: #fff; font-size: 0.78rem; font-weight: 600;
-            padding: 10px 12px; cursor: pointer;
-            font-family: inherit; margin-bottom: 7px;
+            width: 100%; background: linear-gradient(135deg, #2563eb, #6366f1);
+            border: none; border-radius: 8px; color: #fff;
+            font-size: 0.77rem; font-weight: 600; padding: 10px;
+            cursor: pointer; font-family: inherit; margin-bottom: 6px;
             transition: opacity 0.2s;
         }
-        .upgrade-btn:hover { opacity: 0.88; }
+        .upgrade-btn:hover { opacity: 0.87; }
 
         .logout-btn {
             width: 100%; background: transparent;
             border: 1px solid var(--border); border-radius: 8px;
-            color: var(--text-muted); font-size: 0.75rem;
-            padding: 8px 12px; cursor: pointer; font-family: inherit;
-            transition: all 0.15s;
+            color: var(--text-muted); font-size: 0.74rem;
+            padding: 7px; cursor: pointer; font-family: inherit;
+            transition: all 0.14s;
         }
-        .logout-btn:hover { border-color: rgba(120,150,210,0.5); color: var(--text-dim); }
+        .logout-btn:hover { border-color: rgba(120,150,220,0.4); color: var(--text-dim); }
 
-        /* ══════════════════════════════
-           MAIN
-        ══════════════════════════════ */
+        /* ══════ MAIN ══════ */
         .main {
-            flex: 1; display: flex; flex-direction: column;
-            min-height: 100vh; overflow: auto;
-            background: var(--bg);
+            flex: 1; height: 100vh;
+            display: flex; flex-direction: column;
+            overflow: hidden;
         }
 
         .topbar {
             display: flex; align-items: center; justify-content: space-between;
-            padding: 14px 24px;
-            background: #1e2438;
+            padding: 12px 20px;
+            background: var(--sidebar-bg);
             border-bottom: 1px solid var(--border);
-            position: sticky; top: 0; z-index: 10;
+            flex-shrink: 0;
         }
 
-        .topbar-title { font-size: 0.92rem; font-weight: 600; color: var(--text-main); }
+        .topbar-title { font-size: 0.9rem; font-weight: 600; color: var(--text-main); }
 
         .usage-badge {
-            font-size: 0.75rem; color: var(--text-muted);
-            background: var(--surface);
+            font-size: 0.73rem; color: var(--text-muted);
+            background: var(--panel-bg);
             border: 1px solid var(--border);
-            padding: 5px 14px; border-radius: 20px;
+            padding: 4px 13px; border-radius: 20px;
         }
 
-        /* ── Workspace grid ── */
+        /* ── Workspace ── */
         .workspace {
             flex: 1;
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            padding: 22px 24px;
+            grid-template-columns: 1fr 1fr 300px;
+            gap: 14px;
+            padding: 14px 16px;
+            overflow: hidden;
+            min-height: 0;
         }
 
-        .panel { display: flex; flex-direction: column; }
+        .panel { display: flex; flex-direction: column; min-height: 0; }
 
         .panel-inner {
-            background: #242c40;
+            background: var(--panel-bg);
             border: 1px solid var(--border);
-            border-radius: 12px;
+            border-radius: 11px;
             display: flex; flex-direction: column;
-            height: 100%; min-height: 500px;
-            overflow: hidden;
+            height: 100%; overflow: hidden;
         }
 
         .panel-header {
             display: flex; align-items: center; justify-content: space-between;
-            padding: 13px 18px;
-            background: #2a3248;
+            padding: 11px 16px;
+            background: var(--panel-hdr);
             border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
         }
 
         .panel-label {
-            font-size: 0.78rem; font-weight: 600;
-            letter-spacing: 0.06em; text-transform: uppercase;
+            font-size: 0.72rem; font-weight: 700;
+            letter-spacing: 0.07em; text-transform: uppercase;
             color: var(--text-dim);
         }
 
-        /* Options row */
         .options-row {
-            padding: 10px 16px 2px;
-            display: flex; gap: 8px; flex-wrap: wrap;
+            padding: 8px 14px 2px;
+            display: flex; gap: 7px; flex-wrap: wrap; flex-shrink: 0;
         }
 
         .opt-select {
-            background: var(--surface2);
-            border: 1px solid var(--border);
-            color: var(--text-main);
-            font-size: 0.78rem;
-            padding: 6px 10px; border-radius: 7px;
+            background: var(--surface2); border: 1px solid var(--border);
+            color: var(--text-main); font-size: 0.76rem;
+            padding: 5px 9px; border-radius: 6px;
             font-family: inherit; cursor: pointer; outline: none;
         }
         .opt-select:focus { border-color: var(--accent); }
 
-        /* Textarea */
         textarea {
             flex: 1; background: transparent; border: none;
-            color: var(--text-main);
-            font-size: 0.9rem; line-height: 1.75;
-            padding: 14px 18px; resize: none;
-            font-family: inherit; outline: none;
+            color: var(--text-main); font-size: 0.88rem; line-height: 1.72;
+            padding: 12px 16px; resize: none;
+            font-family: inherit; outline: none; min-height: 0;
         }
-        textarea::placeholder { color: rgba(120,150,200,0.45); }
+        textarea::placeholder { color: rgba(100,140,200,0.4); }
 
         .char-count {
-            padding: 5px 18px 6px;
-            font-size: 0.7rem; color: var(--text-muted);
+            padding: 4px 16px 5px;
+            font-size: 0.68rem; color: var(--text-muted);
             font-family: 'IBM Plex Mono', monospace; text-align: right;
+            flex-shrink: 0;
         }
 
-        /* Process button */
         .process-btn {
-            margin: 0 16px 16px;
+            margin: 0 14px 13px;
             background: linear-gradient(135deg, var(--accent), #6366f1);
-            border: none; border-radius: 9px;
-            color: #fff; font-size: 0.87rem; font-weight: 600;
-            padding: 12px; cursor: pointer;
+            border: none; border-radius: 8px;
+            color: #fff; font-size: 0.85rem; font-weight: 600;
+            padding: 11px; cursor: pointer;
             font-family: inherit; transition: opacity 0.2s;
             display: flex; align-items: center; justify-content: center; gap: 8px;
+            flex-shrink: 0;
         }
-        .process-btn:disabled { opacity: 0.45; cursor: not-allowed; }
-        .process-btn:not(:disabled):hover { opacity: 0.88; }
+        .process-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .process-btn:not(:disabled):hover { opacity: 0.87; }
 
         .spinner {
-            width: 16px; height: 16px;
+            width: 15px; height: 15px;
             border: 2px solid rgba(255,255,255,0.3);
-            border-top-color: #fff;
-            border-radius: 50%;
-            animation: spin 0.7s linear infinite;
-            display: none;
+            border-top-color: #fff; border-radius: 50%;
+            animation: spin 0.7s linear infinite; display: none;
         }
         .spinner.active { display: block; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
         /* Output */
         .output-wrap {
-            flex: 1; overflow-y: auto;
-            padding: 16px 18px; position: relative;
+            flex: 1; overflow-y: auto; padding: 14px 16px; min-height: 0;
         }
 
         .output-placeholder {
             display: flex; flex-direction: column;
             align-items: center; justify-content: center;
-            height: 100%; gap: 10px;
-            color: var(--text-muted);
+            height: 100%; gap: 9px; color: var(--text-muted);
         }
-        .big-icon { font-size: 2.5rem; }
-        .output-placeholder p { font-size: 0.83rem; }
+        .big-icon { font-size: 2.2rem; }
+        .output-placeholder p { font-size: 0.8rem; }
 
         .output-text {
-            font-size: 0.9rem; line-height: 1.78;
-            color: var(--text-main);
-            white-space: pre-wrap; display: none;
+            font-size: 0.88rem; line-height: 1.75;
+            color: var(--text-main); white-space: pre-wrap; display: none;
         }
         .output-text.visible { display: block; }
 
-        /* Copy button */
         .copy-btn {
-            font-size: 0.73rem; font-weight: 500;
-            color: var(--accent2);
-            background: rgba(59,130,246,0.12);
-            border: 1px solid rgba(59,130,246,0.28);
-            padding: 4px 12px; border-radius: 6px;
+            font-size: 0.71rem; font-weight: 500; color: var(--accent2);
+            background: rgba(59,130,246,0.1);
+            border: 1px solid rgba(59,130,246,0.25);
+            padding: 3px 11px; border-radius: 5px;
             cursor: pointer; font-family: inherit;
-            transition: all 0.15s; display: none;
+            transition: all 0.14s; display: none;
         }
         .copy-btn.visible { display: block; }
-        .copy-btn.copied { color: var(--success); border-color: rgba(16,185,129,0.35); background: rgba(16,185,129,0.1); }
-        .copy-btn:hover { background: rgba(59,130,246,0.22); }
+        .copy-btn.copied  { color: var(--success); border-color: rgba(16,185,129,0.3); background: rgba(16,185,129,0.08); }
+        .copy-btn:hover   { background: rgba(59,130,246,0.2); }
 
-        /* Limit bar */
+        /* ══════ GRAMMARLY PANEL ══════ */
+        .grammarly-panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--border);
+            border-radius: 11px;
+            display: flex; flex-direction: column;
+            height: 100%; overflow: hidden;
+        }
+
+        .g-header {
+            padding: 11px 16px;
+            background: var(--panel-hdr);
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .g-header-title {
+            font-size: 0.72rem; font-weight: 700;
+            letter-spacing: 0.07em; text-transform: uppercase;
+            color: var(--text-dim);
+        }
+
+        .g-body {
+            flex: 1; overflow-y: auto; padding: 14px 14px 10px;
+            display: flex; flex-direction: column; gap: 14px;
+        }
+
+        /* Score ring */
+        .score-wrap {
+            display: flex; align-items: center; gap: 14px;
+        }
+
+        .score-ring {
+            width: 62px; height: 62px; flex-shrink: 0;
+            border-radius: 50%;
+            background: conic-gradient(var(--accent) 0deg, var(--accent) 0deg, var(--surface) 0deg);
+            display: flex; align-items: center; justify-content: center;
+            position: relative;
+        }
+
+        .score-ring::after {
+            content: '';
+            width: 46px; height: 46px;
+            background: var(--panel-bg);
+            border-radius: 50%;
+            position: absolute;
+        }
+
+        .score-num {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 1rem; font-weight: 700; color: var(--text-main);
+            position: relative; z-index: 1; line-height: 1;
+        }
+
+        .score-sub { font-size: 0.62rem; color: var(--text-muted); line-height: 1.3; }
+        .score-label { font-size: 0.75rem; font-weight: 600; color: var(--text-dim); }
+        .score-bar-wrap { flex: 1; }
+        .score-bar {
+            height: 5px; background: var(--surface);
+            border-radius: 3px; overflow: hidden; margin-top: 6px;
+        }
+        .score-bar-fill {
+            height: 100%; border-radius: 3px;
+            background: linear-gradient(90deg, var(--accent), #6366f1);
+            transition: width 0.6s ease;
+        }
+
+        /* Stats row */
+        .stats-row {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px; padding: 10px 12px;
+        }
+
+        .stat-num {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 1.3rem; font-weight: 700; line-height: 1;
+        }
+        .stat-num.red    { color: #f87171; }
+        .stat-num.yellow { color: #fbbf24; }
+        .stat-num.green  { color: var(--success); }
+        .stat-num.blue   { color: var(--accent2); }
+
+        .stat-label {
+            font-size: 0.67rem; color: var(--text-muted); margin-top: 3px;
+        }
+
+        /* Issues list */
+        .issues-title {
+            font-size: 0.68rem; font-weight: 700;
+            letter-spacing: 0.08em; text-transform: uppercase;
+            color: var(--text-muted); margin-bottom: 6px;
+        }
+
+        .issue-item {
+            display: flex; align-items: flex-start; gap: 9px;
+            padding: 9px 11px; border-radius: 8px;
+            background: var(--surface); border: 1px solid var(--border);
+            margin-bottom: 6px; cursor: pointer;
+            transition: background 0.14s;
+        }
+        .issue-item:hover { background: var(--surface2); }
+
+        .issue-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            flex-shrink: 0; margin-top: 4px;
+        }
+        .issue-dot.red    { background: #f87171; }
+        .issue-dot.yellow { background: #fbbf24; }
+        .issue-dot.blue   { background: var(--accent2); }
+
+        .issue-text { font-size: 0.77rem; color: var(--text-dim); line-height: 1.45; }
+        .issue-tag  { font-size: 0.64rem; color: var(--text-muted); margin-top: 2px; }
+
+        .g-empty {
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            flex: 1; gap: 8px; color: var(--text-muted);
+            text-align: center;
+        }
+        .g-empty-icon { font-size: 2rem; }
+        .g-empty p    { font-size: 0.78rem; line-height: 1.5; }
+
+        /* limit bar */
         .limit-bar {
-            margin: 0 24px 18px;
+            margin: 0 16px 12px;
             background: rgba(245,158,11,0.1);
-            border: 1px solid rgba(245,158,11,0.3);
-            border-radius: 9px; padding: 10px 16px;
-            font-size: 0.79rem; color: var(--warning); display: none;
+            border: 1px solid rgba(245,158,11,0.28);
+            border-radius: 8px; padding: 8px 14px;
+            font-size: 0.77rem; color: var(--warning); display: none;
+            flex-shrink: 0;
         }
         .limit-bar.show { display: block; }
         .limit-bar a { color: var(--accent2); text-decoration: none; }
 
-        /* ══════════════════════════════
-           MODALS
-        ══════════════════════════════ */
+        /* ══════ MODALS ══════ */
         .modal-overlay {
             position: fixed; inset: 0;
-            background: rgba(10,14,26,0.82);
+            background: rgba(8,12,22,0.82);
             backdrop-filter: blur(4px);
-            display: none; align-items: center; justify-content: center;
-            z-index: 100;
+            display: none; align-items: center; justify-content: center; z-index: 100;
         }
         .modal-overlay.show { display: flex; }
 
         .modal {
-            background: #1e2438;
+            background: var(--sidebar-bg);
             border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 28px 30px;
-            width: 100%; max-width: 440px;
-            color: var(--text-main);
+            border-radius: 14px; padding: 26px 28px;
+            width: 100%; max-width: 420px; color: var(--text-main);
         }
-        .modal h2 { font-size: 1.15rem; margin-bottom: 8px; }
-        .modal > p { font-size: 0.82rem; color: var(--text-dim); margin-bottom: 20px; }
+        .modal h2 { font-size: 1.1rem; margin-bottom: 7px; }
+        .modal > p { font-size: 0.8rem; color: var(--text-dim); margin-bottom: 18px; }
 
-        .plans-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+        .plans-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px; }
 
         .plan-card {
-            border: 1.5px solid var(--border); border-radius: 10px;
-            padding: 16px; cursor: pointer; transition: all 0.2s;
-            background: var(--surface);
+            border: 1.5px solid var(--border); border-radius: 9px;
+            padding: 14px; cursor: pointer; transition: all 0.18s;
+            background: var(--panel-bg);
         }
-        .plan-card.selected { border-color: var(--accent); background: rgba(59,130,246,0.1); }
+        .plan-card.selected { border-color: var(--accent); background: rgba(59,130,246,0.09); }
+        .plan-name  { font-size: 0.7rem; font-weight: 700; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.06em; }
+        .plan-price { font-size: 1.35rem; font-weight: 700; color: #e8f0ff; font-family: 'IBM Plex Mono', monospace; }
+        .plan-price span { font-size: 0.7rem; color: var(--text-muted); }
+        .plan-desc  { font-size: 0.7rem; color: var(--text-muted); margin-top: 5px; }
 
-        .plan-name { font-size: 0.74rem; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.06em; }
-        .plan-price { font-size: 1.4rem; font-weight: 700; color: #e8f0ff; font-family: 'IBM Plex Mono', monospace; }
-        .plan-price span { font-size: 0.72rem; color: var(--text-muted); }
-        .plan-desc { font-size: 0.72rem; color: var(--text-muted); margin-top: 6px; }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 9px; margin-top: 2px; }
 
-        .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 4px; }
-
-        .btn-cancel {
-            background: transparent; border: 1px solid var(--border);
-            color: var(--text-dim); font-size: 0.8rem; padding: 9px 18px;
-            border-radius: 8px; cursor: pointer; font-family: inherit;
-        }
-        .btn-continue {
-            background: var(--accent); border: none; color: #fff;
-            font-size: 0.8rem; font-weight: 600; padding: 9px 18px;
-            border-radius: 8px; cursor: pointer; font-family: inherit;
-        }
+        .btn-cancel   { background: transparent; border: 1px solid var(--border); color: var(--text-dim); font-size: 0.78rem; padding: 8px 16px; border-radius: 7px; cursor: pointer; font-family: inherit; }
+        .btn-continue { background: var(--accent); border: none; color: #fff; font-size: 0.78rem; font-weight: 600; padding: 8px 16px; border-radius: 7px; cursor: pointer; font-family: inherit; }
         .btn-continue:hover { background: #2563eb; }
 
-        .pay-info {
-            background: var(--surface); border: 1px solid var(--border);
-            border-radius: 10px; padding: 16px; font-size: 0.82rem;
-            line-height: 1.8; margin-bottom: 14px; color: var(--text-dim);
-        }
-        .pay-input {
-            width: 100%; background: var(--surface2);
-            border: 1px solid var(--border); border-radius: 8px;
-            color: var(--text-main); font-size: 0.82rem;
-            padding: 10px 14px; font-family: 'IBM Plex Mono', monospace;
-            outline: none; margin-bottom: 16px;
-        }
+        .pay-info { background: var(--surface); border: 1px solid var(--border); border-radius: 9px; padding: 14px; font-size: 0.8rem; line-height: 1.8; margin-bottom: 12px; color: var(--text-dim); }
+        .pay-input { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 7px; color: var(--text-main); font-size: 0.8rem; padding: 9px 13px; font-family: 'IBM Plex Mono', monospace; outline: none; margin-bottom: 14px; }
         .pay-input:focus { border-color: var(--accent); }
 
-        /* Scrollbar */
-        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(100,140,200,0.25); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb { background: rgba(100,140,200,0.2); border-radius: 2px; }
     </style>
 </head>
 <body>
+<div class="layout">
 
 <!-- SIDEBAR -->
 <aside class="sidebar">
@@ -421,50 +479,50 @@
     <div class="sidebar-section">
         <div class="sidebar-section-title">Əsas Alətlər</div>
         <div class="tool-item active" data-tool="grammar" onclick="setTool(this)">
-            <span class="icon">✍️</span><span class="label-text">Qrammatika &amp; İmla</span>
+            <span class="icon">✍️</span><span class="lbl">Qrammatika &amp; İmla</span>
         </div>
         <div class="tool-item" data-tool="tone" onclick="setTool(this)">
-            <span class="icon">🎭</span><span class="label-text">Ton Dəyişdirmə</span>
+            <span class="icon">🎭</span><span class="lbl">Ton Dəyişdirmə</span>
         </div>
         <div class="tool-item" data-tool="improve" onclick="setTool(this)">
-            <span class="icon">💡</span><span class="label-text">Mətn Təkmilləşdirmə</span>
+            <span class="icon">💡</span><span class="lbl">Mətn Təkmilləşdirmə</span>
         </div>
         <div class="tool-item" data-tool="vocab" onclick="setTool(this)">
-            <span class="icon">📚</span><span class="label-text">Söz Ehtiyatı</span>
+            <span class="icon">📚</span><span class="lbl">Söz Ehtiyatı</span>
         </div>
         <div class="tool-item" data-tool="plagiarism" onclick="setTool(this)">
-            <span class="icon">🔍</span><span class="label-text">Plagiat Yoxlanışı</span>
+            <span class="icon">🔍</span><span class="lbl">Plagiat Yoxlanışı</span>
         </div>
         <div class="tool-item" data-tool="summary" onclick="setTool(this)">
-            <span class="icon">📋</span><span class="label-text">Xülasə Çıxarma</span>
+            <span class="icon">📋</span><span class="lbl">Xülasə Çıxarma</span>
         </div>
         <div class="tool-item" data-tool="generate" onclick="setTool(this)">
-            <span class="icon">⚡</span><span class="label-text">AI Mətn Yaratma</span>
+            <span class="icon">⚡</span><span class="lbl">AI Mətn Yaratma</span>
         </div>
         <div class="tool-item" data-tool="rewrite" onclick="setTool(this)">
-            <span class="icon">🔄</span><span class="label-text">Yenidən Yazma</span>
+            <span class="icon">🔄</span><span class="lbl">Yenidən Yazma</span>
         </div>
     </div>
 
     <div class="sidebar-section">
         <div class="sidebar-section-title">İdarə Yazışmaları</div>
         <div class="tool-item" data-tool="protokol" data-locked="true" onclick="setTool(this)">
-            <span class="icon">📄</span><span class="label-text">Protokol</span><span class="locked">BİZNES</span>
+            <span class="icon">📄</span><span class="lbl">Protokol</span><span class="locked">BİZNES</span>
         </div>
         <div class="tool-item" data-tool="emr" data-locked="true" onclick="setTool(this)">
-            <span class="icon">📜</span><span class="label-text">Əmr</span><span class="locked">BİZNES</span>
+            <span class="icon">📜</span><span class="lbl">Əmr</span><span class="locked">BİZNES</span>
         </div>
         <div class="tool-item" data-tool="qerar" data-locked="true" onclick="setTool(this)">
-            <span class="icon">⚖️</span><span class="label-text">Qərar</span><span class="locked">BİZNES</span>
+            <span class="icon">⚖️</span><span class="lbl">Qərar</span><span class="locked">BİZNES</span>
         </div>
         <div class="tool-item" data-tool="mektub" data-locked="true" onclick="setTool(this)">
-            <span class="icon">✉️</span><span class="label-text">Rəsmi Məktub</span><span class="locked">BİZNES</span>
+            <span class="icon">✉️</span><span class="lbl">Rəsmi Məktub</span><span class="locked">BİZNES</span>
         </div>
         <div class="tool-item" data-tool="arayis" data-locked="true" onclick="setTool(this)">
-            <span class="icon">📑</span><span class="label-text">Arayış</span><span class="locked">BİZNES</span>
+            <span class="icon">📑</span><span class="lbl">Arayış</span><span class="locked">BİZNES</span>
         </div>
         <div class="tool-item" data-tool="xidmeti" data-locked="true" onclick="setTool(this)">
-            <span class="icon">🗒️</span><span class="label-text">Xidməti Yazı</span><span class="locked">BİZNES</span>
+            <span class="icon">🗒️</span><span class="lbl">Xidməti Yazı</span><span class="locked">BİZNES</span>
         </div>
     </div>
 
@@ -498,6 +556,9 @@
             <div class="options-row" id="options-row"></div>
             <textarea id="input-text" placeholder="Mətninizi buraya yazın..." oninput="updateChar()"></textarea>
             <div class="char-count"><span id="char-count">0</span> simvol</div>
+            <div class="limit-bar" id="limit-bar">
+                ⚠️ Limit dolmaq üzrədir. <a href="#" onclick="showUpgrade()">Yüksəldin →</a>
+            </div>
             <button class="process-btn" id="process-btn" onclick="processText()">
                 <span id="btn-text">Emal Et</span>
                 <span class="spinner" id="spinner"></span>
@@ -521,12 +582,25 @@
             </div>
           </div>
         </div>
-    </div>
 
-    <div class="limit-bar" id="limit-bar">
-        ⚠️ Gündəlik limitiniz dolmaq üzrədir. <a href="#" onclick="showUpgrade()">Limitsiz istifadə üçün yüksəldin →</a>
+        <!-- Grammarly-style Analysis Panel -->
+        <div class="panel">
+          <div class="grammarly-panel">
+            <div class="g-header">
+                <div class="g-header-title">Yazı Analizi</div>
+            </div>
+            <div class="g-body" id="g-body">
+                <div class="g-empty" id="g-empty">
+                    <div class="g-empty-icon">📊</div>
+                    <p>Mətni emal etdikdən sonra analiz burada görünəcək</p>
+                </div>
+            </div>
+          </div>
+        </div>
     </div>
 </main>
+
+</div><!-- /layout -->
 
 <!-- Upgrade Modal -->
 <div class="modal-overlay" id="upgrade-modal">
@@ -557,7 +631,7 @@
     <div class="modal">
         <h2>Ödəniş</h2>
         <div class="pay-info" id="pay-info">Yüklənir...</div>
-        <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:12px;">Ödənişi etdikdən sonra əməliyyat nömrəsini daxil edin:</p>
+        <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:11px;">Ödənişi etdikdən sonra əməliyyat nömrəsini daxil edin:</p>
         <input class="pay-input" id="transaction-id" placeholder="Əməliyyat nömrəsi (məs: AZ123456)" />
         <div class="modal-actions">
             <button class="btn-cancel" onclick="closeModal('payment-modal')">Geri</button>
@@ -567,22 +641,24 @@
 </div>
 
 <script>
-// ── Tool config ──
+/* ══════════════════════════════
+   TOOL CONFIG
+══════════════════════════════ */
 const TOOLS = {
-    grammar:    { title: '✍️ Qrammatika & İmla Yoxlanışı',    label: 'Yoxlanılacaq mətni daxil edin', options: [], placeholder: 'Mətni buraya yazın. Qrammatika, imla və durğu işarəsi xətaları düzəldiləcək...' },
-    tone:       { title: '🎭 Ton Dəyişdirmə',                  label: 'Mətni daxil edin', options: [{ id:'tone',   label:'Ton',       values: ['Rəsmi','Neytral','Mehriban','Peşəkar','Qısa və aydın'] }], placeholder: 'Tonunu dəyişmək istədiyiniz mətni yazın...' },
-    improve:    { title: '💡 Mətn Təkmilləşdirmə',             label: 'Mətni daxil edin', options: [{ id:'style',  label:'Üslub',     values: ['Ümumi','Akademik','Biznes','Publisistik'] }], placeholder: 'Təkmilləşdirilməsini istədiyiniz mətni yazın...' },
-    vocab:      { title: '📚 Söz Ehtiyatı Zənginləşdirmə',    label: 'Mətni daxil edin', options: [], placeholder: 'Söz ehtiyatını zənginləşdirmək istədiyiniz mətni yazın...' },
-    plagiarism: { title: '🔍 Plagiat & Orijinallıq Yoxlanışı', label: 'Yoxlanılacaq mətni daxil edin', options: [], placeholder: 'Orijinallığını yoxlamaq istədiyiniz mətni yazın...' },
-    summary:    { title: '📋 Xülasə Çıxarma',                  label: 'Uzun mətni daxil edin', options: [{ id:'length', label:'Uzunluq', values: ['Qısa (2-3 cümlə)','Orta (1 paraqraf)','Ətraflı (3-5 paraqraf)'] }], placeholder: 'Xülasəsini çıxarmaq istədiyiniz mətni yazın...' },
-    generate:   { title: '⚡ AI Mətn Yaratma',                  label: 'Mövzu və ya təlimat yazın', options: [{ id:'type', label:'Mətn növü', values: ['Email / Məktub','Esse / Məqalə','CV / Müraciət','Sosial media postu','Prezentasiya mətni','Breynstörm'] }], placeholder: 'Nə yazmaq istədiyinizi qısaca izah edin...' },
-    rewrite:    { title: '🔄 Yenidən Yazma',                   label: 'Mətni daxil edin', options: [{ id:'mode', label:'Rejim', values: ['Sadələşdir','Genişləndir','Rəsmiləşdir','Qısalt','Fərqli üslubda yaz'] }], placeholder: 'Yenidən yazılmasını istədiyiniz mətni daxil edin...' },
-    protokol:   { title: '📄 Protokol Generasiyası',           label: 'İclasın gedişatını yazın', options: [], placeholder: 'İclasın qısa gedişatını, iştirakçıları və qərarları yazın...' },
-    emr:        { title: '📜 Əmr Yazma',                       label: 'Əmrin mövzusunu yazın', options: [], placeholder: 'Əmrin mövzusunu və əsas məzmununu qısaca izah edin...' },
-    qerar:      { title: '⚖️ Qərar Hazırlama',                 label: 'Qərarın mövzusunu yazın', options: [], placeholder: 'Qərarın mövzusunu və əsas müddəalarını izah edin...' },
-    mektub:     { title: '✉️ Rəsmi Məktub',                    label: 'Məktubun məzmununu yazın', options: [], placeholder: 'Məktubun mövzusunu, göndərəni, alanı və əsas məzmunu izah edin...' },
-    arayis:     { title: '📑 Arayış Hazırlama',                label: 'Arayışın mövzusunu yazın', options: [], placeholder: 'Arayışın mövzusunu və lazımi məlumatları yazın...' },
-    xidmeti:    { title: '🗒️ Xidməti Yazı / İzahat',          label: 'Mövzunu yazın', options: [], placeholder: 'Xidməti yazının mövzusunu və əsas məzmununu izah edin...' },
+    grammar:    { title:'✍️ Qrammatika & İmla Yoxlanışı',    label:'Yoxlanılacaq mətni daxil edin', options:[], placeholder:'Mətni buraya yazın. Qrammatika, imla və durğu işarəsi xətaları düzəldiləcək...' },
+    tone:       { title:'🎭 Ton Dəyişdirmə',                  label:'Mətni daxil edin', options:[{id:'tone',  values:['Rəsmi','Neytral','Mehriban','Peşəkar','Qısa və aydın']}], placeholder:'Tonunu dəyişmək istədiyiniz mətni yazın...' },
+    improve:    { title:'💡 Mətn Təkmilləşdirmə',             label:'Mətni daxil edin', options:[{id:'style', values:['Ümumi','Akademik','Biznes','Publisistik']}], placeholder:'Təkmilləşdirilməsini istədiyiniz mətni yazın...' },
+    vocab:      { title:'📚 Söz Ehtiyatı Zənginləşdirmə',    label:'Mətni daxil edin', options:[], placeholder:'Söz ehtiyatını zənginləşdirmək istədiyiniz mətni yazın...' },
+    plagiarism: { title:'🔍 Plagiat & Orijinallıq Yoxlanışı', label:'Yoxlanılacaq mətni daxil edin', options:[], placeholder:'Orijinallığını yoxlamaq istədiyiniz mətni yazın...' },
+    summary:    { title:'📋 Xülasə Çıxarma',                  label:'Uzun mətni daxil edin', options:[{id:'length', values:['Qısa (2-3 cümlə)','Orta (1 paraqraf)','Ətraflı (3-5 paraqraf)']}], placeholder:'Xülasəsini çıxarmaq istədiyiniz mətni yazın...' },
+    generate:   { title:'⚡ AI Mətn Yaratma',                  label:'Mövzu və ya təlimat yazın', options:[{id:'type', values:['Email / Məktub','Esse / Məqalə','CV / Müraciət','Sosial media postu','Prezentasiya mətni','Breynstörm']}], placeholder:'Nə yazmaq istədiyinizi qısaca izah edin...' },
+    rewrite:    { title:'🔄 Yenidən Yazma',                   label:'Mətni daxil edin', options:[{id:'mode', values:['Sadələşdir','Genişləndir','Rəsmiləşdir','Qısalt','Fərqli üslubda yaz']}], placeholder:'Yenidən yazılmasını istədiyiniz mətni daxil edin...' },
+    protokol:   { title:'📄 Protokol Generasiyası',           label:'İclasın gedişatını yazın', options:[], placeholder:'İclasın qısa gedişatını, iştirakçıları və qərarları yazın...' },
+    emr:        { title:'📜 Əmr Yazma',                       label:'Əmrin mövzusunu yazın', options:[], placeholder:'Əmrin mövzusunu və əsas məzmununu qısaca izah edin...' },
+    qerar:      { title:'⚖️ Qərar Hazırlama',                 label:'Qərarın mövzusunu yazın', options:[], placeholder:'Qərarın mövzusunu və əsas müddəalarını izah edin...' },
+    mektub:     { title:'✉️ Rəsmi Məktub',                    label:'Məktubun məzmununu yazın', options:[], placeholder:'Məktubun mövzusunu, göndərəni, alanı və əsas məzmunu izah edin...' },
+    arayis:     { title:'📑 Arayış Hazırlama',                label:'Arayışın mövzusunu yazın', options:[], placeholder:'Arayışın mövzusunu və lazımi məlumatları yazın...' },
+    xidmeti:    { title:'🗒️ Xidməti Yazı / İzahat',          label:'Mövzunu yazın', options:[], placeholder:'Xidməti yazının mövzusunu və əsas məzmununu izah edin...' },
 };
 
 let currentTool  = 'grammar';
@@ -590,25 +666,25 @@ let selectedPlan = 'ferdi';
 let usageCount   = 0;
 const DAILY_LIMIT = 5;
 
-// ── Token idarəsi ──
+/* ── Token ── */
 (function () {
-    const params   = new URLSearchParams(window.location.search);
-    const urlToken = params.get('token');
-    if (urlToken) {
-        localStorage.setItem('setir_token', urlToken);
-        const url = new URL(window.location);
-        url.searchParams.delete('token');
-        window.history.replaceState({}, document.title, url.pathname);
+    const params = new URLSearchParams(window.location.search);
+    const t = params.get('token');
+    if (t) {
+        localStorage.setItem('setir_token', t);
+        const u = new URL(window.location);
+        u.searchParams.delete('token');
+        window.history.replaceState({}, document.title, u.pathname);
     }
 })();
 
 function getToken()    { return localStorage.getItem('setir_token'); }
 function authHeaders() {
-    const token = getToken();
-    return { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Bearer ${token}` } : {}) };
+    const t = getToken();
+    return { 'Content-Type': 'application/json', ...(t ? { 'Authorization': `Bearer ${t}` } : {}) };
 }
 
-// ── İstifadəçi yüklənməsi ──
+/* ── User ── */
 async function loadUser() {
     try {
         const token = getToken();
@@ -619,97 +695,87 @@ async function loadUser() {
         const name = user.displayName || user.name || 'İstifadəçi';
         document.getElementById('user-name').innerText   = name;
         document.getElementById('user-avatar').innerText = name.charAt(0).toUpperCase();
-        const plan   = user.plan || 'pulsuz';
-        const planEl = document.getElementById('user-plan');
-        if (plan === 'ferdi') {
-            planEl.innerText = 'Fərdi Paket'; planEl.className = 'user-plan ferdi';
-        } else if (plan === 'biznes') {
-            planEl.innerText = 'Biznes Paketi'; planEl.className = 'user-plan biznes';
-            unlockBiznes();
-        } else {
-            planEl.innerText = 'Pulsuz Paket'; planEl.className = 'user-plan free';
-        }
-        if (plan !== 'pulsuz' && plan !== 'free') {
+        const plan = user.plan || 'pulsuz';
+        const el   = document.getElementById('user-plan');
+        if (plan === 'ferdi')  { el.innerText = 'Fərdi Paket';  el.className = 'user-plan ferdi'; }
+        else if (plan === 'biznes') { el.innerText = 'Biznes Paketi'; el.className = 'user-plan biznes'; unlockBiznes(); }
+        else { el.innerText = 'Pulsuz Paket'; el.className = 'user-plan free'; }
+        if (plan !== 'pulsuz' && plan !== 'free')
             document.querySelector('.upgrade-btn').style.display = 'none';
-        }
     } catch (e) { window.location.href = '/login'; }
 }
 
 function unlockBiznes() {
     document.querySelectorAll('[data-locked]').forEach(el => {
         el.removeAttribute('data-locked');
-        const lock = el.querySelector('.locked');
-        if (lock) lock.remove();
+        const lk = el.querySelector('.locked'); if (lk) lk.remove();
     });
 }
 
-// ── Alət dəyişdirmə ──
+/* ── Tool switch ── */
 function setTool(el) {
-    const tool   = el.getAttribute('data-tool');
-    const locked = el.getAttribute('data-locked');
-    if (locked) { showUpgrade(); return; }
+    const tool = el.getAttribute('data-tool');
+    if (el.getAttribute('data-locked')) { showUpgrade(); return; }
     document.querySelectorAll('.tool-item').forEach(t => t.classList.remove('active'));
     el.classList.add('active');
     currentTool = tool;
     const cfg = TOOLS[tool];
-    document.getElementById('topbar-title').innerText         = cfg.title;
-    document.getElementById('input-label').innerText          = cfg.label;
-    document.getElementById('input-text').placeholder         = cfg.placeholder;
+    document.getElementById('topbar-title').innerText  = cfg.title;
+    document.getElementById('input-label').innerText   = cfg.label;
+    document.getElementById('input-text').placeholder  = cfg.placeholder;
     const row = document.getElementById('options-row');
     row.innerHTML = '';
     cfg.options.forEach(opt => {
         const sel = document.createElement('select');
-        sel.className = 'opt-select';
-        sel.id        = 'opt-' + opt.id;
+        sel.className = 'opt-select'; sel.id = 'opt-' + opt.id;
         opt.values.forEach(v => { const o = document.createElement('option'); o.value = v; o.text = v; sel.appendChild(o); });
         row.appendChild(sel);
     });
     clearOutput();
+    resetAnalysis();
 }
 
-// ── Mətn emalı ──
+/* ── Process ── */
 async function processText() {
     const text = document.getElementById('input-text').value.trim();
     if (!text) { alert('Zəhmət olmasa mətn daxil edin.'); return; }
     if (usageCount >= DAILY_LIMIT) { showUpgrade(); return; }
 
-    const btn     = document.getElementById('process-btn');
-    const spinner = document.getElementById('spinner');
-    const btnText = document.getElementById('btn-text');
-    btn.disabled = true;
-    spinner.classList.add('active');
-    btnText.style.display = 'none';
+    const btn = document.getElementById('process-btn');
+    const sp  = document.getElementById('spinner');
+    const bt  = document.getElementById('btn-text');
+    btn.disabled = true; sp.classList.add('active'); bt.style.display = 'none';
     document.getElementById('output-placeholder').style.display = 'flex';
     document.getElementById('output-text').classList.remove('visible');
     document.getElementById('copy-btn').classList.remove('visible');
+    showAnalysisLoading();
 
     const opts = {};
-    document.getElementById('options-row').querySelectorAll('select').forEach(sel => {
-        opts[sel.id.replace('opt-', '')] = sel.value;
+    document.getElementById('options-row').querySelectorAll('select').forEach(s => {
+        opts[s.id.replace('opt-', '')] = s.value;
     });
 
     try {
-        const res  = await fetch('/api/ai/process', { method: 'POST', headers: authHeaders(), body: JSON.stringify({ text, tool: currentTool, options: opts }) });
+        const res  = await fetch('/api/ai/process', { method:'POST', headers: authHeaders(), body: JSON.stringify({ text, tool: currentTool, options: opts }) });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Xəta baş verdi');
         showOutput(data.result);
         usageCount++;
         document.getElementById('usage-count').innerText = usageCount;
         if (usageCount >= 4) document.getElementById('limit-bar').classList.add('show');
+        showAnalysis(text, data.result, data.analysis);
     } catch (err) {
         showOutput('❌ Xəta: ' + err.message);
+        resetAnalysis();
     } finally {
-        btn.disabled = false;
-        spinner.classList.remove('active');
-        btnText.style.display = 'inline';
+        btn.disabled = false; sp.classList.remove('active'); bt.style.display = 'inline';
     }
 }
 
 function showOutput(text) {
     document.getElementById('output-placeholder').style.display = 'none';
     const out = document.getElementById('output-text');
-    out.innerText = text;
-    out.classList.add('visible');
+    out.innerText = text; out.classList.add('visible');
     document.getElementById('copy-btn').classList.add('visible');
 }
 
@@ -726,18 +792,111 @@ function updateChar() {
 async function copyResult() {
     await navigator.clipboard.writeText(document.getElementById('output-text').innerText);
     const btn = document.getElementById('copy-btn');
-    btn.innerText = '✓ Kopyalandı';
-    btn.classList.add('copied');
+    btn.innerText = '✓ Kopyalandı'; btn.classList.add('copied');
     setTimeout(() => { btn.innerText = 'Kopyala'; btn.classList.remove('copied'); }, 2000);
 }
 
-// ── Upgrade & Ödəniş ──
-function showUpgrade()       { document.getElementById('upgrade-modal').classList.add('show'); }
-function closeModal(id)      { document.getElementById(id).classList.remove('show'); }
+/* ══ ANALYSIS PANEL ══ */
+function resetAnalysis() {
+    document.getElementById('g-body').innerHTML = `
+        <div class="g-empty" id="g-empty">
+            <div class="g-empty-icon">📊</div>
+            <p>Mətni emal etdikdən sonra analiz burada görünəcək</p>
+        </div>`;
+}
+
+function showAnalysisLoading() {
+    document.getElementById('g-body').innerHTML = `
+        <div class="g-empty">
+            <div class="g-empty-icon" style="animation:spin 1s linear infinite;display:inline-block">⚙️</div>
+            <p>Analiz edilir...</p>
+        </div>`;
+}
+
+function showAnalysis(original, result, apiAnalysis) {
+    /* If backend sends analysis object use it, otherwise compute locally */
+    const a = apiAnalysis || computeAnalysis(original, result);
+
+    const scoreAngle = Math.round((a.score / 100) * 360);
+    const scoreColor = a.score >= 70 ? '#3b82f6' : a.score >= 45 ? '#f59e0b' : '#f87171';
+
+    const issuesHtml = a.issues.map(i => `
+        <div class="issue-item">
+            <div class="issue-dot ${i.color}"></div>
+            <div>
+                <div class="issue-text">${i.text}</div>
+                <div class="issue-tag">${i.tag}</div>
+            </div>
+        </div>`).join('');
+
+    document.getElementById('g-body').innerHTML = `
+        <div class="score-wrap">
+            <div class="score-ring" style="background:conic-gradient(${scoreColor} ${scoreAngle}deg,var(--surface) ${scoreAngle}deg)">
+                <span class="score-num">${a.score}</span>
+            </div>
+            <div class="score-bar-wrap">
+                <div class="score-label">Yazı Keyfiyyəti</div>
+                <div class="score-sub">${a.scoreLabel}</div>
+                <div class="score-bar"><div class="score-bar-fill" style="width:${a.score}%"></div></div>
+            </div>
+        </div>
+
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-num red">${a.errors}</div>
+                <div class="stat-label">Düzəliş</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-num yellow">${a.clarity}</div>
+                <div class="stat-label">Aydınlıq</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-num blue">${a.words}</div>
+                <div class="stat-label">Söz</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-num green">${a.sentences}</div>
+                <div class="stat-label">Cümlə</div>
+            </div>
+        </div>
+
+        ${a.issues.length > 0 ? `<div class="issues-title">Təkliflər</div>${issuesHtml}` : '<div class="issue-item"><div class="issue-dot green"></div><div class="issue-text">Əla! Ciddi problem aşkar edilmədi.</div></div>'}
+    `;
+}
+
+function computeAnalysis(original, result) {
+    const words     = original.trim().split(/\s+/).filter(Boolean).length;
+    const sentences = (original.match(/[.!?]+/g) || []).length || 1;
+    const avgWord   = words / sentences;
+
+    /* heuristic score */
+    let score = 60;
+    if (words > 20)  score += 10;
+    if (words > 80)  score += 5;
+    if (avgWord < 20) score += 10;
+    if (avgWord > 30) score -= 10;
+    score = Math.max(20, Math.min(95, score + Math.floor(Math.random() * 10 - 4)));
+
+    const scoreLabel = score >= 75 ? 'Yaxşı' : score >= 50 ? 'Orta' : 'Zəif';
+
+    /* rough error count by comparing lengths */
+    const errCount  = Math.max(0, Math.round(Math.abs(result.length - original.length) / 12));
+    const clarity   = Math.max(1, Math.min(10, Math.round(10 - avgWord / 5)));
+
+    const issues = [];
+    if (avgWord > 25) issues.push({ color:'yellow', text:'Bəzi cümlələr çox uzundur', tag:'Aydınlıq' });
+    if (errCount > 3) issues.push({ color:'red',    text:`${errCount} potensial düzəliş tapıldı`, tag:'Düzgünlük' });
+    if (words < 30)   issues.push({ color:'blue',   text:'Mətn qısadır, daha çox detal əlavə edin', tag:'Məzmun' });
+
+    return { score, scoreLabel, errors: errCount, clarity, words, sentences, issues };
+}
+
+/* ── Upgrade & Payment ── */
+function showUpgrade()        { document.getElementById('upgrade-modal').classList.add('show'); }
+function closeModal(id)       { document.getElementById(id).classList.remove('show'); }
 function selectPlan(el, plan) {
     document.querySelectorAll('.plan-card').forEach(c => c.classList.remove('selected'));
-    el.classList.add('selected');
-    selectedPlan = plan;
+    el.classList.add('selected'); selectedPlan = plan;
 }
 
 const CARD_NUMBER = 'XXXX XXXX XXXX XXXX';
@@ -750,9 +909,8 @@ function showPayment() {
         <strong>Plan:</strong> ${name}<br>
         <strong>Məbləğ:</strong> ${price} AZN/ay<br><br>
         Aşağıdakı kart nömrəsinə köçürün:<br>
-        <strong style="font-family:'IBM Plex Mono';font-size:1rem;letter-spacing:0.05em;">${CARD_NUMBER}</strong><br><br>
-        <span style="font-size:0.8rem;color:var(--text-muted);">Kapital Bank / M10 / ABB ilə köçürə bilərsiniz</span>
-    `;
+        <strong style="font-family:'IBM Plex Mono';font-size:0.95rem;letter-spacing:0.05em;">${CARD_NUMBER}</strong><br><br>
+        <span style="font-size:0.77rem;color:var(--text-muted)">Kapital Bank / M10 / ABB ilə köçürə bilərsiniz</span>`;
     document.getElementById('payment-modal').classList.add('show');
 }
 
@@ -761,7 +919,7 @@ async function submitPayment() {
     if (!txId) { alert('Əməliyyat nömrəsini daxil edin.'); return; }
     try {
         const res = await fetch('/api/subscription/request', {
-            method: 'POST', headers: authHeaders(),
+            method:'POST', headers: authHeaders(),
             body: JSON.stringify({ plan: selectedPlan, transaction_id: txId })
         });
         if (res.ok) {
@@ -771,10 +929,7 @@ async function submitPayment() {
     } catch (e) { alert('Server ilə əlaqə xətası.'); }
 }
 
-function logout() {
-    localStorage.removeItem('setir_token');
-    window.location.href = '/login';
-}
+function logout() { localStorage.removeItem('setir_token'); window.location.href = '/login'; }
 
 loadUser();
 </script>
