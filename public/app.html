@@ -7,18 +7,19 @@
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #0d1520;
-            --surface: rgba(10, 16, 32, 0.60);
-            --surface2: rgba(230, 235, 245, 0.70);
-            --border: rgba(100, 140, 200, 0.25);
-            --accent: #3b82f6;
-            --accent2: #60a5fa;
-            --text-sidebar: #e2e8f0;
-            --text-muted: #8a9bb8;
-            --text-dim: #a0b0cc;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --sidebar-w: 260px;
+            --bg:        #1a1f2e;
+            --bg2:       #222840;
+            --surface:   #2a3045;
+            --surface2:  #323a52;
+            --border:    rgba(120,150,210,0.22);
+            --accent:    #3b82f6;
+            --accent2:   #60a5fa;
+            --text-main: #dde6f8;
+            --text-dim:  #9fb3d4;
+            --text-muted:#6b82a8;
+            --success:   #10b981;
+            --warning:   #f59e0b;
+            --sidebar-w: 240px;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -26,46 +27,34 @@
         body {
             font-family: 'IBM Plex Sans', sans-serif;
             background: var(--bg);
-            color: var(--text-sidebar);
+            color: var(--text-main);
             min-height: 100vh;
             display: flex;
             overflow: hidden;
-            background-image:
-                radial-gradient(ellipse at 20% 50%, rgba(59,130,246,0.08) 0%, transparent 60%),
-                radial-gradient(ellipse at 80% 20%, rgba(96,165,250,0.05) 0%, transparent 50%);
         }
 
-        /* ── SIDEBAR ── */
+        /* ══════════════════════════════
+           SIDEBAR
+        ══════════════════════════════ */
         .sidebar {
             width: var(--sidebar-w);
             min-height: 100vh;
-            background: rgba(8, 14, 28, 0.95);
+            background: #1e2438;
             border-right: 1px solid var(--border);
             display: flex;
             flex-direction: column;
-            padding: 0;
             flex-shrink: 0;
-            backdrop-filter: blur(12px);
+            overflow-y: auto;
         }
 
         .sidebar-logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 20px 18px 16px;
+            padding: 18px 16px 14px;
             border-bottom: 1px solid var(--border);
-        }
-
-        .sidebar-logo img {
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
-            object-fit: cover;
         }
 
         .brand {
             font-family: 'IBM Plex Mono', monospace;
-            font-size: 1.15rem;
+            font-size: 1.2rem;
             font-weight: 600;
             color: #e8f0ff;
             letter-spacing: -0.02em;
@@ -73,59 +62,65 @@
 
         .brand span { color: var(--accent2); }
 
-        .sidebar-section {
-            padding: 12px 10px 4px;
-        }
+        .sidebar-section { padding: 10px 8px 4px; }
 
         .sidebar-section-title {
-            font-size: 0.65rem;
-            font-weight: 600;
+            font-size: 0.63rem;
+            font-weight: 700;
             letter-spacing: 0.1em;
             text-transform: uppercase;
             color: var(--text-muted);
-            padding: 4px 8px 8px;
+            padding: 6px 10px 8px;
         }
 
         .tool-item {
             display: flex;
             align-items: center;
-            gap: 9px;
-            padding: 8px 10px;
+            gap: 8px;
+            padding: 9px 10px;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 0.82rem;
+            font-size: 0.83rem;
             color: var(--text-dim);
-            transition: all 0.15s ease;
+            transition: all 0.15s;
+            margin-bottom: 1px;
             position: relative;
-            margin-bottom: 2px;
         }
 
         .tool-item:hover {
-            background: rgba(59,130,246,0.1);
-            color: #c8d8f0;
+            background: rgba(59,130,246,0.12);
+            color: var(--text-main);
         }
 
         .tool-item.active {
-            background: rgba(59,130,246,0.18);
-            color: #e8f2ff;
+            background: rgba(59,130,246,0.2);
+            color: #e4edff;
             font-weight: 500;
         }
 
-        .tool-item .icon { font-size: 0.9rem; }
+        .tool-item .icon { font-size: 0.9rem; flex-shrink: 0; }
 
-        .tool-item .locked {
-            margin-left: auto;
+        .tool-item .label-text {
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .locked {
+            flex-shrink: 0;
             font-size: 0.58rem;
-            font-weight: 600;
+            font-weight: 700;
             letter-spacing: 0.05em;
             text-transform: uppercase;
-            background: rgba(245,158,11,0.15);
-            color: var(--warning);
-            border: 1px solid rgba(245,158,11,0.3);
+            background: rgba(245,158,11,0.18);
+            color: #fbbf24;
+            border: 1px solid rgba(245,158,11,0.35);
             padding: 2px 6px;
             border-radius: 4px;
         }
 
+        /* ── Sidebar footer ── */
         .sidebar-footer {
             margin-top: auto;
             padding: 12px 10px;
@@ -135,424 +130,284 @@
         .user-card {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 9px;
             padding: 8px;
             margin-bottom: 10px;
         }
 
         .user-avatar {
-            width: 34px;
-            height: 34px;
+            width: 34px; height: 34px;
             background: linear-gradient(135deg, var(--accent), #8b5cf6);
             border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            font-size: 0.85rem;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 0.85rem;
             flex-shrink: 0;
         }
 
         .user-meta { min-width: 0; }
 
         .user-name {
-            font-size: 0.8rem;
-            font-weight: 500;
-            color: var(--text-sidebar);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            font-size: 0.82rem; font-weight: 500;
+            color: var(--text-main);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
 
-        .user-plan {
-            font-size: 0.68rem;
-            font-weight: 600;
-            letter-spacing: 0.04em;
-            margin-top: 2px;
-        }
-
-        .user-plan.free { color: var(--text-muted); }
-        .user-plan.ferdi { color: var(--accent2); }
-        .user-plan.biznes { color: var(--success); }
+        .user-plan { font-size: 0.68rem; font-weight: 600; margin-top: 2px; }
+        .user-plan.free    { color: var(--text-muted); }
+        .user-plan.ferdi   { color: var(--accent2); }
+        .user-plan.biznes  { color: var(--success); }
 
         .upgrade-btn {
             width: 100%;
-            background: linear-gradient(135deg, var(--accent), #6366f1);
-            border: none;
-            border-radius: 8px;
-            color: #fff;
-            font-size: 0.78rem;
-            font-weight: 600;
-            padding: 9px 12px;
-            cursor: pointer;
+            background: linear-gradient(135deg, #2563eb, #6366f1);
+            border: none; border-radius: 8px;
+            color: #fff; font-size: 0.78rem; font-weight: 600;
+            padding: 10px 12px; cursor: pointer;
+            font-family: inherit; margin-bottom: 7px;
             transition: opacity 0.2s;
-            font-family: inherit;
-            margin-bottom: 6px;
         }
-
         .upgrade-btn:hover { opacity: 0.88; }
 
         .logout-btn {
-            width: 100%;
-            background: transparent;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            color: var(--text-muted);
-            font-size: 0.75rem;
-            padding: 7px 12px;
-            cursor: pointer;
-            font-family: inherit;
+            width: 100%; background: transparent;
+            border: 1px solid var(--border); border-radius: 8px;
+            color: var(--text-muted); font-size: 0.75rem;
+            padding: 8px 12px; cursor: pointer; font-family: inherit;
             transition: all 0.15s;
         }
+        .logout-btn:hover { border-color: rgba(120,150,210,0.5); color: var(--text-dim); }
 
-        .logout-btn:hover {
-            border-color: rgba(100,140,200,0.5);
-            color: var(--text-dim);
-        }
-
-        /* ── MAIN ── */
+        /* ══════════════════════════════
+           MAIN
+        ══════════════════════════════ */
         .main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            overflow: auto;
+            flex: 1; display: flex; flex-direction: column;
+            min-height: 100vh; overflow: auto;
+            background: var(--bg);
         }
 
         .topbar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            display: flex; align-items: center; justify-content: space-between;
             padding: 14px 24px;
+            background: #1e2438;
             border-bottom: 1px solid var(--border);
-            background: rgba(8,14,28,0.7);
-            backdrop-filter: blur(8px);
-            position: sticky;
-            top: 0;
-            z-index: 10;
+            position: sticky; top: 0; z-index: 10;
         }
 
-        .topbar-title {
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: #d0ddf5;
-        }
+        .topbar-title { font-size: 0.92rem; font-weight: 600; color: var(--text-main); }
 
         .usage-badge {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            background: rgba(255,255,255,0.04);
+            font-size: 0.75rem; color: var(--text-muted);
+            background: var(--surface);
             border: 1px solid var(--border);
-            padding: 4px 12px;
-            border-radius: 20px;
+            padding: 5px 14px; border-radius: 20px;
         }
 
+        /* ── Workspace grid ── */
         .workspace {
             flex: 1;
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 20px;
-            padding: 24px;
+            padding: 22px 24px;
         }
 
-        .panel {
-            display: flex;
-            flex-direction: column;
-        }
+        .panel { display: flex; flex-direction: column; }
 
         .panel-inner {
-            background: rgba(10,18,36,0.7);
+            background: #242c40;
             border: 1px solid var(--border);
-            border-radius: 14px;
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            min-height: 480px;
+            border-radius: 12px;
+            display: flex; flex-direction: column;
+            height: 100%; min-height: 500px;
             overflow: hidden;
-            backdrop-filter: blur(6px);
         }
 
         .panel-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 14px 18px;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 13px 18px;
+            background: #2a3248;
             border-bottom: 1px solid var(--border);
         }
 
         .panel-label {
-            font-size: 0.78rem;
-            font-weight: 600;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-            color: var(--text-muted);
+            font-size: 0.78rem; font-weight: 600;
+            letter-spacing: 0.06em; text-transform: uppercase;
+            color: var(--text-dim);
         }
 
-        .copy-btn {
-            font-size: 0.72rem;
-            font-weight: 500;
-            color: var(--accent2);
-            background: rgba(59,130,246,0.1);
-            border: 1px solid rgba(59,130,246,0.25);
-            padding: 4px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-family: inherit;
-            transition: all 0.15s;
-            display: none;
-        }
-
-        .copy-btn.visible { display: block; }
-        .copy-btn.copied { color: var(--success); border-color: rgba(16,185,129,0.3); background: rgba(16,185,129,0.08); }
-        .copy-btn:hover { background: rgba(59,130,246,0.2); }
-
+        /* Options row */
         .options-row {
-            padding: 10px 18px 0;
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
+            padding: 10px 16px 2px;
+            display: flex; gap: 8px; flex-wrap: wrap;
         }
 
         .opt-select {
-            background: rgba(255,255,255,0.05);
+            background: var(--surface2);
             border: 1px solid var(--border);
-            color: var(--text-dim);
-            font-size: 0.75rem;
-            padding: 6px 10px;
-            border-radius: 7px;
-            font-family: inherit;
-            cursor: pointer;
-            outline: none;
+            color: var(--text-main);
+            font-size: 0.78rem;
+            padding: 6px 10px; border-radius: 7px;
+            font-family: inherit; cursor: pointer; outline: none;
         }
-
         .opt-select:focus { border-color: var(--accent); }
 
+        /* Textarea */
         textarea {
-            flex: 1;
-            background: transparent;
-            border: none;
-            color: #c8d8f0;
-            font-size: 0.88rem;
-            line-height: 1.7;
-            padding: 16px 18px;
-            resize: none;
-            font-family: inherit;
-            outline: none;
+            flex: 1; background: transparent; border: none;
+            color: var(--text-main);
+            font-size: 0.9rem; line-height: 1.75;
+            padding: 14px 18px; resize: none;
+            font-family: inherit; outline: none;
         }
-
-        textarea::placeholder { color: rgba(140,160,200,0.4); }
+        textarea::placeholder { color: rgba(120,150,200,0.45); }
 
         .char-count {
-            padding: 6px 18px;
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            font-family: 'IBM Plex Mono', monospace;
-            text-align: right;
+            padding: 5px 18px 6px;
+            font-size: 0.7rem; color: var(--text-muted);
+            font-family: 'IBM Plex Mono', monospace; text-align: right;
         }
 
+        /* Process button */
         .process-btn {
-            margin: 0 18px 16px;
-            background: linear-gradient(135deg, var(--accent) 0%, #6366f1 100%);
-            border: none;
-            border-radius: 9px;
-            color: #fff;
-            font-size: 0.85rem;
-            font-weight: 600;
-            padding: 11px;
-            cursor: pointer;
-            font-family: inherit;
-            transition: opacity 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
+            margin: 0 16px 16px;
+            background: linear-gradient(135deg, var(--accent), #6366f1);
+            border: none; border-radius: 9px;
+            color: #fff; font-size: 0.87rem; font-weight: 600;
+            padding: 12px; cursor: pointer;
+            font-family: inherit; transition: opacity 0.2s;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
         }
-
-        .process-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .process-btn:disabled { opacity: 0.45; cursor: not-allowed; }
         .process-btn:not(:disabled):hover { opacity: 0.88; }
 
         .spinner {
-            width: 16px;
-            height: 16px;
+            width: 16px; height: 16px;
             border: 2px solid rgba(255,255,255,0.3);
             border-top-color: #fff;
             border-radius: 50%;
             animation: spin 0.7s linear infinite;
             display: none;
         }
-
         .spinner.active { display: block; }
-
         @keyframes spin { to { transform: rotate(360deg); } }
 
+        /* Output */
         .output-wrap {
-            flex: 1;
-            overflow-y: auto;
-            padding: 16px 18px;
-            position: relative;
+            flex: 1; overflow-y: auto;
+            padding: 16px 18px; position: relative;
         }
 
         .output-placeholder {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            gap: 10px;
-            color: rgba(140,160,200,0.3);
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            height: 100%; gap: 10px;
+            color: var(--text-muted);
         }
-
         .big-icon { font-size: 2.5rem; }
-
-        .output-placeholder p { font-size: 0.82rem; }
+        .output-placeholder p { font-size: 0.83rem; }
 
         .output-text {
-            font-size: 0.88rem;
-            line-height: 1.75;
-            color: #c8d8f0;
-            white-space: pre-wrap;
-            display: none;
+            font-size: 0.9rem; line-height: 1.78;
+            color: var(--text-main);
+            white-space: pre-wrap; display: none;
         }
-
         .output-text.visible { display: block; }
+
+        /* Copy button */
+        .copy-btn {
+            font-size: 0.73rem; font-weight: 500;
+            color: var(--accent2);
+            background: rgba(59,130,246,0.12);
+            border: 1px solid rgba(59,130,246,0.28);
+            padding: 4px 12px; border-radius: 6px;
+            cursor: pointer; font-family: inherit;
+            transition: all 0.15s; display: none;
+        }
+        .copy-btn.visible { display: block; }
+        .copy-btn.copied { color: var(--success); border-color: rgba(16,185,129,0.35); background: rgba(16,185,129,0.1); }
+        .copy-btn:hover { background: rgba(59,130,246,0.22); }
 
         /* Limit bar */
         .limit-bar {
-            margin: 0 24px 16px;
-            background: rgba(245,158,11,0.08);
-            border: 1px solid rgba(245,158,11,0.25);
-            border-radius: 9px;
-            padding: 10px 16px;
-            font-size: 0.78rem;
-            color: var(--warning);
-            display: none;
+            margin: 0 24px 18px;
+            background: rgba(245,158,11,0.1);
+            border: 1px solid rgba(245,158,11,0.3);
+            border-radius: 9px; padding: 10px 16px;
+            font-size: 0.79rem; color: var(--warning); display: none;
         }
-
         .limit-bar.show { display: block; }
         .limit-bar a { color: var(--accent2); text-decoration: none; }
 
-        /* ── MODALS ── */
+        /* ══════════════════════════════
+           MODALS
+        ══════════════════════════════ */
         .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(5,10,20,0.85);
+            position: fixed; inset: 0;
+            background: rgba(10,14,26,0.82);
             backdrop-filter: blur(4px);
-            display: none;
-            align-items: center;
-            justify-content: center;
+            display: none; align-items: center; justify-content: center;
             z-index: 100;
         }
-
         .modal-overlay.show { display: flex; }
 
         .modal {
-            background: #0e1828;
+            background: #1e2438;
             border: 1px solid var(--border);
             border-radius: 16px;
             padding: 28px 30px;
-            width: 100%;
-            max-width: 440px;
-            color: var(--text-sidebar);
+            width: 100%; max-width: 440px;
+            color: var(--text-main);
         }
+        .modal h2 { font-size: 1.15rem; margin-bottom: 8px; }
+        .modal > p { font-size: 0.82rem; color: var(--text-dim); margin-bottom: 20px; }
 
-        .modal h2 {
-            font-size: 1.15rem;
-            margin-bottom: 8px;
-        }
-
-        .modal p {
-            font-size: 0.82rem;
-            color: var(--text-muted);
-            margin-bottom: 20px;
-        }
-
-        .plans-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
+        .plans-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
 
         .plan-card {
-            border: 1.5px solid var(--border);
-            border-radius: 10px;
-            padding: 16px;
-            cursor: pointer;
-            transition: all 0.2s;
+            border: 1.5px solid var(--border); border-radius: 10px;
+            padding: 16px; cursor: pointer; transition: all 0.2s;
+            background: var(--surface);
         }
+        .plan-card.selected { border-color: var(--accent); background: rgba(59,130,246,0.1); }
 
-        .plan-card.selected {
-            border-color: var(--accent);
-            background: rgba(59,130,246,0.08);
-        }
-
-        .plan-name { font-size: 0.78rem; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+        .plan-name { font-size: 0.74rem; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.06em; }
         .plan-price { font-size: 1.4rem; font-weight: 700; color: #e8f0ff; font-family: 'IBM Plex Mono', monospace; }
         .plan-price span { font-size: 0.72rem; color: var(--text-muted); }
         .plan-desc { font-size: 0.72rem; color: var(--text-muted); margin-top: 6px; }
 
-        .modal-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin-top: 4px;
-        }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 4px; }
 
         .btn-cancel {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--text-muted);
-            font-size: 0.8rem;
-            padding: 9px 18px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-family: inherit;
+            background: transparent; border: 1px solid var(--border);
+            color: var(--text-dim); font-size: 0.8rem; padding: 9px 18px;
+            border-radius: 8px; cursor: pointer; font-family: inherit;
         }
-
         .btn-continue {
-            background: var(--accent);
-            border: none;
-            color: #fff;
-            font-size: 0.8rem;
-            font-weight: 600;
-            padding: 9px 18px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-family: inherit;
+            background: var(--accent); border: none; color: #fff;
+            font-size: 0.8rem; font-weight: 600; padding: 9px 18px;
+            border-radius: 8px; cursor: pointer; font-family: inherit;
         }
-
         .btn-continue:hover { background: #2563eb; }
 
         .pay-info {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 16px;
-            font-size: 0.82rem;
-            line-height: 1.8;
-            margin-bottom: 14px;
-            color: var(--text-dim);
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 10px; padding: 16px; font-size: 0.82rem;
+            line-height: 1.8; margin-bottom: 14px; color: var(--text-dim);
         }
-
         .pay-input {
-            width: 100%;
-            background: rgba(255,255,255,0.04);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            color: var(--text-sidebar);
-            font-size: 0.82rem;
-            padding: 10px 14px;
-            font-family: 'IBM Plex Mono', monospace;
-            outline: none;
-            margin-bottom: 16px;
+            width: 100%; background: var(--surface2);
+            border: 1px solid var(--border); border-radius: 8px;
+            color: var(--text-main); font-size: 0.82rem;
+            padding: 10px 14px; font-family: 'IBM Plex Mono', monospace;
+            outline: none; margin-bottom: 16px;
         }
-
         .pay-input:focus { border-color: var(--accent); }
 
-        /* ── SCROLLBAR ── */
-        ::-webkit-scrollbar { width: 4px; }
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(100,140,200,0.2); border-radius: 2px; }
+        ::-webkit-scrollbar-thumb { background: rgba(100,140,200,0.25); border-radius: 3px; }
     </style>
 </head>
 <body>
@@ -566,56 +421,50 @@
     <div class="sidebar-section">
         <div class="sidebar-section-title">Əsas Alətlər</div>
         <div class="tool-item active" data-tool="grammar" onclick="setTool(this)">
-            <span class="icon">✍️</span> Qrammatika & İmla
+            <span class="icon">✍️</span><span class="label-text">Qrammatika &amp; İmla</span>
         </div>
         <div class="tool-item" data-tool="tone" onclick="setTool(this)">
-            <span class="icon">🎭</span> Ton Dəyişdirmə
+            <span class="icon">🎭</span><span class="label-text">Ton Dəyişdirmə</span>
         </div>
         <div class="tool-item" data-tool="improve" onclick="setTool(this)">
-            <span class="icon">💡</span> Mətn Təkmilləşdirmə
+            <span class="icon">💡</span><span class="label-text">Mətn Təkmilləşdirmə</span>
         </div>
         <div class="tool-item" data-tool="vocab" onclick="setTool(this)">
-            <span class="icon">📚</span> Söz Ehtiyatı
+            <span class="icon">📚</span><span class="label-text">Söz Ehtiyatı</span>
         </div>
         <div class="tool-item" data-tool="plagiarism" onclick="setTool(this)">
-            <span class="icon">🔍</span> Plagiat Yoxlanışı
+            <span class="icon">🔍</span><span class="label-text">Plagiat Yoxlanışı</span>
         </div>
         <div class="tool-item" data-tool="summary" onclick="setTool(this)">
-            <span class="icon">📋</span> Xülasə Çıxarma
+            <span class="icon">📋</span><span class="label-text">Xülasə Çıxarma</span>
         </div>
         <div class="tool-item" data-tool="generate" onclick="setTool(this)">
-            <span class="icon">⚡</span> AI Mətn Yaratma
+            <span class="icon">⚡</span><span class="label-text">AI Mətn Yaratma</span>
         </div>
         <div class="tool-item" data-tool="rewrite" onclick="setTool(this)">
-            <span class="icon">🔄</span> Yenidən Yazma
+            <span class="icon">🔄</span><span class="label-text">Yenidən Yazma</span>
         </div>
     </div>
 
     <div class="sidebar-section">
         <div class="sidebar-section-title">İdarə Yazışmaları</div>
         <div class="tool-item" data-tool="protokol" data-locked="true" onclick="setTool(this)">
-            <span class="icon">📄</span> Protokol
-            <span class="locked">Biznes</span>
+            <span class="icon">📄</span><span class="label-text">Protokol</span><span class="locked">BİZNES</span>
         </div>
         <div class="tool-item" data-tool="emr" data-locked="true" onclick="setTool(this)">
-            <span class="icon">📜</span> Əmr
-            <span class="locked">Biznes</span>
+            <span class="icon">📜</span><span class="label-text">Əmr</span><span class="locked">BİZNES</span>
         </div>
         <div class="tool-item" data-tool="qerar" data-locked="true" onclick="setTool(this)">
-            <span class="icon">⚖️</span> Qərar
-            <span class="locked">Biznes</span>
+            <span class="icon">⚖️</span><span class="label-text">Qərar</span><span class="locked">BİZNES</span>
         </div>
         <div class="tool-item" data-tool="mektub" data-locked="true" onclick="setTool(this)">
-            <span class="icon">✉️</span> Rəsmi Məktub
-            <span class="locked">Biznes</span>
+            <span class="icon">✉️</span><span class="label-text">Rəsmi Məktub</span><span class="locked">BİZNES</span>
         </div>
         <div class="tool-item" data-tool="arayis" data-locked="true" onclick="setTool(this)">
-            <span class="icon">📑</span> Arayış
-            <span class="locked">Biznes</span>
+            <span class="icon">📑</span><span class="label-text">Arayış</span><span class="locked">BİZNES</span>
         </div>
         <div class="tool-item" data-tool="xidmeti" data-locked="true" onclick="setTool(this)">
-            <span class="icon">🗒️</span> Xidməti Yazı
-            <span class="locked">Biznes</span>
+            <span class="icon">🗒️</span><span class="label-text">Xidməti Yazı</span><span class="locked">BİZNES</span>
         </div>
     </div>
 
@@ -635,7 +484,7 @@
 <!-- MAIN -->
 <main class="main">
     <div class="topbar">
-        <span class="topbar-title" id="topbar-title">✍️ Qrammatika & İmla Yoxlanışı</span>
+        <span class="topbar-title" id="topbar-title">✍️ Qrammatika &amp; İmla Yoxlanışı</span>
         <span class="usage-badge">Bu gün: <span id="usage-count">0</span>/5 sorğu</span>
     </div>
 
@@ -708,7 +557,7 @@
     <div class="modal">
         <h2>Ödəniş</h2>
         <div class="pay-info" id="pay-info">Yüklənir...</div>
-        <p style="font-size:0.8rem; color: var(--text-muted); margin-bottom: 12px;">Ödənişi etdikdən sonra əməliyyat nömrəsini daxil edin:</p>
+        <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:12px;">Ödənişi etdikdən sonra əməliyyat nömrəsini daxil edin:</p>
         <input class="pay-input" id="transaction-id" placeholder="Əməliyyat nömrəsi (məs: AZ123456)" />
         <div class="modal-actions">
             <button class="btn-cancel" onclick="closeModal('payment-modal')">Geri</button>
@@ -720,30 +569,30 @@
 <script>
 // ── Tool config ──
 const TOOLS = {
-    grammar:   { title: '✍️ Qrammatika & İmla Yoxlanışı', label: 'Yoxlanılacaq mətni daxil edin', options: [], placeholder: 'Mətni buraya yazın. Qrammatika, imla və durğu işarəsi xətaları düzəldiləcək...' },
-    tone:      { title: '🎭 Ton Dəyişdirmə', label: 'Mətni daxil edin', options: [{ id:'tone', label:'Ton', values: ['Rəsmi', 'Neytral', 'Mehriban', 'Peşəkar', 'Qısa və aydın'] }], placeholder: 'Tonunu dəyişmək istədiyiniz mətni yazın...' },
-    improve:   { title: '💡 Mətn Təkmilləşdirmə', label: 'Mətni daxil edin', options: [{ id:'style', label:'Üslub', values: ['Ümumi', 'Akademik', 'Biznes', 'Publisistik'] }], placeholder: 'Təkmilləşdirilməsini istədiyiniz mətni yazın...' },
-    vocab:     { title: '📚 Söz Ehtiyatı Zənginləşdirmə', label: 'Mətni daxil edin', options: [], placeholder: 'Söz ehtiyatını zənginləşdirmək istədiyiniz mətni yazın...' },
-    plagiarism:{ title: '🔍 Plagiat & Orijinallıq Yoxlanışı', label: 'Yoxlanılacaq mətni daxil edin', options: [], placeholder: 'Orijinallığını yoxlamaq istədiyiniz mətni yazın...' },
-    summary:   { title: '📋 Xülasə Çıxarma', label: 'Uzun mətni daxil edin', options: [{ id:'length', label:'Uzunluq', values: ['Qısa (2-3 cümlə)', 'Orta (1 paraqraf)', 'Ətraflı (3-5 paraqraf)'] }], placeholder: 'Xülasəsini çıxarmaq istədiyiniz mətni yazın...' },
-    generate:  { title: '⚡ AI Mətn Yaratma', label: 'Mövzu və ya təlimat yazın', options: [{ id:'type', label:'Mətn növü', values: ['Email / Məktub', 'Esse / Məqalə', 'CV / Müraciət', 'Sosial media postu', 'Prezentasiya mətni', 'Breynstörm'] }], placeholder: 'Nə yazmaq istədiyinizi qısaca izah edin...' },
-    rewrite:   { title: '🔄 Yenidən Yazma', label: 'Mətni daxil edin', options: [{ id:'mode', label:'Rejim', values: ['Sadələşdir', 'Genişləndir', 'Rəsmiləşdir', 'Qısalt', 'Fərqli üslubda yaz'] }], placeholder: 'Yenidən yazılmasını istədiyiniz mətni daxil edin...' },
-    protokol:  { title: '📄 Protokol Generasiyası', label: 'İclasın gedişatını yazın', options: [], placeholder: 'İclasın qısa gedişatını, iştirakçıları və qərarları yazın...' },
-    emr:       { title: '📜 Əmr Yazma', label: 'Əmrin mövzusunu yazın', options: [], placeholder: 'Əmrin mövzusunu və əsas məzmununu qısaca izah edin...' },
-    qerar:     { title: '⚖️ Qərar Hazırlama', label: 'Qərarın mövzusunu yazın', options: [], placeholder: 'Qərarın mövzusunu və əsas müddəalarını izah edin...' },
-    mektub:    { title: '✉️ Rəsmi Məktub', label: 'Məktubun məzmununu yazın', options: [], placeholder: 'Məktubun mövzusunu, göndərəni, alanı və əsas məzmunu izah edin...' },
-    arayis:    { title: '📑 Arayış Hazırlama', label: 'Arayışın mövzusunu yazın', options: [], placeholder: 'Arayışın mövzusunu və lazımi məlumatları yazın...' },
-    xidmeti:   { title: '🗒️ Xidməti Yazı / İzahat', label: 'Mövzunu yazın', options: [], placeholder: 'Xidməti yazının mövzusunu və əsas məzmununu izah edin...' },
+    grammar:    { title: '✍️ Qrammatika & İmla Yoxlanışı',    label: 'Yoxlanılacaq mətni daxil edin', options: [], placeholder: 'Mətni buraya yazın. Qrammatika, imla və durğu işarəsi xətaları düzəldiləcək...' },
+    tone:       { title: '🎭 Ton Dəyişdirmə',                  label: 'Mətni daxil edin', options: [{ id:'tone',   label:'Ton',       values: ['Rəsmi','Neytral','Mehriban','Peşəkar','Qısa və aydın'] }], placeholder: 'Tonunu dəyişmək istədiyiniz mətni yazın...' },
+    improve:    { title: '💡 Mətn Təkmilləşdirmə',             label: 'Mətni daxil edin', options: [{ id:'style',  label:'Üslub',     values: ['Ümumi','Akademik','Biznes','Publisistik'] }], placeholder: 'Təkmilləşdirilməsini istədiyiniz mətni yazın...' },
+    vocab:      { title: '📚 Söz Ehtiyatı Zənginləşdirmə',    label: 'Mətni daxil edin', options: [], placeholder: 'Söz ehtiyatını zənginləşdirmək istədiyiniz mətni yazın...' },
+    plagiarism: { title: '🔍 Plagiat & Orijinallıq Yoxlanışı', label: 'Yoxlanılacaq mətni daxil edin', options: [], placeholder: 'Orijinallığını yoxlamaq istədiyiniz mətni yazın...' },
+    summary:    { title: '📋 Xülasə Çıxarma',                  label: 'Uzun mətni daxil edin', options: [{ id:'length', label:'Uzunluq', values: ['Qısa (2-3 cümlə)','Orta (1 paraqraf)','Ətraflı (3-5 paraqraf)'] }], placeholder: 'Xülasəsini çıxarmaq istədiyiniz mətni yazın...' },
+    generate:   { title: '⚡ AI Mətn Yaratma',                  label: 'Mövzu və ya təlimat yazın', options: [{ id:'type', label:'Mətn növü', values: ['Email / Məktub','Esse / Məqalə','CV / Müraciət','Sosial media postu','Prezentasiya mətni','Breynstörm'] }], placeholder: 'Nə yazmaq istədiyinizi qısaca izah edin...' },
+    rewrite:    { title: '🔄 Yenidən Yazma',                   label: 'Mətni daxil edin', options: [{ id:'mode', label:'Rejim', values: ['Sadələşdir','Genişləndir','Rəsmiləşdir','Qısalt','Fərqli üslubda yaz'] }], placeholder: 'Yenidən yazılmasını istədiyiniz mətni daxil edin...' },
+    protokol:   { title: '📄 Protokol Generasiyası',           label: 'İclasın gedişatını yazın', options: [], placeholder: 'İclasın qısa gedişatını, iştirakçıları və qərarları yazın...' },
+    emr:        { title: '📜 Əmr Yazma',                       label: 'Əmrin mövzusunu yazın', options: [], placeholder: 'Əmrin mövzusunu və əsas məzmununu qısaca izah edin...' },
+    qerar:      { title: '⚖️ Qərar Hazırlama',                 label: 'Qərarın mövzusunu yazın', options: [], placeholder: 'Qərarın mövzusunu və əsas müddəalarını izah edin...' },
+    mektub:     { title: '✉️ Rəsmi Məktub',                    label: 'Məktubun məzmununu yazın', options: [], placeholder: 'Məktubun mövzusunu, göndərəni, alanı və əsas məzmunu izah edin...' },
+    arayis:     { title: '📑 Arayış Hazırlama',                label: 'Arayışın mövzusunu yazın', options: [], placeholder: 'Arayışın mövzusunu və lazımi məlumatları yazın...' },
+    xidmeti:    { title: '🗒️ Xidməti Yazı / İzahat',          label: 'Mövzunu yazın', options: [], placeholder: 'Xidməti yazının mövzusunu və əsas məzmununu izah edin...' },
 };
 
-let currentTool = 'grammar';
+let currentTool  = 'grammar';
 let selectedPlan = 'ferdi';
-let usageCount = 0;
+let usageCount   = 0;
 const DAILY_LIMIT = 5;
 
 // ── Token idarəsi ──
-(function() {
-    const params = new URLSearchParams(window.location.search);
+(function () {
+    const params   = new URLSearchParams(window.location.search);
     const urlToken = params.get('token');
     if (urlToken) {
         localStorage.setItem('setir_token', urlToken);
@@ -753,50 +602,37 @@ const DAILY_LIMIT = 5;
     }
 })();
 
-function getToken() {
-    return localStorage.getItem('setir_token');
-}
-
+function getToken()    { return localStorage.getItem('setir_token'); }
 function authHeaders() {
     const token = getToken();
-    return {
-        'Content-Type': 'application/json',
-        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
-    };
+    return { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Bearer ${token}` } : {}) };
 }
 
-// ── User yüklənməsi ──
+// ── İstifadəçi yüklənməsi ──
 async function loadUser() {
     try {
         const token = getToken();
         if (!token) { window.location.href = '/login'; return; }
-        const res = await fetch('/api/auth/me', {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const res = await fetch('/api/auth/me', { headers: { 'Authorization': `Bearer ${token}` } });
         if (!res.ok) { window.location.href = '/login'; return; }
         const user = await res.json();
         const name = user.displayName || user.name || 'İstifadəçi';
-        document.getElementById('user-name').innerText = name;
+        document.getElementById('user-name').innerText   = name;
         document.getElementById('user-avatar').innerText = name.charAt(0).toUpperCase();
-        const plan = user.plan || 'pulsuz';
+        const plan   = user.plan || 'pulsuz';
         const planEl = document.getElementById('user-plan');
         if (plan === 'ferdi') {
-            planEl.innerText = 'Fərdi Paket';
-            planEl.className = 'user-plan ferdi';
+            planEl.innerText = 'Fərdi Paket'; planEl.className = 'user-plan ferdi';
         } else if (plan === 'biznes') {
-            planEl.innerText = 'Biznes Paketi';
-            planEl.className = 'user-plan biznes';
+            planEl.innerText = 'Biznes Paketi'; planEl.className = 'user-plan biznes';
             unlockBiznes();
         } else {
-            planEl.innerText = 'Pulsuz Paket';
-            planEl.className = 'user-plan free';
+            planEl.innerText = 'Pulsuz Paket'; planEl.className = 'user-plan free';
         }
         if (plan !== 'pulsuz' && plan !== 'free') {
             document.querySelector('.upgrade-btn').style.display = 'none';
         }
-    } catch (e) {
-        window.location.href = '/login';
-    }
+    } catch (e) { window.location.href = '/login'; }
 }
 
 function unlockBiznes() {
@@ -809,28 +645,23 @@ function unlockBiznes() {
 
 // ── Alət dəyişdirmə ──
 function setTool(el) {
-    const tool = el.getAttribute('data-tool');
+    const tool   = el.getAttribute('data-tool');
     const locked = el.getAttribute('data-locked');
     if (locked) { showUpgrade(); return; }
     document.querySelectorAll('.tool-item').forEach(t => t.classList.remove('active'));
     el.classList.add('active');
     currentTool = tool;
     const cfg = TOOLS[tool];
-    document.getElementById('topbar-title').innerText = cfg.title;
-    document.getElementById('input-label').innerText = cfg.label;
-    document.getElementById('input-text').placeholder = cfg.placeholder;
-    // options render
+    document.getElementById('topbar-title').innerText         = cfg.title;
+    document.getElementById('input-label').innerText          = cfg.label;
+    document.getElementById('input-text').placeholder         = cfg.placeholder;
     const row = document.getElementById('options-row');
     row.innerHTML = '';
     cfg.options.forEach(opt => {
         const sel = document.createElement('select');
         sel.className = 'opt-select';
-        sel.id = 'opt-' + opt.id;
-        opt.values.forEach(v => {
-            const o = document.createElement('option');
-            o.value = v; o.text = v;
-            sel.appendChild(o);
-        });
+        sel.id        = 'opt-' + opt.id;
+        opt.values.forEach(v => { const o = document.createElement('option'); o.value = v; o.text = v; sel.appendChild(o); });
         row.appendChild(sel);
     });
     clearOutput();
@@ -842,7 +673,7 @@ async function processText() {
     if (!text) { alert('Zəhmət olmasa mətn daxil edin.'); return; }
     if (usageCount >= DAILY_LIMIT) { showUpgrade(); return; }
 
-    const btn = document.getElementById('process-btn');
+    const btn     = document.getElementById('process-btn');
     const spinner = document.getElementById('spinner');
     const btnText = document.getElementById('btn-text');
     btn.disabled = true;
@@ -852,19 +683,13 @@ async function processText() {
     document.getElementById('output-text').classList.remove('visible');
     document.getElementById('copy-btn').classList.remove('visible');
 
-    // seçilmiş options topla
     const opts = {};
-    const row = document.getElementById('options-row');
-    row.querySelectorAll('select').forEach(sel => {
+    document.getElementById('options-row').querySelectorAll('select').forEach(sel => {
         opts[sel.id.replace('opt-', '')] = sel.value;
     });
 
     try {
-        const res = await fetch('/api/ai/process', {
-            method: 'POST',
-            headers: authHeaders(),
-            body: JSON.stringify({ text, tool: currentTool, options: opts })
-        });
+        const res  = await fetch('/api/ai/process', { method: 'POST', headers: authHeaders(), body: JSON.stringify({ text, tool: currentTool, options: opts }) });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Xəta baş verdi');
         showOutput(data.result);
@@ -895,13 +720,11 @@ function clearOutput() {
 }
 
 function updateChar() {
-    const len = document.getElementById('input-text').value.length;
-    document.getElementById('char-count').innerText = len;
+    document.getElementById('char-count').innerText = document.getElementById('input-text').value.length;
 }
 
 async function copyResult() {
-    const text = document.getElementById('output-text').innerText;
-    await navigator.clipboard.writeText(text);
+    await navigator.clipboard.writeText(document.getElementById('output-text').innerText);
     const btn = document.getElementById('copy-btn');
     btn.innerText = '✓ Kopyalandı';
     btn.classList.add('copied');
@@ -909,21 +732,15 @@ async function copyResult() {
 }
 
 // ── Upgrade & Ödəniş ──
-function showUpgrade() {
-    document.getElementById('upgrade-modal').classList.add('show');
-}
-
-function closeModal(id) {
-    document.getElementById(id).classList.remove('show');
-}
-
+function showUpgrade()       { document.getElementById('upgrade-modal').classList.add('show'); }
+function closeModal(id)      { document.getElementById(id).classList.remove('show'); }
 function selectPlan(el, plan) {
     document.querySelectorAll('.plan-card').forEach(c => c.classList.remove('selected'));
     el.classList.add('selected');
     selectedPlan = plan;
 }
 
-const CARD_NUMBER = 'XXXX XXXX XXXX XXXX'; // Öz kart nömrəni bura yaz
+const CARD_NUMBER = 'XXXX XXXX XXXX XXXX';
 
 function showPayment() {
     closeModal('upgrade-modal');
@@ -944,19 +761,14 @@ async function submitPayment() {
     if (!txId) { alert('Əməliyyat nömrəsini daxil edin.'); return; }
     try {
         const res = await fetch('/api/subscription/request', {
-            method: 'POST',
-            headers: authHeaders(),
+            method: 'POST', headers: authHeaders(),
             body: JSON.stringify({ plan: selectedPlan, transaction_id: txId })
         });
         if (res.ok) {
             closeModal('payment-modal');
             alert('✅ Sorğunuz qəbul edildi! Admin təsdiqindən sonra planınız aktivləşəcək (adətən 1-2 saat ərzində).');
-        } else {
-            alert('Xəta baş verdi. Yenidən cəhd edin.');
-        }
-    } catch (e) {
-        alert('Server ilə əlaqə xətası.');
-    }
+        } else { alert('Xəta baş verdi. Yenidən cəhd edin.'); }
+    } catch (e) { alert('Server ilə əlaqə xətası.'); }
 }
 
 function logout() {
@@ -964,7 +776,6 @@ function logout() {
     window.location.href = '/login';
 }
 
-// İlk yüklənmə
 loadUser();
 </script>
 </body>
