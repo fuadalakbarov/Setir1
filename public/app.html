@@ -864,9 +864,7 @@ function processFile(file) {
           const page = await pdf.getPage(pageNum);
           const content = await page.getTextContent();
           const pageText = content.items.map(item => item.str).join(' ');
-          fullText += pageText + '
-
-';
+          fullText += pageText + '\n\n';
         }
         document.getElementById('editor').innerText = fullText.trim() || '[PDF mətni tapılmadı]';
       } catch(err) {
