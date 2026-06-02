@@ -218,6 +218,7 @@
     .plan-ferdi { background: rgba(41,128,185,0.15); color: var(--blue); }
     .plan-biznes { background: rgba(39,174,96,0.15); color: var(--green); }
   </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
 <body>
 
@@ -596,7 +597,7 @@ async function checkGrammar() {
   try {
     // Grammar check — JSON cavab istəyirik, buna görə ayrı bir endpoint yoxdur,
     // aiController-dəki 'grammar' tool-u istifadə edirik amma JSON parse edirik
-    const raw = await callAPI('grammar', text.slice(0, 2000));
+    const raw = await callAPI('grammar', text.slice(0, 8000));
 
     // Backend plain text qaytarır — onu da parse etməyə çalışırıq
     // Əgər JSON formatında cavab gəlirsə
@@ -750,14 +751,19 @@ function renderErrors() {
     list.innerHTML = `<div class="errors-empty"><div class="errors-empty-icon">✅</div>Heç bir səhv tapılmadı.</div>`;
     return;
   }
-  list.innerHTML = errors.map((e, i) => `
+  const typeLabels = {orfoqrafiya:'Orfoqrafiya','durğu':'Durğu işarəsi',qrammatika:'Qrammatika','böyük hərf':'Böyük hərf',bitişiklik:'Bitişiklik','söz seçimi':'Söz seçimi'};
+  list.innerHTML = errors.map((e, i) => {
+    const typeKey = (e.type||'').toLowerCase();
+    const typeLabel = typeLabels[typeKey] || e.type || 'Hərf işləməsi';
+    return `
     <div class="error-card" id="ecard-${i}">
       <button class="error-card-close" onclick="dismissError(${i})">✕</button>
       <div class="error-card-word">${escHtml(e.word || '')}</div>
-      <div class="error-card-desc">${escHtml(e.description || '')}</div>
+      <div class="error-card-desc"><span style="display:inline-block;font-size:10px;padding:1px 6px;border-radius:10px;background:rgba(231,76,60,0.15);color:#e74c3c;margin-bottom:4px">${escHtml(typeLabel)}</span><br>${escHtml(e.description || '')}</div>
       <div class="error-card-suggestion">${escHtml(e.suggestion || '')}</div>
       <button class="error-card-apply" onclick="applyFix(${i})">✓ Düzəltməni tətbiq et</button>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 function highlightErrors() {
@@ -844,6 +850,34 @@ function processFile(file) {
     const r = new FileReader();
     r.onload = e => { document.getElementById('editor').innerText = e.target.result; updateCounts(); showToast('Fayl yükləndi', 'success'); };
     r.readAsText(file);
+  } else if (ext === 'pdf') {
+    showToast('PDF oxunur...', 'success');
+    const r = new FileReader();
+    r.onload = async e => {
+      try {
+        const typedArray = new Uint8Array(e.target.result);
+        const pdfjsLib = window['pdfjs-dist/build/pdf'];
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        const pdf = await pdfjsLib.getDocument({ data: typedArray }).promise;
+        let fullText = '';
+        for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+          const page = await pdf.getPage(pageNum);
+          const content = await page.getTextContent();
+          const pageText = content.items.map(item => item.str).join(' ');
+          fullText += pageText + '
+
+';
+        }
+        document.getElementById('editor').innerText = fullText.trim() || '[PDF mətni tapılmadı]';
+      } catch(err) {
+        console.error('PDF xətası:', err);
+        document.getElementById('editor').innerText = '[PDF oxuna bilmədi: ' + file.name + ']';
+        showToast('PDF oxuma xətası', 'error');
+      }
+      updateCounts();
+      showToast('PDF yükləndi', 'success');
+    };
+    r.readAsArrayBuffer(file);
   } else {
     const r = new FileReader();
     r.onload = e => {
