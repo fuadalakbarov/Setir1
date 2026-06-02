@@ -19,10 +19,25 @@ exports.processText = async (req, res) => {
 
   switch(tool) {
     case 'grammar':
-      prompt = `Aşağıdakı mətndə orfoqrafiya, qrammatika və durğu işarəsi səhvlərini tap.
-YALNIZ aşağıdakı JSON formatında cavab ver, başqa heç nə yazma:
-{"errors": [{"word": "səhv söz", "suggestion": "düzgün variant", "description": "qısa izahat"}]}
-Əgər səhv yoxdursa: {"errors": []}
+      prompt = `Sən Azərbaycan dili üzrə ekspert redaktorsən. Aşağıdakı mətni çox diqqətlə, söz-söz oxu və BÜTÜN səhvləri tap.
+
+Axtarılacaq səhv növləri:
+1. Orfoqrafiya - hərflərin buraxılması, əlavə hərflər, yanlış hərflər (ə/e, ı/i, ö/o, ü/u, ğ/g, ş/s, ç/c)
+2. Durğu işarəsi - vergülün, nöqtənin, sual işarəsinin buraxılması, sözlər arasında vergül olmalıdırsa tap
+3. Qrammatika - şəkilçilərin yanlış işlədilməsi, söz birləşmələrindəki xətalar
+4. Böyük/kiçik hərf - cümlə kiçik hərflə başlayırsa, xüsusi isimlər kiçik yazılıbsa
+5. Bitişik/ayrı yazılış - yanlış bitişik və ya ayrı yazılmış sözlər
+6. Söz seçimi - kontekstə uymayan, yanlış işlədilmiş sözlər
+
+VACIB QAYDALAR:
+- Hər bir ayrı səhv üçün ayrıca JSON obyekti yarat
+- "word" sahəsindəki mətni MÜTLƏQ orijinal mətndən olduğu kimi kopyala
+- Bir cümlədə 10 səhv varsa, 10 ayrı qeyd yaz
+- Heç bir səhvi buraxma
+
+YALNIZ bu JSON formatında cavab ver, əvvəl-sonra heç nə əlavə etmə:
+{"errors": [{"word": "orijinal səhv söz", "suggestion": "düzgün variant", "type": "orfoqrafiya", "description": "izahat"}]}
+Səhv yoxdursa: {"errors": []}
 
 Mətn:
 ${text}`;
@@ -72,7 +87,8 @@ ${text}`;
       'https://api.groq.com/openai/v1/chat/completions',
       {
         model: 'llama-3.3-70b-versatile',
-        max_tokens: 2000,
+        max_tokens: 4000,
+        temperature: 0.1,
         messages: [
           { role: 'system', content: system },
           { role: 'user', content: prompt }
