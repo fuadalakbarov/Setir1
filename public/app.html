@@ -7,572 +7,227 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --bg: #f8f6f1;
-      --bg2: #f0ede5;
-      --sidebar-bg: #1a1a2e;
-      --sidebar-text: #c8c0d4;
-      --sidebar-muted: #7a728a;
-      --sidebar-active: #e8e0f0;
-      --surface: #ffffff;
-      --surface2: #f4f1ea;
-      --border: #ddd8cc;
-      --border2: #e8e4da;
-      --text: #1c1a16;
-      --text2: #4a4540;
-      --text3: #8a8278;
-      --accent: #c0392b;
-      --accent2: #e74c3c;
-      --green: #27ae60;
-      --green2: #2ecc71;
-      --blue: #2980b9;
-      --shadow: 0 1px 4px rgba(0,0,0,0.08);
-      --shadow2: 0 4px 20px rgba(0,0,0,0.1);
-      --sidebar-w: 260px;
-      --header-h: 56px;
-      --radius: 10px;
-      --error-color: #c0392b;
-      --suggestion-color: #27ae60;
+      --bg: #f8f6f1; --bg2: #f0ede5;
+      --sidebar-bg: #1a1a2e; --sidebar-text: #c8c0d4; --sidebar-muted: #7a728a;
+      --surface: #ffffff; --surface2: #f4f1ea;
+      --border: #ddd8cc; --border2: #e8e4da;
+      --text: #1c1a16; --text2: #4a4540; --text3: #8a8278;
+      --accent: #c0392b; --accent2: #e74c3c;
+      --green: #27ae60; --green2: #2ecc71; --blue: #2980b9;
+      --shadow: 0 1px 4px rgba(0,0,0,0.08); --shadow2: 0 4px 20px rgba(0,0,0,0.1);
+      --sidebar-w: 260px; --header-h: 56px; --radius: 10px;
     }
+    body { font-family: 'Source Serif 4', serif; background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-    body {
-      font-family: 'Source Serif 4', serif;
-      background: var(--bg);
-      color: var(--text);
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
-    /* ── TOP HEADER ── */
-    .topbar {
-      height: var(--header-h);
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      padding: 0 16px;
-      gap: 12px;
-      z-index: 100;
-      box-shadow: var(--shadow);
-      flex-shrink: 0;
-    }
-    .topbar-logo {
-      font-family: 'Playfair Display', serif;
-      font-size: 22px;
-      font-weight: 600;
-      color: var(--sidebar-bg);
-      letter-spacing: -0.5px;
-    }
+    /* TOPBAR */
+    .topbar { height: var(--header-h); background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 16px; gap: 12px; z-index: 100; box-shadow: var(--shadow); flex-shrink: 0; }
+    .topbar-logo { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 600; color: var(--sidebar-bg); letter-spacing: -0.5px; }
     .topbar-logo span { color: var(--accent); }
     .topbar-divider { width: 1px; height: 28px; background: var(--border); margin: 0 4px; }
-    .topbar-docname {
-      flex: 1;
-      font-size: 14px;
-      color: var(--text2);
-      font-family: 'Source Serif 4', serif;
-      font-style: italic;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
+    .topbar-docname { flex: 1; font-size: 14px; color: var(--text2); font-style: italic; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .topbar-actions { display: flex; gap: 8px; align-items: center; }
 
-    .btn {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 7px 14px; border-radius: 7px; border: none; cursor: pointer;
-      font-family: inherit; font-size: 13px; font-weight: 500;
-      transition: all 0.15s; white-space: nowrap;
-    }
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 7px; border: none; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 500; transition: all 0.15s; white-space: nowrap; }
     .btn-ghost { background: transparent; color: var(--text2); border: 1px solid var(--border); }
-    .btn-ghost:hover { background: var(--bg2); border-color: var(--border2); }
+    .btn-ghost:hover { background: var(--bg2); }
     .btn-primary { background: var(--sidebar-bg); color: #fff; }
     .btn-primary:hover { background: #2d2b45; }
     .btn-green { background: var(--green); color: #fff; }
     .btn-green:hover { background: #219a52; }
-    .btn-danger { background: var(--accent); color: #fff; }
     .btn-icon { padding: 7px 9px; }
 
-    /* ── LAYOUT ── */
-    .layout {
-      display: flex;
-      flex: 1;
-      overflow: hidden;
-    }
+    /* LAYOUT */
+    .layout { display: flex; flex: 1; overflow: hidden; }
 
-    /* ── SIDEBAR ── */
-    .sidebar {
-      width: var(--sidebar-w);
-      background: var(--sidebar-bg);
-      display: flex;
-      flex-direction: column;
-      transition: width 0.25s cubic-bezier(0.4,0,0.2,1), transform 0.25s;
-      overflow: hidden;
-      flex-shrink: 0;
-      z-index: 50;
-    }
+    /* SIDEBAR */
+    .sidebar { width: var(--sidebar-w); background: var(--sidebar-bg); display: flex; flex-direction: column; transition: width 0.25s cubic-bezier(0.4,0,0.2,1); overflow: hidden; flex-shrink: 0; z-index: 50; }
     .sidebar.collapsed { width: 52px; }
-    .sidebar.collapsed .sidebar-label,
-    .sidebar.collapsed .sidebar-section-title,
-    .sidebar.collapsed .doc-item-info,
-    .sidebar.collapsed .sidebar-footer-text { display: none; }
+    .sidebar.collapsed .sidebar-label, .sidebar.collapsed .sidebar-section-title, .sidebar.collapsed .doc-item-info, .sidebar.collapsed .sidebar-footer-text { display: none; }
     .sidebar.collapsed .sidebar-item { justify-content: center; padding: 10px; }
-    .sidebar.collapsed .sidebar-item svg { margin: 0; }
-
-    .sidebar-header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 14px 14px 10px;
-      border-bottom: 1px solid rgba(255,255,255,0.07);
-    }
-    .sidebar-brand {
-      font-family: 'Playfair Display', serif;
-      font-size: 18px; color: #fff; font-weight: 600;
-      transition: opacity 0.2s;
-    }
+    .sidebar-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 14px 10px; border-bottom: 1px solid rgba(255,255,255,0.07); }
+    .sidebar-brand { font-family: 'Playfair Display', serif; font-size: 18px; color: #fff; font-weight: 600; }
     .sidebar.collapsed .sidebar-brand { display: none; }
-    .sidebar-toggle {
-      background: none; border: none; cursor: pointer;
-      color: var(--sidebar-muted); padding: 4px; border-radius: 5px;
-      display: flex; align-items: center; justify-content: center;
-      transition: color 0.15s, background 0.15s;
-    }
+    .sidebar-toggle { background: none; border: none; cursor: pointer; color: var(--sidebar-muted); padding: 4px; border-radius: 5px; display: flex; align-items: center; transition: color 0.15s, background 0.15s; }
     .sidebar-toggle:hover { color: #fff; background: rgba(255,255,255,0.08); }
-
     .sidebar-content { flex: 1; overflow-y: auto; padding: 8px 0; }
     .sidebar-content::-webkit-scrollbar { width: 4px; }
-    .sidebar-content::-webkit-scrollbar-track { background: transparent; }
     .sidebar-content::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 2px; }
-
-    .sidebar-section-title {
-      font-size: 10px; font-weight: 600; letter-spacing: 1.2px;
-      color: var(--sidebar-muted); text-transform: uppercase;
-      padding: 10px 16px 4px; font-family: 'JetBrains Mono', monospace;
-    }
-    .sidebar-item {
-      display: flex; align-items: center; gap: 10px;
-      padding: 9px 14px; cursor: pointer; border-radius: 0;
-      color: var(--sidebar-text); font-size: 13.5px;
-      transition: background 0.12s, color 0.12s;
-      border-left: 3px solid transparent;
-      user-select: none;
-    }
+    .sidebar-section-title { font-size: 10px; font-weight: 600; letter-spacing: 1.2px; color: var(--sidebar-muted); text-transform: uppercase; padding: 10px 16px 4px; font-family: 'JetBrains Mono', monospace; }
+    .sidebar-item { display: flex; align-items: center; gap: 10px; padding: 9px 14px; cursor: pointer; color: var(--sidebar-text); font-size: 13.5px; transition: background 0.12s, color 0.12s; border-left: 3px solid transparent; user-select: none; }
     .sidebar-item:hover { background: rgba(255,255,255,0.06); color: #fff; }
     .sidebar-item.active { background: rgba(255,255,255,0.1); color: #fff; border-left-color: var(--accent2); }
     .sidebar-item svg { flex-shrink: 0; width: 16px; height: 16px; opacity: 0.75; }
     .sidebar-item.active svg { opacity: 1; }
-    .sidebar-label { font-family: 'Source Serif 4', serif; }
-
     .doc-list { padding: 4px 0; }
-    .doc-item {
-      display: flex; align-items: flex-start; gap: 8px;
-      padding: 8px 14px 8px 16px; cursor: pointer;
-      border-left: 3px solid transparent;
-      transition: background 0.12s;
-    }
+    .doc-item { display: flex; align-items: flex-start; gap: 8px; padding: 8px 14px 8px 16px; cursor: pointer; border-left: 3px solid transparent; transition: background 0.12s; }
     .doc-item:hover { background: rgba(255,255,255,0.05); }
     .doc-item.active { background: rgba(255,255,255,0.08); border-left-color: var(--green); }
     .doc-item-icon { color: var(--sidebar-muted); flex-shrink: 0; margin-top: 2px; }
     .doc-item-info { min-width: 0; }
-    .doc-item-name {
-      font-size: 12.5px; color: var(--sidebar-text);
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-      max-width: 170px;
-    }
+    .doc-item-name { font-size: 12.5px; color: var(--sidebar-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 170px; }
     .doc-item-meta { font-size: 10px; color: var(--sidebar-muted); margin-top: 2px; font-family: 'JetBrains Mono', monospace; }
-
-    .sidebar-footer {
-      border-top: 1px solid rgba(255,255,255,0.07);
-      padding: 10px 14px;
-    }
+    .sidebar-footer { border-top: 1px solid rgba(255,255,255,0.07); padding: 10px 14px; }
     .sidebar-footer-text { font-size: 11px; color: var(--sidebar-muted); }
 
-    /* ── MAIN ── */
-    .main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      min-width: 0;
-    }
+    /* MAIN */
+    .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
 
-    /* ── TOOLBAR ── */
-    .toolbar {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 8px 16px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-      flex-shrink: 0;
-    }
+    /* TOOLBAR */
+    .toolbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 6px 16px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; flex-shrink: 0; }
     .toolbar-sep { width: 1px; height: 22px; background: var(--border); }
 
-    /* ── CONTENT AREA ── */
-    .content-area {
-      flex: 1;
-      display: flex;
-      overflow: hidden;
-    }
+    /* AI TOOLBAR */
+    .ai-toolbar { background: var(--surface2); border-bottom: 1px solid var(--border); padding: 6px 16px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; flex-shrink: 0; }
+    .ai-toolbar-label { font-size: 10.5px; font-weight: 600; letter-spacing: 0.8px; color: var(--text3); text-transform: uppercase; font-family: 'JetBrains Mono', monospace; margin-right: 4px; }
+    .ai-btn { display: inline-flex; align-items: center; gap: 5px; padding: 5px 11px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; font-family: inherit; font-size: 12px; color: var(--text2); transition: all 0.15s; white-space: nowrap; }
+    .ai-btn:hover { background: var(--bg2); border-color: #bbb; color: var(--text); }
+    .ai-btn.active { background: var(--sidebar-bg); color: #fff; border-color: var(--sidebar-bg); }
+    .ai-btn.biznes-only { border-style: dashed; color: var(--text3); }
+    .ai-btn.biznes-only:hover { border-color: var(--blue); color: var(--blue); background: rgba(41,128,185,0.06); }
+    .ai-sep { width: 1px; height: 20px; background: var(--border); }
 
-    /* ── EDITOR PANEL ── */
-    .editor-panel {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      min-width: 0;
-      background: var(--bg);
-    }
-
-    .editor-wrap {
-      flex: 1;
-      overflow-y: auto;
-      padding: 32px 40px;
-    }
+    /* CONTENT */
+    .content-area { flex: 1; display: flex; overflow: hidden; }
+    .editor-panel { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; background: var(--bg); }
+    .editor-wrap { flex: 1; overflow-y: auto; padding: 28px 32px; position: relative; }
     .editor-wrap::-webkit-scrollbar { width: 6px; }
-    .editor-wrap::-webkit-scrollbar-track { background: transparent; }
     .editor-wrap::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
-    #editor {
-      max-width: 760px;
-      margin: 0 auto;
-      min-height: 400px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 32px 40px;
-      font-family: 'Source Serif 4', serif;
-      font-size: 16.5px;
-      line-height: 1.85;
-      color: var(--text);
-      outline: none;
-      box-shadow: var(--shadow2);
-      position: relative;
-    }
+    #editor { max-width: 760px; margin: 0 auto; min-height: 380px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px 40px; font-family: 'Source Serif 4', serif; font-size: 16.5px; line-height: 1.85; color: var(--text); outline: none; box-shadow: var(--shadow2); }
     #editor:focus { border-color: #bbb; box-shadow: 0 4px 24px rgba(0,0,0,0.12); }
-    #editor[data-placeholder]:empty::before {
-      content: attr(data-placeholder);
-      color: var(--text3);
-      font-style: italic;
-      pointer-events: none;
-    }
+    #editor[data-placeholder]:empty::before { content: attr(data-placeholder); color: var(--text3); font-style: italic; pointer-events: none; }
 
-    /* Error highlights */
-    .err-word {
-      color: var(--error-color);
-      border-bottom: 2px solid var(--error-color);
-      cursor: pointer;
-      position: relative;
-      transition: background 0.15s;
-      border-radius: 2px;
-    }
+    /* AI RESULT PANEL */
+    .ai-result-panel { max-width: 760px; margin: 12px auto 0; background: var(--surface); border: 1px solid #b8d4ed; border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); display: none; }
+    .ai-result-panel.visible { display: block; }
+    .ai-result-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; background: rgba(41,128,185,0.06); border-bottom: 1px solid #b8d4ed; }
+    .ai-result-title { font-size: 12px; font-weight: 600; color: var(--blue); font-family: 'JetBrains Mono', monospace; display: flex; align-items: center; gap: 6px; }
+    .ai-result-actions { display: flex; gap: 6px; }
+    .ai-result-body { padding: 16px 20px; font-size: 15px; line-height: 1.8; color: var(--text); white-space: pre-wrap; max-height: 340px; overflow-y: auto; }
+
+    /* ERRORS PANEL */
+    .err-word { color: var(--accent); border-bottom: 2px solid var(--accent); cursor: pointer; position: relative; border-radius: 2px; }
     .err-word:hover { background: rgba(192,57,43,0.08); }
-    .err-word.applied {
-      color: var(--suggestion-color);
-      border-bottom-color: var(--suggestion-color);
-      background: rgba(39,174,96,0.08);
-    }
+    .err-word.applied { color: var(--green); border-bottom-color: var(--green); background: rgba(39,174,96,0.08); }
+    .suggestion-tooltip { position: absolute; background: var(--sidebar-bg); color: #fff; border-radius: 7px; padding: 6px 10px; font-size: 12px; white-space: nowrap; z-index: 200; box-shadow: 0 4px 16px rgba(0,0,0,0.25); pointer-events: none; opacity: 0; transition: opacity 0.15s; top: -34px; left: 0; }
+    .suggestion-tooltip::after { content: ''; position: absolute; top: 100%; left: 12px; border: 5px solid transparent; border-top-color: var(--sidebar-bg); }
+    .err-word:hover .suggestion-tooltip { opacity: 1; }
+    .sug-green { color: var(--green2); font-weight: 600; }
 
-    /* Inline suggestion tooltip */
-    .suggestion-tooltip {
-      position: absolute;
-      background: var(--sidebar-bg);
-      color: #fff;
-      border-radius: 7px;
-      padding: 6px 10px;
-      font-size: 12.5px;
-      white-space: nowrap;
-      z-index: 200;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.15s;
-      top: -34px;
-      left: 0;
-    }
-    .suggestion-tooltip::after {
-      content: '';
-      position: absolute;
-      top: 100%; left: 12px;
-      border: 5px solid transparent;
-      border-top-color: var(--sidebar-bg);
-    }
-    .err-word:hover .suggestion-tooltip { opacity: 1; pointer-events: auto; }
-    .suggestion-tooltip .sug-green { color: var(--green2); font-weight: 600; }
-
-    /* ── UPLOAD AREA ── */
-    .upload-zone {
-      max-width: 760px;
-      margin: 0 auto 20px;
-      border: 2px dashed var(--border);
-      border-radius: var(--radius);
-      padding: 20px;
-      text-align: center;
-      cursor: pointer;
-      background: var(--surface2);
-      transition: border-color 0.15s, background 0.15s;
-    }
-    .upload-zone:hover, .upload-zone.drag-over {
-      border-color: var(--blue);
-      background: rgba(41,128,185,0.04);
-    }
-    .upload-zone-icon { font-size: 26px; margin-bottom: 6px; }
+    /* UPLOAD */
+    .upload-zone { max-width: 760px; margin: 0 auto 16px; border: 2px dashed var(--border); border-radius: var(--radius); padding: 18px; text-align: center; cursor: pointer; background: var(--surface2); transition: border-color 0.15s, background 0.15s; }
+    .upload-zone:hover, .upload-zone.drag-over { border-color: var(--blue); background: rgba(41,128,185,0.04); }
     .upload-zone-text { font-size: 13px; color: var(--text3); }
     .upload-zone-text strong { color: var(--blue); }
-    #fileInput { display: none; }
 
-    /* ── ERRORS PANEL ── */
-    .errors-panel {
-      width: 300px;
-      flex-shrink: 0;
-      background: var(--surface);
-      border-left: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-    .errors-header {
-      padding: 14px 16px 10px;
-      border-bottom: 1px solid var(--border);
-      display: flex; align-items: center; justify-content: space-between;
-    }
-    .errors-header-title {
-      font-size: 13px; font-weight: 600; color: var(--text);
-      font-family: 'Source Serif 4', serif;
-      display: flex; align-items: center; gap: 7px;
-    }
-    .errors-badge {
-      background: var(--accent2); color: #fff;
-      border-radius: 20px; padding: 1px 7px; font-size: 11px;
-      font-family: 'JetBrains Mono', monospace;
-    }
-    .errors-list {
-      flex: 1; overflow-y: auto; padding: 10px;
-      display: flex; flex-direction: column; gap: 8px;
-    }
+    /* RIGHT PANEL */
+    .errors-panel { width: 300px; flex-shrink: 0; background: var(--surface); border-left: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
+    .errors-header { padding: 12px 16px 10px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .errors-header-title { font-size: 13px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 7px; }
+    .errors-badge { background: var(--accent2); color: #fff; border-radius: 20px; padding: 1px 7px; font-size: 11px; font-family: 'JetBrains Mono', monospace; }
+    .errors-list { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
     .errors-list::-webkit-scrollbar { width: 4px; }
     .errors-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-
-    .error-card {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-left: 3px solid var(--accent2);
-      border-radius: 8px;
-      padding: 10px 12px;
-      position: relative;
-      cursor: default;
-      transition: box-shadow 0.15s, transform 0.15s;
-      animation: slideIn 0.2s ease;
-    }
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateX(12px); }
-      to { opacity: 1; transform: translateX(0); }
-    }
-    .error-card:hover { box-shadow: var(--shadow2); }
+    .error-card { background: var(--bg); border: 1px solid var(--border); border-left: 3px solid var(--accent2); border-radius: 8px; padding: 10px 12px; position: relative; cursor: default; animation: slideIn 0.2s ease; }
+    @keyframes slideIn { from { opacity: 0; transform: translateX(12px); } to { opacity: 1; transform: translateX(0); } }
     .error-card.resolved { border-left-color: var(--green); opacity: 0.6; }
-    .error-card-close {
-      position: absolute; top: 6px; right: 8px;
-      background: none; border: none; cursor: pointer;
-      color: var(--text3); font-size: 15px; line-height: 1;
-      padding: 2px; border-radius: 3px; transition: color 0.15s, background 0.15s;
-    }
-    .error-card-close:hover { color: var(--accent); background: rgba(192,57,43,0.08); }
-    .error-card-word {
-      font-size: 13px; font-weight: 600; color: var(--accent);
-      margin-bottom: 4px; font-family: 'JetBrains Mono', monospace;
-      padding-right: 20px;
-    }
+    .error-card-close { position: absolute; top: 6px; right: 8px; background: none; border: none; cursor: pointer; color: var(--text3); font-size: 14px; padding: 2px; border-radius: 3px; transition: color 0.15s; }
+    .error-card-close:hover { color: var(--accent); }
+    .error-card-word { font-size: 13px; font-weight: 600; color: var(--accent); margin-bottom: 4px; font-family: 'JetBrains Mono', monospace; padding-right: 20px; }
     .error-card.resolved .error-card-word { color: var(--green); text-decoration: line-through; }
-    .error-card-desc { font-size: 12px; color: var(--text2); line-height: 1.5; margin-bottom: 7px; }
-    .error-card-suggestion {
-      display: flex; align-items: center; gap: 6px;
-      font-size: 12px; color: var(--green);
-      font-family: 'JetBrains Mono', monospace;
-    }
-    .error-card-suggestion::before {
-      content: '→';
-      font-size: 13px;
-    }
-    .error-card-apply {
-      margin-top: 8px; width: 100%;
-      padding: 5px 8px; border-radius: 5px;
-      background: rgba(39,174,96,0.1); border: 1px solid rgba(39,174,96,0.3);
-      color: var(--green); font-size: 11.5px; cursor: pointer;
-      font-family: inherit; transition: background 0.15s;
-      display: flex; align-items: center; justify-content: center; gap: 4px;
-    }
+    .error-card-desc { font-size: 12px; color: var(--text2); line-height: 1.5; margin-bottom: 6px; }
+    .error-card-suggestion { font-size: 12px; color: var(--green); font-family: 'JetBrains Mono', monospace; }
+    .error-card-suggestion::before { content: '→ '; }
+    .error-card-apply { margin-top: 8px; width: 100%; padding: 5px 8px; border-radius: 5px; background: rgba(39,174,96,0.1); border: 1px solid rgba(39,174,96,0.3); color: var(--green); font-size: 11.5px; cursor: pointer; font-family: inherit; transition: background 0.15s; }
     .error-card-apply:hover { background: rgba(39,174,96,0.18); }
     .error-card.resolved .error-card-apply { display: none; }
+    .errors-empty { text-align: center; padding: 36px 16px; color: var(--text3); font-size: 13px; font-style: italic; }
+    .errors-empty-icon { font-size: 28px; margin-bottom: 8px; }
 
-    .errors-empty {
-      text-align: center; padding: 40px 20px; color: var(--text3);
-      font-size: 13px; font-style: italic;
-    }
-    .errors-empty-icon { font-size: 32px; margin-bottom: 8px; }
+    /* TON SELECTOR */
+    .ton-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .ton-chip { padding: 3px 10px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface); font-size: 11.5px; color: var(--text2); cursor: pointer; transition: all 0.12s; font-family: inherit; }
+    .ton-chip:hover { border-color: var(--blue); color: var(--blue); }
+    .ton-chip.selected { background: var(--sidebar-bg); color: #fff; border-color: var(--sidebar-bg); }
 
-    /* ── STATUS BAR ── */
-    .statusbar {
-      background: var(--surface);
-      border-top: 1px solid var(--border);
-      padding: 5px 20px;
-      display: flex; align-items: center; gap: 16px;
-      font-size: 11.5px; color: var(--text3);
-      font-family: 'JetBrains Mono', monospace;
-      flex-shrink: 0;
-    }
-    .statusbar-item { display: flex; align-items: center; gap: 5px; }
-    .status-dot {
-      width: 7px; height: 7px; border-radius: 50%;
-      background: var(--text3);
-    }
+    /* HISTORY */
+    .history-view { padding: 28px 32px; overflow-y: auto; flex: 1; }
+    .history-title { font-family: 'Playfair Display', serif; font-size: 26px; margin-bottom: 6px; }
+    .history-subtitle { font-size: 14px; color: var(--text3); margin-bottom: 24px; }
+    .history-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+    .history-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; cursor: pointer; transition: box-shadow 0.15s, transform 0.15s; }
+    .history-card:hover { box-shadow: var(--shadow2); transform: translateY(-1px); }
+    .history-card-type { display: inline-flex; align-items: center; gap: 5px; font-size: 10.5px; font-family: 'JetBrains Mono', monospace; color: var(--text3); background: var(--bg2); padding: 2px 7px; border-radius: 4px; margin-bottom: 10px; }
+    .history-card-name { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .history-card-preview { font-size: 12px; color: var(--text3); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; min-height: 54px; }
+    .history-card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border2); }
+    .history-card-date { font-size: 11px; color: var(--text3); font-family: 'JetBrains Mono', monospace; }
+    .history-card-btn { background: none; border: 1px solid var(--border); border-radius: 5px; padding: 3px 7px; cursor: pointer; font-size: 11px; color: var(--text2); font-family: inherit; transition: all 0.12s; }
+    .history-card-btn:hover { background: var(--bg2); }
+    .history-empty { text-align: center; padding: 60px 20px; color: var(--text3); font-style: italic; }
+
+    /* MODAL */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 1000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+    .modal-overlay.open { opacity: 1; pointer-events: auto; }
+    .modal { background: var(--surface); border-radius: 12px; padding: 28px; width: 440px; max-width: 95vw; box-shadow: 0 8px 40px rgba(0,0,0,0.2); transform: scale(0.95); transition: transform 0.2s; }
+    .modal-overlay.open .modal { transform: scale(1); }
+    .modal-title { font-family: 'Playfair Display', serif; font-size: 20px; margin-bottom: 8px; }
+    .modal-desc { font-size: 13px; color: var(--text3); margin-bottom: 18px; line-height: 1.6; }
+    .modal-input { width: 100%; border: 1px solid var(--border); border-radius: 7px; padding: 9px 12px; font-size: 14px; font-family: inherit; outline: none; background: var(--bg); color: var(--text); margin-bottom: 10px; }
+    .modal-input:focus { border-color: var(--blue); }
+    .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 8px; }
+    .biznes-modal-tools { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0; }
+    .biznes-tool-btn { padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); cursor: pointer; text-align: left; font-family: inherit; transition: all 0.15s; }
+    .biznes-tool-btn:hover { border-color: var(--blue); background: rgba(41,128,185,0.04); }
+    .biznes-tool-btn-name { font-size: 13px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 6px; }
+    .biznes-tool-btn-desc { font-size: 11px; color: var(--text3); margin-top: 3px; }
+
+    /* LOADING */
+    .loading-overlay { position: absolute; inset: 0; background: rgba(255,255,255,0.75); display: flex; align-items: center; justify-content: center; z-index: 50; opacity: 0; pointer-events: none; transition: opacity 0.2s; border-radius: var(--radius); }
+    .loading-overlay.active { opacity: 1; pointer-events: auto; }
+    .spinner { width: 26px; height: 26px; border: 3px solid var(--border); border-top-color: var(--sidebar-bg); border-radius: 50%; animation: spin 0.7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* STATUS */
+    .statusbar { background: var(--surface); border-top: 1px solid var(--border); padding: 5px 20px; display: flex; align-items: center; gap: 16px; font-size: 11.5px; color: var(--text3); font-family: 'JetBrains Mono', monospace; flex-shrink: 0; }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text3); }
     .status-dot.ok { background: var(--green); }
     .status-dot.checking { background: var(--blue); animation: pulse 1s infinite; }
     .status-dot.error { background: var(--accent); }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-    /* ── VIEWS ── */
+    /* VIEWS */
     .view { display: none; flex-direction: column; flex: 1; overflow: hidden; }
     .view.active { display: flex; }
 
-    /* ── HISTORY VIEW ── */
-    .history-view {
-      padding: 28px 32px;
-      overflow-y: auto;
-      flex: 1;
-    }
-    .history-title {
-      font-family: 'Playfair Display', serif;
-      font-size: 26px; margin-bottom: 6px; color: var(--text);
-    }
-    .history-subtitle { font-size: 14px; color: var(--text3); margin-bottom: 24px; }
-    .history-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 16px;
-    }
-    .history-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 16px;
-      cursor: pointer;
-      transition: box-shadow 0.15s, transform 0.15s;
-      position: relative;
-    }
-    .history-card:hover { box-shadow: var(--shadow2); transform: translateY(-1px); }
-    .history-card-type {
-      display: inline-flex; align-items: center; gap: 5px;
-      font-size: 10.5px; font-family: 'JetBrains Mono', monospace;
-      color: var(--text3); background: var(--bg2);
-      padding: 2px 7px; border-radius: 4px; margin-bottom: 10px;
-      text-transform: uppercase; letter-spacing: 0.5px;
-    }
-    .history-card-name {
-      font-size: 14px; font-weight: 600; color: var(--text);
-      margin-bottom: 5px; white-space: nowrap;
-      overflow: hidden; text-overflow: ellipsis;
-    }
-    .history-card-preview {
-      font-size: 12px; color: var(--text3); line-height: 1.5;
-      display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
-      overflow: hidden; min-height: 54px;
-    }
-    .history-card-footer {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border2);
-    }
-    .history-card-date { font-size: 11px; color: var(--text3); font-family: 'JetBrains Mono', monospace; }
-    .history-card-actions { display: flex; gap: 4px; }
-    .history-card-btn {
-      background: none; border: 1px solid var(--border); border-radius: 5px;
-      padding: 3px 7px; cursor: pointer; font-size: 11px; color: var(--text2);
-      font-family: inherit; transition: all 0.12s;
-    }
-    .history-card-btn:hover { background: var(--bg2); }
-    .history-card-btn.download:hover { color: var(--blue); border-color: var(--blue); }
-    .history-card-btn.open:hover { color: var(--green); border-color: var(--green); }
-    .history-empty {
-      text-align: center; padding: 60px 20px; color: var(--text3);
-      font-style: italic;
-    }
-
-    /* ── MODAL ── */
-    .modal-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.35);
-      z-index: 1000; display: flex; align-items: center; justify-content: center;
-      opacity: 0; pointer-events: none; transition: opacity 0.2s;
-    }
-    .modal-overlay.open { opacity: 1; pointer-events: auto; }
-    .modal {
-      background: var(--surface); border-radius: 12px;
-      padding: 28px; width: 440px; max-width: 95vw;
-      box-shadow: 0 8px 40px rgba(0,0,0,0.2);
-      transform: scale(0.95); transition: transform 0.2s;
-    }
-    .modal-overlay.open .modal { transform: scale(1); }
-    .modal-title { font-family: 'Playfair Display', serif; font-size: 20px; margin-bottom: 8px; }
-    .modal-desc { font-size: 13px; color: var(--text3); margin-bottom: 18px; }
-    .modal-input {
-      width: 100%; border: 1px solid var(--border); border-radius: 7px;
-      padding: 9px 12px; font-size: 14px; font-family: inherit;
-      outline: none; background: var(--bg); color: var(--text); margin-bottom: 16px;
-    }
-    .modal-input:focus { border-color: var(--blue); }
-    .modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
-
-    /* ── LOADING ── */
-    .loading-overlay {
-      position: absolute; inset: 0; background: rgba(255,255,255,0.7);
-      display: flex; align-items: center; justify-content: center;
-      z-index: 50; border-radius: var(--radius);
-      opacity: 0; pointer-events: none; transition: opacity 0.2s;
-    }
-    .loading-overlay.active { opacity: 1; pointer-events: auto; }
-    .spinner {
-      width: 28px; height: 28px;
-      border: 3px solid var(--border);
-      border-top-color: var(--sidebar-bg);
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* ── TOAST ── */
-    .toast-container {
-      position: fixed; bottom: 20px; right: 20px;
-      z-index: 2000; display: flex; flex-direction: column; gap: 8px;
-    }
-    .toast {
-      background: var(--sidebar-bg); color: #fff;
-      padding: 10px 16px; border-radius: 8px; font-size: 13px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
-      animation: toastIn 0.25s ease;
-      display: flex; align-items: center; gap: 8px;
-    }
+    /* TOAST */
+    .toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 2000; display: flex; flex-direction: column; gap: 8px; }
+    .toast { background: var(--sidebar-bg); color: #fff; padding: 10px 16px; border-radius: 8px; font-size: 13px; box-shadow: 0 4px 16px rgba(0,0,0,0.2); animation: toastIn 0.25s ease; display: flex; align-items: center; gap: 8px; }
     @keyframes toastIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
     .toast.success::before { content: '✓'; color: var(--green2); }
     .toast.error::before { content: '✕'; color: var(--accent2); }
 
-    /* ── SVG ICONS ── */
     .icon { width: 16px; height: 16px; display: inline-block; vertical-align: middle; }
-
-    /* Scrollbar global */
     ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    /* PLAN BADGE */
+    .plan-badge { font-size: 10px; padding: 2px 8px; border-radius: 20px; font-family: 'JetBrains Mono', monospace; font-weight: 600; letter-spacing: 0.5px; }
+    .plan-pulsuz { background: rgba(138,130,120,0.15); color: var(--text3); }
+    .plan-ferdi { background: rgba(41,128,185,0.15); color: var(--blue); }
+    .plan-biznes { background: rgba(39,174,96,0.15); color: var(--green); }
   </style>
 </head>
 <body>
 
-<!-- TOP BAR -->
+<!-- TOPBAR -->
 <div class="topbar">
   <div class="topbar-logo">Sətir<span>.</span>az</div>
   <div class="topbar-divider"></div>
   <div class="topbar-docname" id="topbarDocName">Yeni sənəd</div>
   <div class="topbar-actions">
+    <span id="planBadge" class="plan-badge plan-pulsuz">Pulsuz</span>
     <button class="btn btn-ghost btn-icon" title="Yeni sənəd" onclick="newDocument()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
     </button>
@@ -580,11 +235,11 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 12 7 12 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
       Saxla
     </button>
-    <button class="btn btn-ghost" onclick="downloadDoc()" id="downloadBtn">
+    <button class="btn btn-ghost" onclick="downloadDoc()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
       Endir
     </button>
-    <button class="btn btn-primary" onclick="checkGrammar()" id="checkBtn">
+    <button class="btn btn-primary" id="checkBtn" onclick="checkGrammar()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
       Yoxla
     </button>
@@ -593,15 +248,12 @@
 
 <!-- LAYOUT -->
 <div class="layout">
-
   <!-- SIDEBAR -->
   <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
       <div class="sidebar-brand">Sətir</div>
-      <button class="sidebar-toggle" onclick="toggleSidebar()" title="Paneli bağla/aç">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
-          <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
-        </svg>
+      <button class="sidebar-toggle" onclick="toggleSidebar()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
       </button>
     </div>
     <div class="sidebar-content">
@@ -620,12 +272,10 @@
       </div>
 
       <div class="sidebar-section-title" style="margin-top:10px">Son sənədlər</div>
-      <div class="doc-list" id="sidebarDocList">
-        <!-- populated by JS -->
-      </div>
+      <div class="doc-list" id="sidebarDocList"></div>
     </div>
     <div class="sidebar-footer">
-      <div class="sidebar-footer-text">Azərbaycan dili yoxlayıcısı</div>
+      <div class="sidebar-footer-text" id="userInfo">Azərbaycan dili yoxlayıcısı</div>
     </div>
   </div>
 
@@ -634,14 +284,12 @@
 
     <!-- EDITOR VIEW -->
     <div class="view active" id="view-editor" style="flex-direction:row">
-
-      <!-- Editor Panel -->
       <div class="editor-panel">
-        <!-- Toolbar -->
+        <!-- Formatting toolbar -->
         <div class="toolbar">
-          <button class="btn btn-ghost btn-icon" title="Qalın" onclick="formatText('bold')" style="font-weight:700">B</button>
-          <button class="btn btn-ghost btn-icon" title="Kursiv" onclick="formatText('italic')" style="font-style:italic">I</button>
-          <button class="btn btn-ghost btn-icon" title="Altı xətt" onclick="formatText('underline')" style="text-decoration:underline">U</button>
+          <button class="btn btn-ghost btn-icon" title="Qalın" onclick="formatText('bold')" style="font-weight:700;font-size:13px">B</button>
+          <button class="btn btn-ghost btn-icon" title="Kursiv" onclick="formatText('italic')" style="font-style:italic;font-size:13px">I</button>
+          <button class="btn btn-ghost btn-icon" title="Altı xətt" onclick="formatText('underline')" style="text-decoration:underline;font-size:13px">U</button>
           <div class="toolbar-sep"></div>
           <button class="btn btn-ghost btn-icon" title="Sol" onclick="formatText('justifyLeft')">⬅</button>
           <button class="btn btn-ghost btn-icon" title="Mərkəz" onclick="formatText('justifyCenter')">↔</button>
@@ -652,30 +300,79 @@
           <span id="wordCount" style="font-size:11.5px;color:var(--text3);font-family:'JetBrains Mono',monospace">0 söz</span>
         </div>
 
-        <div class="editor-wrap">
-          <!-- Upload zone -->
+        <!-- AI toolbar -->
+        <div class="ai-toolbar">
+          <span class="ai-toolbar-label">AI:</span>
+
+          <button class="ai-btn" onclick="runAI('grammar')" title="Qrammatika yoxla">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M9 11l3 3L22 4"/></svg>
+            Qrammatika
+          </button>
+
+          <button class="ai-btn" onclick="openTonModal()" title="Tonu dəyiş">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            Ton
+          </button>
+
+          <button class="ai-btn" onclick="runAI('improve')" title="Mətni təkmilləşdir">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            Təkmilləşdir
+          </button>
+
+          <button class="ai-btn" onclick="runAI('vocab')" title="Lüğəti zənginləşdir">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            Lüğət
+          </button>
+
+          <button class="ai-btn" onclick="runAI('summary')" title="Xülasə et">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            Xülasə
+          </button>
+
+          <button class="ai-btn" onclick="runAI('rewrite')" title="Yenidən yaz">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.84"/></svg>
+            Yenidən yaz
+          </button>
+
+          <div class="ai-sep"></div>
+
+          <button class="ai-btn biznes-only" onclick="openBiznesModal()" title="Biznes sənəd şablonları">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+            Biznes Sənədlər ✦
+          </button>
+        </div>
+
+        <!-- Editor wrap -->
+        <div class="editor-wrap" id="editorWrap">
           <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()" ondragover="handleDragOver(event)" ondrop="handleDrop(event)" ondragleave="handleDragLeave(event)">
-            <div class="upload-zone-icon">📄</div>
             <div class="upload-zone-text">
-              <strong>DOC, DOCX və ya PDF</strong> yükləyin<br>
-              <span style="font-size:11px;margin-top:4px;display:block">faylı bura sürükləyin və ya klikləyin</span>
+              📄 <strong>DOC, DOCX, TXT və ya PDF</strong> yükləyin — faylı bura sürükləyin və ya klikləyin
             </div>
           </div>
-          <input type="file" id="fileInput" accept=".txt,.doc,.docx,.pdf" onchange="handleFileSelect(event)">
+          <input type="file" id="fileInput" accept=".txt,.doc,.docx,.pdf" onchange="handleFileSelect(event)" style="display:none">
 
-          <!-- The editor -->
-          <div id="editor" contenteditable="true"
-            data-placeholder="Mətnizi bura yazın və ya yuxarıdan fayl yükləyin…"
-            oninput="onEditorInput()"
-            spellcheck="false">
+          <div id="editor" contenteditable="true" data-placeholder="Mətnizi bura yazın və ya yuxarıdan fayl yükləyin…" oninput="onEditorInput()" spellcheck="false"></div>
+
+          <!-- AI result -->
+          <div class="ai-result-panel" id="aiResultPanel">
+            <div class="ai-result-header">
+              <div class="ai-result-title" id="aiResultTitle">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                AI Nəticəsi
+              </div>
+              <div class="ai-result-actions">
+                <button class="btn btn-ghost btn-icon" onclick="applyAIResult()" style="font-size:11px;padding:4px 10px;color:var(--green)">✓ Tətbiq et</button>
+                <button class="btn btn-ghost btn-icon" onclick="closeAIResult()" style="font-size:11px;padding:4px 8px">✕</button>
+              </div>
+            </div>
+            <div class="ai-result-body" id="aiResultBody"></div>
           </div>
-          <div class="loading-overlay" id="editorLoading">
-            <div class="spinner"></div>
-          </div>
+
+          <div class="loading-overlay" id="editorLoading"><div class="spinner"></div></div>
         </div>
       </div>
 
-      <!-- Errors Panel -->
+      <!-- Errors panel -->
       <div class="errors-panel">
         <div class="errors-header">
           <div class="errors-header-title">
@@ -683,12 +380,12 @@
             Səhvlər
             <span class="errors-badge" id="errorsBadge">0</span>
           </div>
-          <button class="btn btn-ghost btn-icon" style="padding:4px 6px;font-size:11px" onclick="clearErrors()" title="Hamısını sil">✕ Hamı</button>
+          <button class="btn btn-ghost btn-icon" style="padding:4px 6px;font-size:11px" onclick="clearErrors()">✕ Hamı</button>
         </div>
         <div class="errors-list" id="errorsList">
           <div class="errors-empty">
             <div class="errors-empty-icon">✅</div>
-            Hələ səhv tapılmayıb.<br>Mətni yoxlamaq üçün «Yoxla» düyməsinə basın.
+            Hələ səhv tapılmayıb.<br>«Yoxla» düyməsinə basın.
           </div>
         </div>
       </div>
@@ -698,7 +395,7 @@
     <div class="view" id="view-history">
       <div class="history-view">
         <div class="history-title">Sənəd tarixçəsi</div>
-        <div class="history-subtitle">Saxladığınız sənədlər burada görünür. İstənilənini açıb redaktə edə bilərsiniz.</div>
+        <div class="history-subtitle">Saxladığınız sənədlər burada görünür.</div>
         <div class="history-grid" id="historyGrid">
           <div class="history-empty">Hələ saxlanılmış sənəd yoxdur.</div>
         </div>
@@ -707,13 +404,13 @@
 
     <!-- STATUS BAR -->
     <div class="statusbar">
-      <div class="statusbar-item">
+      <div style="display:flex;align-items:center;gap:6px">
         <div class="status-dot" id="statusDot"></div>
         <span id="statusText">Hazır</span>
       </div>
       <div style="flex:1"></div>
-      <div class="statusbar-item" id="charCount">0 hərf</div>
-      <div class="statusbar-item" id="lastSaved" style="display:none">— Son saxlama: <span id="lastSavedTime"></span></div>
+      <div id="charCount">0 hərf</div>
+      <div id="lastSaved" style="display:none">— Son saxlama: <span id="lastSavedTime"></span></div>
     </div>
   </div>
 </div>
@@ -731,185 +428,202 @@
   </div>
 </div>
 
-<!-- TOAST CONTAINER -->
+<!-- TON MODAL -->
+<div class="modal-overlay" id="tonModal">
+  <div class="modal">
+    <div class="modal-title">Ton seçin</div>
+    <div class="modal-desc">Mətni hansı tona uyğun yenidən yazılsın?</div>
+    <div class="ton-row" id="tonChips">
+      <button class="ton-chip selected" onclick="selectTon('Rəsmi')">Rəsmi</button>
+      <button class="ton-chip" onclick="selectTon('Qeyri-rəsmi')">Qeyri-rəsmi</button>
+      <button class="ton-chip" onclick="selectTon('Akademik')">Akademik</button>
+      <button class="ton-chip" onclick="selectTon('Dostane')">Dostane</button>
+      <button class="ton-chip" onclick="selectTon('Peşəkar')">Peşəkar</button>
+      <button class="ton-chip" onclick="selectTon('Sadə')">Sadə</button>
+      <button class="ton-chip" onclick="selectTon('Ciddı')">Ciddi</button>
+      <button class="ton-chip" onclick="selectTon('Həvəsləndirici')">Həvəsləndirici</button>
+    </div>
+    <div class="modal-actions" style="margin-top:16px">
+      <button class="btn btn-ghost" onclick="closeModal('tonModal')">Ləğv et</button>
+      <button class="btn btn-primary" onclick="applyTon()">Tonu tətbiq et</button>
+    </div>
+  </div>
+</div>
+
+<!-- BIZNES MODAL -->
+<div class="modal-overlay" id="biznesModal">
+  <div class="modal" style="width:500px">
+    <div class="modal-title">Biznes Sənəd Şablonları</div>
+    <div class="modal-desc">Mətninizdən istənilən rəsmi sənədi avtomatik hazırlayın. Bu funksiya <strong>Biznes Paketi</strong> istifadəçiləri üçündür.</div>
+    <div class="biznes-modal-tools">
+      <button class="biznes-tool-btn" onclick="runBiznes('protokol')">
+        <div class="biznes-tool-btn-name">📋 Protokol</div>
+        <div class="biznes-tool-btn-desc">İclas protokolu hazırla</div>
+      </button>
+      <button class="biznes-tool-btn" onclick="runBiznes('emr')">
+        <div class="biznes-tool-btn-name">📜 Əmr</div>
+        <div class="biznes-tool-btn-desc">Rəsmi əmr layihəsi</div>
+      </button>
+      <button class="biznes-tool-btn" onclick="runBiznes('qerar')">
+        <div class="biznes-tool-btn-name">⚖️ Qərar</div>
+        <div class="biznes-tool-btn-desc">Rəsmi qərar sənədi</div>
+      </button>
+      <button class="biznes-tool-btn" onclick="runBiznes('mektub')">
+        <div class="biznes-tool-btn-name">✉️ Məktub</div>
+        <div class="biznes-tool-btn-desc">Rəsmi məktub hazırla</div>
+      </button>
+      <button class="biznes-tool-btn" onclick="runBiznes('arayis')">
+        <div class="biznes-tool-btn-name">📄 Arayış</div>
+        <div class="biznes-tool-btn-desc">Rəsmi arayış hazırla</div>
+      </button>
+      <button class="biznes-tool-btn" onclick="runBiznes('xidmeti')">
+        <div class="biznes-tool-btn-name">📝 Xidməti yazı</div>
+        <div class="biznes-tool-btn-desc">Xidməti yazı formatı</div>
+      </button>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('biznesModal')">Bağla</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast-container" id="toastContainer"></div>
 
 <script>
-// ═══════════════════════════════════════
+// ═══════════════════════════
 //  STATE
-// ═══════════════════════════════════════
+// ═══════════════════════════
 let currentDocName = 'Yeni sənəd';
 let currentDocId = null;
 let errors = [];
-let checkTimeout = null;
 let sidebarOpen = true;
+let selectedTon = 'Rəsmi';
+let userPlan = 'pulsuz';
+let authToken = null;
+let lastAIResult = '';
 
-// ═══════════════════════════════════════
-//  SIDEBAR
-// ═══════════════════════════════════════
-function toggleSidebar() {
-  sidebarOpen = !sidebarOpen;
-  document.getElementById('sidebar').classList.toggle('collapsed', !sidebarOpen);
-}
-
-// ═══════════════════════════════════════
-//  VIEW SWITCHING
-// ═══════════════════════════════════════
-function switchView(name) {
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.getElementById('view-' + name).classList.add('active');
-  document.querySelectorAll('.sidebar-item[id^="nav-"]').forEach(i => i.classList.remove('active'));
-  const nav = document.getElementById('nav-' + name);
-  if (nav) nav.classList.add('active');
-  if (name === 'history') renderHistory();
-}
-
-// ═══════════════════════════════════════
-//  EDITOR
-// ═══════════════════════════════════════
-function onEditorInput() {
-  updateCounts();
-}
-
-function updateCounts() {
-  const text = getEditorText();
-  const words = text.trim() ? text.trim().split(/\s+/).length : 0;
-  const chars = text.length;
-  document.getElementById('wordCount').textContent = words + ' söz';
-  document.getElementById('charCount').textContent = chars + ' hərf';
-}
-
-function getEditorText() {
-  return document.getElementById('editor').innerText || '';
-}
-
-function clearEditor() {
-  if (!getEditorText().trim()) return;
-  if (!confirm('Redaktoru təmizləmək istəyirsiniz?')) return;
-  document.getElementById('editor').innerHTML = '';
-  clearErrors();
-  updateCounts();
-}
-
-function formatText(cmd) {
-  document.execCommand(cmd, false, null);
-  document.getElementById('editor').focus();
-}
-
-// ═══════════════════════════════════════
-//  UPLOAD
-// ═══════════════════════════════════════
-function uploadFile() { document.getElementById('fileInput').click(); }
-
-function handleDragOver(e) {
-  e.preventDefault();
-  document.getElementById('uploadZone').classList.add('drag-over');
-}
-function handleDragLeave() {
-  document.getElementById('uploadZone').classList.remove('drag-over');
-}
-function handleDrop(e) {
-  e.preventDefault();
-  handleDragLeave();
-  const file = e.dataTransfer.files[0];
-  if (file) processFile(file);
-}
-function handleFileSelect(e) {
-  const file = e.target.files[0];
-  if (file) processFile(file);
-  e.target.value = '';
-}
-
-function processFile(file) {
-  const name = file.name.replace(/\.[^.]+$/, '');
-  currentDocName = name;
-  document.getElementById('topbarDocName').textContent = name;
-
-  const ext = file.name.split('.').pop().toLowerCase();
-  if (ext === 'txt') {
-    const reader = new FileReader();
-    reader.onload = e => {
-      document.getElementById('editor').innerText = e.target.result;
-      updateCounts();
-      showToast('Fayl yükləndi: ' + file.name, 'success');
-    };
-    reader.readAsText(file);
-  } else if (ext === 'pdf') {
-    showToast('PDF oxunması: mətn hissəsi yükləndi', 'success');
-    // For PDF we'd need pdf.js – simulate with placeholder
-    document.getElementById('editor').innerText = '[PDF sənədi: ' + file.name + ']\n\nMətn burada görünəcək...';
-    updateCounts();
-  } else {
-    // .doc/.docx – read as text fallback
-    const reader = new FileReader();
-    reader.onload = e => {
-      try {
-        // Try to extract readable text
-        const arr = new Uint8Array(e.target.result);
-        let text = '';
-        for (let i = 0; i < arr.length; i++) {
-          if (arr[i] >= 32 && arr[i] < 127) text += String.fromCharCode(arr[i]);
-        }
-        // Clean up garbage
-        text = text.replace(/[^\x20-\x7E\n\t\u0000-\uFFFF]/g, ' ').replace(/\s{3,}/g, '\n').trim();
-        document.getElementById('editor').innerText = text || '[Sənəd oxundu: ' + file.name + ']';
-      } catch (err) {
-        document.getElementById('editor').innerText = '[Sənəd: ' + file.name + ']';
-      }
-      updateCounts();
-      showToast('Fayl yükləndi: ' + file.name, 'success');
-    };
-    reader.readAsArrayBuffer(file);
+// ═══════════════════════════
+//  INIT — token + plan
+// ═══════════════════════════
+(function init() {
+  // Token URL-dən və ya localStorage-dən al
+  const params = new URLSearchParams(window.location.search);
+  const urlToken = params.get('token');
+  if (urlToken) {
+    localStorage.setItem('setir_token', urlToken);
+    window.history.replaceState({}, '', '/app');
   }
+  authToken = localStorage.getItem('setir_token');
+
+  // JWT-dən plan al
+  if (authToken) {
+    try {
+      const payload = JSON.parse(atob(authToken.split('.')[1]));
+      userPlan = payload.plan || 'pulsuz';
+      const name = payload.name || payload.email || '';
+      document.getElementById('userInfo').textContent = name;
+      const badge = document.getElementById('planBadge');
+      badge.textContent = userPlan === 'biznes' ? '✦ Biznes' : userPlan === 'ferdi' ? 'Fərdi' : 'Pulsuz';
+      badge.className = 'plan-badge plan-' + userPlan;
+    } catch(e) {}
+  }
+
+  updateSidebarDocs();
+  updateCounts();
+})();
+
+// ═══════════════════════════
+//  API CALL — backend-ə
+// ═══════════════════════════
+async function callAPI(tool, text, options = {}) {
+  if (!authToken) {
+    showToast('Giriş tələb olunur. Zəhmət olmasa daxil olun.', 'error');
+    setTimeout(() => window.location.href = '/login', 1500);
+    throw new Error('No auth token');
+  }
+
+  const res = await fetch('/api/ai/process', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + authToken,
+      'x-device-fingerprint': getDeviceFingerprint()
+    },
+    body: JSON.stringify({ text, tool, options })
+  });
+
+  if (res.status === 401 || res.status === 403) {
+    const data = await res.json();
+    showToast(data.error || 'Sessiyanız bitib. Yenidən daxil olun.', 'error');
+    setTimeout(() => window.location.href = '/login', 2000);
+    throw new Error('Unauthorized');
+  }
+
+  if (res.status === 403) {
+    const data = await res.json();
+    showToast(data.error || 'Bu funksiya sizin paket üçün mövcud deyil.', 'error');
+    throw new Error('Forbidden');
+  }
+
+  const data = await res.json();
+  if (data.error) throw new Error(data.error);
+  return data.result;
 }
 
-// ═══════════════════════════════════════
+function getDeviceFingerprint() {
+  let fp = localStorage.getItem('setir_fp');
+  if (!fp) {
+    fp = Math.random().toString(36).slice(2) + Date.now().toString(36);
+    localStorage.setItem('setir_fp', fp);
+  }
+  return fp;
+}
+
+// ═══════════════════════════
 //  GRAMMAR CHECK
-// ═══════════════════════════════════════
+// ═══════════════════════════
 async function checkGrammar() {
   const text = getEditorText().trim();
   if (!text) { showToast('Zəhmət olmasa mətn daxil edin', 'error'); return; }
 
   const btn = document.getElementById('checkBtn');
   btn.disabled = true;
-  btn.innerHTML = '<div class="spinner" style="width:14px;height:14px;border-width:2px;border-top-color:#fff;margin-right:4px"></div> Yoxlanır...';
+  btn.innerHTML = '<div class="spinner" style="width:14px;height:14px;border-width:2px;border-top-color:#fff"></div> Yoxlanır...';
   setStatus('checking', 'Yoxlanır…');
   showLoading(true);
   clearErrors();
 
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        system: `Sən Azərbaycan dili yoxlayıcısısın. Verilən mətndə orfoqrafiya, qrammatika və durğu işarəsi səhvlərini tap.
-JSON FORMATINDA cavab ver, başqa heç nə yazma:
-{"errors": [{"word": "səhv söz/ifadə", "suggestion": "düzgün variant", "description": "qısa izahat (Azərbaycan dilində)"}]}
-Əgər səhv yoxdursa: {"errors": []}`,
-        messages: [{ role: 'user', content: `Mətni yoxla:\n\n${text.slice(0, 2000)}` }]
-      })
-    });
+    // Grammar check — JSON cavab istəyirik, buna görə ayrı bir endpoint yoxdur,
+    // aiController-dəki 'grammar' tool-u istifadə edirik amma JSON parse edirik
+    const raw = await callAPI('grammar', text.slice(0, 2000));
 
-    const data = await response.json();
-    const raw = data.content?.map(b => b.text || '').join('') || '{"errors":[]}';
-    const clean = raw.replace(/```json|```/g, '').trim();
+    // Backend plain text qaytarır — onu da parse etməyə çalışırıq
+    // Əgər JSON formatında cavab gəlirsə
+    let grammarErrors = [];
+    try {
+      const cleaned = raw.replace(/```json|```/g, '').trim();
+      const parsed = JSON.parse(cleaned);
+      grammarErrors = parsed.errors || [];
+    } catch {
+      // Backend plain text qaytarıbsa — errors panel-də göstər
+      showAIResult('Qrammatika Yoxlaması', raw);
+      setStatus('ok', 'Yoxlama tamamlandı');
+      showToast('Qrammatika yoxlaması tamamlandı', 'success');
+      return;
+    }
 
-    let result;
-    try { result = JSON.parse(clean); }
-    catch { result = { errors: [] }; }
-
-    errors = result.errors || [];
+    errors = grammarErrors;
     renderErrors();
     highlightErrors();
     setStatus(errors.length ? 'error' : 'ok', errors.length ? errors.length + ' səhv tapıldı' : 'Səhv tapılmadı');
     showToast(errors.length ? errors.length + ' səhv tapıldı' : 'Heç bir səhv tapılmadı!', errors.length ? 'error' : 'success');
 
-  } catch (err) {
-    console.error(err);
-    setStatus('error', 'Xəta baş verdi');
-    showToast('Yoxlama zamanı xəta baş verdi', 'error');
+  } catch(err) {
+    if (err.message !== 'Unauthorized' && err.message !== 'Forbidden') {
+      setStatus('error', 'Xəta');
+      showToast('Xəta: ' + err.message, 'error');
+    }
   } finally {
     showLoading(false);
     btn.disabled = false;
@@ -917,307 +631,369 @@ JSON FORMATINDA cavab ver, başqa heç nə yazma:
   }
 }
 
+// ═══════════════════════════
+//  AI TOOLS
+// ═══════════════════════════
+async function runAI(tool, options = {}) {
+  const text = getEditorText().trim();
+  if (!text) { showToast('Zəhmət olmasa mətn daxil edin', 'error'); return; }
+
+  const toolNames = {
+    grammar: 'Qrammatika Düzəltmə', tone: 'Ton Dəyişdirmə',
+    improve: 'Mətn Təkmilləşdirmə', vocab: 'Lüğət Zənginləşdirmə',
+    summary: 'Xülasə', rewrite: 'Yenidən Yazma',
+    plagiarism: 'Orijinallıq Analizi'
+  };
+
+  setStatus('checking', (toolNames[tool] || tool) + ' işlənir…');
+  showLoading(true);
+  closeAIResult();
+
+  try {
+    const result = await callAPI(tool, text.slice(0, 3000), options);
+    lastAIResult = result;
+    showAIResult(toolNames[tool] || tool, result);
+    setStatus('ok', (toolNames[tool] || tool) + ' tamamlandı');
+  } catch(err) {
+    if (err.message !== 'Unauthorized' && err.message !== 'Forbidden') {
+      setStatus('error', 'Xəta');
+      showToast('Xəta: ' + err.message, 'error');
+    }
+  } finally {
+    showLoading(false);
+  }
+}
+
+async function runBiznes(tool) {
+  const text = getEditorText().trim();
+  if (!text) { showToast('Zəhmət olmasa mətn daxil edin', 'error'); closeModal('biznesModal'); return; }
+  closeModal('biznesModal');
+
+  const names = { protokol:'Protokol', emr:'Əmr', qerar:'Qərar', mektub:'Məktub', arayis:'Arayış', xidmeti:'Xidməti Yazı' };
+
+  setStatus('checking', names[tool] + ' hazırlanır…');
+  showLoading(true);
+  closeAIResult();
+
+  try {
+    const result = await callAPI(tool, text.slice(0, 3000));
+    lastAIResult = result;
+    showAIResult('📋 ' + names[tool], result);
+    setStatus('ok', names[tool] + ' hazırlandı');
+    showToast(names[tool] + ' hazırlandı!', 'success');
+  } catch(err) {
+    if (err.message !== 'Unauthorized' && err.message !== 'Forbidden') {
+      setStatus('error', 'Xəta');
+      showToast('Xəta: ' + err.message, 'error');
+    }
+  } finally {
+    showLoading(false);
+  }
+}
+
+// TON
+function openTonModal() {
+  document.querySelectorAll('.ton-chip').forEach(c => {
+    c.classList.toggle('selected', c.textContent === selectedTon);
+  });
+  openModal('tonModal');
+}
+
+function selectTon(ton) {
+  selectedTon = ton;
+  document.querySelectorAll('.ton-chip').forEach(c => {
+    c.classList.toggle('selected', c.textContent === ton);
+  });
+}
+
+function applyTon() {
+  closeModal('tonModal');
+  runAI('tone', { tone: selectedTon });
+}
+
+// AI RESULT PANEL
+function showAIResult(title, content) {
+  document.getElementById('aiResultTitle').innerHTML = `
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    ${escHtml(title)}`;
+  document.getElementById('aiResultBody').textContent = content;
+  document.getElementById('aiResultPanel').classList.add('visible');
+  document.getElementById('aiResultPanel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function closeAIResult() {
+  document.getElementById('aiResultPanel').classList.remove('visible');
+}
+
+function applyAIResult() {
+  if (!lastAIResult) return;
+  if (confirm('AI nəticəsi redaktora tətbiq edilsin? (Cari mətn dəyişdiriləcək)')) {
+    document.getElementById('editor').innerText = lastAIResult;
+    updateCounts();
+    closeAIResult();
+    clearErrors();
+    showToast('AI nəticəsi tətbiq edildi', 'success');
+  }
+}
+
+function openBiznesModal() {
+  openModal('biznesModal');
+}
+
+// ═══════════════════════════
+//  ERRORS PANEL
+// ═══════════════════════════
 function renderErrors() {
   const list = document.getElementById('errorsList');
   document.getElementById('errorsBadge').textContent = errors.length;
-
   if (!errors.length) {
     list.innerHTML = `<div class="errors-empty"><div class="errors-empty-icon">✅</div>Heç bir səhv tapılmadı.</div>`;
     return;
   }
-
   list.innerHTML = errors.map((e, i) => `
-    <div class="error-card" id="ecard-${i}" data-index="${i}">
-      <button class="error-card-close" onclick="dismissError(${i})" title="Bağla">✕</button>
-      <div class="error-card-word">${escHtml(e.word)}</div>
+    <div class="error-card" id="ecard-${i}">
+      <button class="error-card-close" onclick="dismissError(${i})">✕</button>
+      <div class="error-card-word">${escHtml(e.word || '')}</div>
       <div class="error-card-desc">${escHtml(e.description || '')}</div>
       <div class="error-card-suggestion">${escHtml(e.suggestion || '')}</div>
-      <button class="error-card-apply" onclick="applyFix(${i})">
-        ✓ Düzəltməni tətbiq et
-      </button>
-    </div>
-  `).join('');
+      <button class="error-card-apply" onclick="applyFix(${i})">✓ Düzəltməni tətbiq et</button>
+    </div>`).join('');
 }
 
 function highlightErrors() {
   const editor = document.getElementById('editor');
-  let html = editor.innerHTML;
-
-  // Reset previous highlights (keep content)
   const tmp = document.createElement('div');
-  tmp.innerHTML = html;
-  tmp.querySelectorAll('.err-word').forEach(el => {
-    const text = document.createTextNode(el.innerText);
-    el.replaceWith(text);
-  });
-  html = tmp.innerHTML;
-
+  tmp.innerHTML = editor.innerHTML;
+  tmp.querySelectorAll('.err-word').forEach(el => el.replaceWith(document.createTextNode(el.innerText)));
+  let html = tmp.innerHTML;
   errors.forEach((e, i) => {
     if (!e.word) return;
-    const escaped = e.word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const re = new RegExp('(?<![\\w])(' + escaped + ')(?![\\w])', 'g');
-    html = html.replace(re, (match) => {
+    const esc = e.word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const re = new RegExp('(?<![\\w\\u0400-\\u04FF])(' + esc + ')(?![\\w\\u0400-\\u04FF])', 'g');
+    html = html.replace(re, (m) => {
       const sug = e.suggestion ? `<span class="sug-green">${escHtml(e.suggestion)}</span>` : '';
-      return `<span class="err-word" data-index="${i}" onclick="applyFix(${i})">${escHtml(match)}<span class="suggestion-tooltip">→ ${sug || escHtml(e.suggestion || '')}</span></span>`;
+      return `<span class="err-word" data-index="${i}" onclick="applyFix(${i})">${escHtml(m)}<span class="suggestion-tooltip">→ ${sug || escHtml(e.suggestion||'')}</span></span>`;
     });
   });
-
   editor.innerHTML = html;
 }
 
 function dismissError(i) {
   const card = document.getElementById('ecard-' + i);
-  if (card) {
-    card.style.animation = 'none';
-    card.style.transform = 'translateX(30px)';
-    card.style.opacity = '0';
-    card.style.transition = 'all 0.2s';
-    setTimeout(() => card.remove(), 200);
-  }
+  if (card) { card.style.opacity = '0'; card.style.transform = 'translateX(20px)'; card.style.transition = 'all 0.2s'; setTimeout(() => card.remove(), 200); }
   errors[i]._dismissed = true;
-  const remaining = errors.filter(e => !e._dismissed).length;
-  document.getElementById('errorsBadge').textContent = remaining;
-
-  // Remove highlight
-  document.querySelectorAll(`.err-word[data-index="${i}"]`).forEach(el => {
-    el.replaceWith(document.createTextNode(el.innerText));
-  });
+  document.getElementById('errorsBadge').textContent = errors.filter(e => !e._dismissed).length;
+  document.querySelectorAll(`.err-word[data-index="${i}"]`).forEach(el => el.replaceWith(document.createTextNode(el.innerText)));
 }
 
 function applyFix(i) {
   const e = errors[i];
-  if (!e || !e.suggestion) return;
-
-  // Replace in editor
-  const editor = document.getElementById('editor');
-  editor.querySelectorAll(`.err-word[data-index="${i}"]`).forEach(el => {
-    const span = document.createElement('span');
-    span.className = 'err-word applied';
-    span.dataset.index = i;
-    span.textContent = e.suggestion;
-    el.replaceWith(span);
-    setTimeout(() => {
-      const text = document.createTextNode(e.suggestion);
-      span.replaceWith(text);
-    }, 800);
+  if (!e?.suggestion) return;
+  document.getElementById('editor').querySelectorAll(`.err-word[data-index="${i}"]`).forEach(el => {
+    const s = document.createElement('span');
+    s.className = 'err-word applied'; s.textContent = e.suggestion;
+    el.replaceWith(s);
+    setTimeout(() => s.replaceWith(document.createTextNode(e.suggestion)), 800);
   });
-
-  // Mark card as resolved
   const card = document.getElementById('ecard-' + i);
-  if (card) {
-    card.classList.add('resolved');
-    card.querySelector('.error-card-word').textContent = e.suggestion;
-  }
+  if (card) { card.classList.add('resolved'); card.querySelector('.error-card-word').textContent = e.suggestion; }
   errors[i]._applied = true;
-  showToast(`"${e.word}" → "${e.suggestion}" düzəldildi`, 'success');
+  showToast(`"${e.word}" → "${e.suggestion}"`, 'success');
 }
 
 function clearErrors() {
   errors = [];
   document.getElementById('errorsBadge').textContent = '0';
-  document.getElementById('errorsList').innerHTML = `
-    <div class="errors-empty">
-      <div class="errors-empty-icon">✅</div>
-      Hələ səhv tapılmayıb.<br>Mətni yoxlamaq üçün «Yoxla» düyməsinə basın.
-    </div>`;
-  // Remove highlights
-  const editor = document.getElementById('editor');
-  editor.querySelectorAll('.err-word').forEach(el => {
-    el.replaceWith(document.createTextNode(el.innerText));
-  });
+  document.getElementById('errorsList').innerHTML = `<div class="errors-empty"><div class="errors-empty-icon">✅</div>Hələ səhv tapılmayıb.<br>«Yoxla» düyməsinə basın.</div>`;
+  document.getElementById('editor').querySelectorAll('.err-word').forEach(el => el.replaceWith(document.createTextNode(el.innerText)));
 }
 
-// ═══════════════════════════════════════
+// ═══════════════════════════
+//  EDITOR
+// ═══════════════════════════
+function onEditorInput() { updateCounts(); }
+function updateCounts() {
+  const t = getEditorText();
+  const w = t.trim() ? t.trim().split(/\s+/).length : 0;
+  document.getElementById('wordCount').textContent = w + ' söz';
+  document.getElementById('charCount').textContent = t.length + ' hərf';
+}
+function getEditorText() { return document.getElementById('editor').innerText || ''; }
+function clearEditor() {
+  if (!getEditorText().trim()) return;
+  if (!confirm('Redaktoru təmizləmək istəyirsiniz?')) return;
+  document.getElementById('editor').innerHTML = '';
+  clearErrors(); closeAIResult(); updateCounts();
+}
+function formatText(cmd) { document.execCommand(cmd, false, null); document.getElementById('editor').focus(); }
+
+// ═══════════════════════════
+//  UPLOAD
+// ═══════════════════════════
+function uploadFile() { document.getElementById('fileInput').click(); }
+function handleDragOver(e) { e.preventDefault(); document.getElementById('uploadZone').classList.add('drag-over'); }
+function handleDragLeave() { document.getElementById('uploadZone').classList.remove('drag-over'); }
+function handleDrop(e) { e.preventDefault(); handleDragLeave(); const f = e.dataTransfer.files[0]; if (f) processFile(f); }
+function handleFileSelect(e) { const f = e.target.files[0]; if (f) processFile(f); e.target.value = ''; }
+function processFile(file) {
+  const name = file.name.replace(/\.[^.]+$/, '');
+  currentDocName = name;
+  document.getElementById('topbarDocName').textContent = name;
+  const ext = file.name.split('.').pop().toLowerCase();
+  if (ext === 'txt') {
+    const r = new FileReader();
+    r.onload = e => { document.getElementById('editor').innerText = e.target.result; updateCounts(); showToast('Fayl yükləndi', 'success'); };
+    r.readAsText(file);
+  } else {
+    const r = new FileReader();
+    r.onload = e => {
+      try {
+        const arr = new Uint8Array(e.target.result);
+        let text = '';
+        for (let i = 0; i < arr.length; i++) { if (arr[i] >= 32 && arr[i] < 127) text += String.fromCharCode(arr[i]); }
+        text = text.replace(/\s{3,}/g, '\n').trim();
+        document.getElementById('editor').innerText = text || '[' + file.name + ']';
+      } catch { document.getElementById('editor').innerText = '[' + file.name + ']'; }
+      updateCounts();
+      showToast('Fayl yükləndi', 'success');
+    };
+    r.readAsArrayBuffer(file);
+  }
+}
+
+// ═══════════════════════════
 //  SAVE / HISTORY
-// ═══════════════════════════════════════
+// ═══════════════════════════
 function openSaveModal() {
   document.getElementById('docNameInput').value = currentDocName !== 'Yeni sənəd' ? currentDocName : '';
   openModal('saveModal');
   setTimeout(() => document.getElementById('docNameInput').focus(), 100);
 }
-
 function saveDocument() {
   const name = document.getElementById('docNameInput').value.trim() || ('Sənəd ' + new Date().toLocaleDateString('az'));
   const text = getEditorText();
   if (!text.trim()) { showToast('Sənəd boşdur', 'error'); return; }
-
   const docs = getSavedDocs();
-  const doc = {
-    id: currentDocId || Date.now().toString(),
-    name,
-    content: document.getElementById('editor').innerHTML,
-    text,
-    date: new Date().toISOString(),
-    wordCount: text.trim().split(/\s+/).length
-  };
-
-  const existing = docs.findIndex(d => d.id === doc.id);
-  if (existing >= 0) docs[existing] = doc;
-  else docs.unshift(doc);
-
+  const doc = { id: currentDocId || Date.now().toString(), name, content: document.getElementById('editor').innerHTML, text, date: new Date().toISOString(), wordCount: text.trim().split(/\s+/).length };
+  const idx = docs.findIndex(d => d.id === doc.id);
+  if (idx >= 0) docs[idx] = doc; else docs.unshift(doc);
   localStorage.setItem('setir_docs', JSON.stringify(docs.slice(0, 30)));
-  currentDocId = doc.id;
-  currentDocName = name;
+  currentDocId = doc.id; currentDocName = name;
   document.getElementById('topbarDocName').textContent = name;
-  closeModal('saveModal');
-  updateSidebarDocs();
-
-  const now = new Date().toLocaleTimeString('az', {hour:'2-digit', minute:'2-digit'});
+  closeModal('saveModal'); updateSidebarDocs();
   document.getElementById('lastSaved').style.display = '';
-  document.getElementById('lastSavedTime').textContent = now;
-  showToast('Sənəd saxlandı: ' + name, 'success');
+  document.getElementById('lastSavedTime').textContent = new Date().toLocaleTimeString('az', {hour:'2-digit',minute:'2-digit'});
+  showToast('Saxlandı: ' + name, 'success');
 }
-
-function getSavedDocs() {
-  try { return JSON.parse(localStorage.getItem('setir_docs') || '[]'); }
-  catch { return []; }
-}
-
+function getSavedDocs() { try { return JSON.parse(localStorage.getItem('setir_docs') || '[]'); } catch { return []; } }
 function openDoc(id) {
-  const docs = getSavedDocs();
-  const doc = docs.find(d => d.id === id);
+  const doc = getSavedDocs().find(d => d.id === id);
   if (!doc) return;
   document.getElementById('editor').innerHTML = doc.content || doc.text;
-  currentDocId = doc.id;
-  currentDocName = doc.name;
+  currentDocId = doc.id; currentDocName = doc.name;
   document.getElementById('topbarDocName').textContent = doc.name;
-  clearErrors();
-  updateCounts();
-  switchView('editor');
-  showToast('Sənəd açıldı: ' + doc.name, 'success');
+  clearErrors(); closeAIResult(); updateCounts(); switchView('editor');
+  showToast('Açıldı: ' + doc.name, 'success');
 }
-
 function downloadDoc() {
   const text = getEditorText();
-  if (!text.trim()) { showToast('İndirmək üçün mətn lazımdır', 'error'); return; }
-  const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
+  if (!text.trim()) { showToast('Mətn lazımdır', 'error'); return; }
   const a = document.createElement('a');
-  a.href = url; a.download = (currentDocName || 'setir') + '.txt';
-  a.click(); URL.revokeObjectURL(url);
-  showToast('Fayl endirildi', 'success');
+  a.href = URL.createObjectURL(new Blob([text], {type:'text/plain;charset=utf-8'}));
+  a.download = (currentDocName || 'setir') + '.txt';
+  a.click();
 }
-
 function downloadDocById(id) {
-  const docs = getSavedDocs();
-  const doc = docs.find(d => d.id === id);
+  const doc = getSavedDocs().find(d => d.id === id);
   if (!doc) return;
-  const blob = new Blob([doc.text], { type: 'text/plain;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href = url; a.download = doc.name + '.txt';
-  a.click(); URL.revokeObjectURL(url);
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([doc.text], {type:'text/plain;charset=utf-8'}));
+  a.download = doc.name + '.txt'; a.click();
 }
-
 function deleteDoc(id) {
   if (!confirm('Bu sənədi silmək istəyirsiniz?')) return;
-  const docs = getSavedDocs().filter(d => d.id !== id);
-  localStorage.setItem('setir_docs', JSON.stringify(docs));
-  renderHistory();
-  updateSidebarDocs();
+  localStorage.setItem('setir_docs', JSON.stringify(getSavedDocs().filter(d => d.id !== id)));
+  renderHistory(); updateSidebarDocs();
   showToast('Sənəd silindi', 'success');
 }
-
 function renderHistory() {
   const docs = getSavedDocs();
   const grid = document.getElementById('historyGrid');
-  if (!docs.length) {
-    grid.innerHTML = '<div class="history-empty">Hələ saxlanılmış sənəd yoxdur.</div>';
-    return;
-  }
+  if (!docs.length) { grid.innerHTML = '<div class="history-empty">Hələ saxlanılmış sənəd yoxdur.</div>'; return; }
   grid.innerHTML = docs.map(doc => {
-    const date = new Date(doc.date).toLocaleDateString('az', {day:'2-digit', month:'short', year:'numeric'});
-    const preview = (doc.text || '').slice(0, 120).trim();
-    return `
-      <div class="history-card">
-        <div class="history-card-type">📄 TXT · ${doc.wordCount || 0} söz</div>
-        <div class="history-card-name" title="${escHtml(doc.name)}">${escHtml(doc.name)}</div>
-        <div class="history-card-preview">${escHtml(preview)}${preview.length >= 120 ? '…' : ''}</div>
-        <div class="history-card-footer">
-          <div class="history-card-date">${date}</div>
-          <div class="history-card-actions">
-            <button class="history-card-btn open" onclick="openDoc('${doc.id}')">Aç</button>
-            <button class="history-card-btn download" onclick="downloadDocById('${doc.id}')">⬇</button>
-            <button class="history-card-btn" onclick="deleteDoc('${doc.id}')" style="color:var(--accent)" title="Sil">✕</button>
-          </div>
+    const date = new Date(doc.date).toLocaleDateString('az', {day:'2-digit',month:'short',year:'numeric'});
+    const preview = (doc.text||'').slice(0,120).trim();
+    return `<div class="history-card">
+      <div class="history-card-type">📄 ${doc.wordCount||0} söz</div>
+      <div class="history-card-name" title="${escHtml(doc.name)}">${escHtml(doc.name)}</div>
+      <div class="history-card-preview">${escHtml(preview)}${preview.length>=120?'…':''}</div>
+      <div class="history-card-footer">
+        <div class="history-card-date">${date}</div>
+        <div style="display:flex;gap:4px">
+          <button class="history-card-btn" onclick="openDoc('${doc.id}')">Aç</button>
+          <button class="history-card-btn" onclick="downloadDocById('${doc.id}')">⬇</button>
+          <button class="history-card-btn" onclick="deleteDoc('${doc.id}')" style="color:var(--accent)">✕</button>
         </div>
-      </div>`;
+      </div>
+    </div>`;
   }).join('');
 }
-
 function updateSidebarDocs() {
   const docs = getSavedDocs().slice(0, 6);
   const list = document.getElementById('sidebarDocList');
   if (!docs.length) { list.innerHTML = ''; return; }
   list.innerHTML = docs.map(doc => {
-    const date = new Date(doc.date).toLocaleDateString('az', {day:'2-digit', month:'short'});
-    return `
-      <div class="doc-item ${doc.id === currentDocId ? 'active' : ''}" onclick="openDoc('${doc.id}')">
-        <div class="doc-item-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-        </div>
-        <div class="doc-item-info">
-          <div class="doc-item-name">${escHtml(doc.name)}</div>
-          <div class="doc-item-meta">${date}</div>
-        </div>
-      </div>`;
+    const date = new Date(doc.date).toLocaleDateString('az', {day:'2-digit',month:'short'});
+    return `<div class="doc-item ${doc.id===currentDocId?'active':''}" onclick="openDoc('${doc.id}')">
+      <div class="doc-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+      <div class="doc-item-info"><div class="doc-item-name">${escHtml(doc.name)}</div><div class="doc-item-meta">${date}</div></div>
+    </div>`;
   }).join('');
 }
-
 function newDocument() {
-  if (getEditorText().trim() && !confirm('Cari sənədi atıb yeni sənəd açmaq istəyirsiniz?')) return;
+  if (getEditorText().trim() && !confirm('Yeni sənəd açılsın?')) return;
   document.getElementById('editor').innerHTML = '';
-  currentDocId = null;
-  currentDocName = 'Yeni sənəd';
+  currentDocId = null; currentDocName = 'Yeni sənəd';
   document.getElementById('topbarDocName').textContent = 'Yeni sənəd';
-  clearErrors();
-  updateCounts();
+  clearErrors(); closeAIResult(); updateCounts();
   document.getElementById('lastSaved').style.display = 'none';
   switchView('editor');
 }
 
-// ═══════════════════════════════════════
-//  UI HELPERS
-// ═══════════════════════════════════════
+// ═══════════════════════════
+//  UI
+// ═══════════════════════════
+function toggleSidebar() { sidebarOpen = !sidebarOpen; document.getElementById('sidebar').classList.toggle('collapsed', !sidebarOpen); }
+function switchView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+  document.querySelectorAll('.sidebar-item[id^="nav-"]').forEach(i => i.classList.remove('active'));
+  const nav = document.getElementById('nav-'+name);
+  if (nav) nav.classList.add('active');
+  if (name === 'history') renderHistory();
+}
 function setStatus(type, msg) {
-  const dot = document.getElementById('statusDot');
-  dot.className = 'status-dot ' + type;
+  document.getElementById('statusDot').className = 'status-dot ' + type;
   document.getElementById('statusText').textContent = msg;
 }
-
-function showLoading(show) {
-  document.getElementById('editorLoading').classList.toggle('active', show);
-}
-
+function showLoading(s) { document.getElementById('editorLoading').classList.toggle('active', s); }
 function openModal(id) { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-
-document.querySelectorAll('.modal-overlay').forEach(el => {
-  el.addEventListener('click', e => { if (e.target === el) closeModal(el.id); });
-});
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.open').forEach(m => closeModal(m.id));
-  if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); openSaveModal(); }
-  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); checkGrammar(); }
-});
-
-function showToast(msg, type = 'success') {
+function showToast(msg, type='success') {
   const c = document.getElementById('toastContainer');
   const t = document.createElement('div');
-  t.className = 'toast ' + type;
-  t.textContent = msg;
+  t.className = 'toast ' + type; t.textContent = msg;
   c.appendChild(t);
-  setTimeout(() => { t.style.opacity = '0'; t.style.transition = 'opacity 0.3s'; setTimeout(() => t.remove(), 300); }, 3000);
+  setTimeout(() => { t.style.opacity='0'; t.style.transition='opacity 0.3s'; setTimeout(()=>t.remove(),300); }, 3000);
 }
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-function escHtml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-// ═══════════════════════════════════════
-//  INIT
-// ═══════════════════════════════════════
-updateSidebarDocs();
-updateCounts();
+document.querySelectorAll('.modal-overlay').forEach(el => el.addEventListener('click', e => { if(e.target===el) closeModal(el.id); }));
+document.addEventListener('keydown', e => {
+  if (e.key==='Escape') document.querySelectorAll('.modal-overlay.open').forEach(m => closeModal(m.id));
+  if ((e.ctrlKey||e.metaKey) && e.key==='s') { e.preventDefault(); openSaveModal(); }
+  if ((e.ctrlKey||e.metaKey) && e.key==='Enter') { e.preventDefault(); checkGrammar(); }
+});
 </script>
 </body>
 </html>
