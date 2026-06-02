@@ -18,21 +18,53 @@ exports.processText = async (req, res) => {
   let prompt = '';
 
   switch(tool) {
-    case 'grammar': prompt = `Aşağıdakı mətni qrammatika, imla və durğu işarəsi baxımından tam düzəlt. Düzəldilmiş mətni qaytar, sonra hansı xətaların düzəldildiyini göstər:\n\n${text}`; break;
-    case 'tone': prompt = `Aşağıdakı mətni "${o.tone || 'Rəsmi'}" tonuna uyğunlaşdır:\n\n${text}`; break;
-    case 'improve': prompt = `Aşağıdakı mətni ${o.style || 'ümumi'} üslubda təkmilləşdir:\n\n${text}`; break;
-    case 'vocab': prompt = `Aşağıdakı mətndəki sadə sözləri zəngin Azərbaycan sözləri ilə əvəz et:\n\n${text}`; break;
-    case 'plagiarism': prompt = `Aşağıdakı mətni orijinallıq baxımından qiymətləndir:\n\n${text}`; break;
-    case 'summary': prompt = `Aşağıdakı mətni xülasə et:\n\n${text}`; break;
-    case 'generate': prompt = `"${o.type || 'Mətn'}" janrında mətn yarat:\n\n${text}`; break;
-    case 'rewrite': prompt = `Aşağıdakı mətni yenidən yaz:\n\n${text}`; break;
-    case 'protokol': prompt = `Rəsmi İCLAS PROTOKOLU hazırla:\n\n${text}`; break;
-    case 'emr': prompt = `Rəsmi ƏMR layihəsi hazırla:\n\n${text}`; break;
-    case 'qerar': prompt = `Rəsmi QƏRAR sənədi hazırla:\n\n${text}`; break;
-    case 'mektub': prompt = `Rəsmi MƏKTUB hazırla:\n\n${text}`; break;
-    case 'arayis': prompt = `Rəsmi ARAYIŞ hazırla:\n\n${text}`; break;
-    case 'xidmeti': prompt = `XİDMƏTİ YAZI hazırla:\n\n${text}`; break;
-    default: prompt = text;
+    case 'grammar':
+      prompt = `Aşağıdakı mətndə orfoqrafiya, qrammatika və durğu işarəsi səhvlərini tap.
+YALNIZ aşağıdakı JSON formatında cavab ver, başqa heç nə yazma:
+{"errors": [{"word": "səhv söz", "suggestion": "düzgün variant", "description": "qısa izahat"}]}
+Əgər səhv yoxdursa: {"errors": []}
+
+Mətn:
+${text}`;
+      break;
+    case 'tone':
+      prompt = `Aşağıdakı mətni "${o.tone || 'Rəsmi'}" tonuna uyğunlaşdır. Yalnız yenidən yazılmış mətni qaytar:\n\n${text}`;
+      break;
+    case 'improve':
+      prompt = `Aşağıdakı mətni Azərbaycan ədəbi dili normalarına uyğun təkmilləşdir. Mənasını qoru, ifadəni gözəlləşdir. Yalnız təkmilləşdirilmiş mətni qaytar:\n\n${text}`;
+      break;
+    case 'vocab':
+      prompt = `Aşağıdakı mətndəki sadə, adi sözləri zəngin, ədəbi Azərbaycan sözləri ilə əvəz et. Yalnız yenilənmiş mətni qaytar:\n\n${text}`;
+      break;
+    case 'plagiarism':
+      prompt = `Aşağıdakı mətni orijinallıq baxımından qiymətləndir. Mümkün oxşarlıqları, şüblə doğuran hissələri qeyd et:\n\n${text}`;
+      break;
+    case 'summary':
+      prompt = `Aşağıdakı mətni qısa və aydın şəkildə xülasə et:\n\n${text}`;
+      break;
+    case 'rewrite':
+      prompt = `Aşağıdakı mətni tamamilə yenidən yaz — eyni mənanı fərqli ifadə ilə çatdır. Yalnız yenidən yazılmış mətni qaytar:\n\n${text}`;
+      break;
+    case 'protokol':
+      prompt = `Verilən məlumatlar əsasında rəsmi İCLAS PROTOKOLU hazırla. Tam format: başlıq, tarix/yer, iştirakçılar, müzakirə olunan məsələlər, qəbul edilən qərarlar, imzalar üçün yer:\n\n${text}`;
+      break;
+    case 'emr':
+      prompt = `Verilən məlumatlar əsasında rəsmi ƏMR layihəsi hazırla. Tam format: üst-başlıq, nömrə/tarix, əmrin mövzusu, əsas mətn, icraçılar, müddət, imza yeri:\n\n${text}`;
+      break;
+    case 'qerar':
+      prompt = `Verilən məlumatlar əsasında rəsmi QƏRAR sənədi hazırla. Tam format: üst-başlıq, nömrə/tarix, mövzu, qərarda yazılan əsaslar, qərar hissəsi, imza yeri:\n\n${text}`;
+      break;
+    case 'mektub':
+      prompt = `Verilən məlumatlar əsasında rəsmi MƏKTUB hazırla. Tam format: üst-başlıq (göndərən/alan), tarix, müraciət, mətn, hörmətlə bağlama, imza:\n\n${text}`;
+      break;
+    case 'arayis':
+      prompt = `Verilən məlumatlar əsasında rəsmi ARAYIŞ hazırla. Tam format: başlıq, verilmə tarixi, məzmun, təsdiq edən şəxs/qurum, möhür/imza yeri:\n\n${text}`;
+      break;
+    case 'xidmeti':
+      prompt = `Verilən məlumatlar əsasında XİDMƏTİ YAZI hazırla. Tam format: üst-başlıq, kimə/kimdən, tarix/nömrə, mövzu, mətn, imza:\n\n${text}`;
+      break;
+    default:
+      prompt = text;
   }
 
   try {
@@ -53,7 +85,10 @@ exports.processText = async (req, res) => {
         }
       }
     );
-    res.json({ result: response.data.choices[0].message.content });
+
+    const result = response.data.choices[0].message.content;
+    res.json({ result });
+
   } catch (err) {
     console.error('Groq API Xətası:', err.response?.data || err.message);
     res.status(500).json({ error: 'AI serveri ilə əlaqə xətası.' });
