@@ -33,6 +33,9 @@ QƏTI QADAĞALAR — bunlara TOXUNMA:
 - Rəqəmlə birləşmiş sözlər (1-ci, 2-li, 10-cu və s.) STANDART Azərbaycan yazılışıdır
 - Düzgün yazılmış sözləri səhv kimi qeyd etmə
 - Əgər söz düzgündürsə, onu errors siyahısına ƏLAVƏ ETMƏ
+- "numune", "nümunə" sözü kontekstə görə düzgün ola bilər — şübhəli hallarda TOXUNMA
+- Xarici sözlər, terminlər, şəxs adları, coğrafi adlar — TOXUNMA
+- Yalnız 100% aydın şəkildə səhv olan sözləri qeyd et
 
 VACIB QAYDALAR:
 - "word" sahəsinə mətndən OLDUĞU KİMİ kopyala (dəyişdirmə)
