@@ -99,8 +99,9 @@
     #editor[data-placeholder]:empty::before { content: attr(data-placeholder); color: var(--text3); font-style: italic; pointer-events: none; }
 
     /* AI RESULT PANEL */
-    .ai-result-panel { max-width: 760px; margin: 12px auto 0; background: var(--surface); border: 1px solid #b8d4ed; border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); display: none; }
-    .ai-result-panel.visible { display: block; }
+    .ai-result-panel { max-width: 760px; margin: 12px auto 0; background: var(--surface); border: 2px solid var(--green); border-radius: var(--radius); overflow: hidden; box-shadow: 0 0 0 4px rgba(39,174,96,0.08), var(--shadow); display: none; }
+    .ai-result-panel.visible { display: block; animation: aiPanelIn 0.3s ease; }
+    @keyframes aiPanelIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
     .ai-result-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; background: rgba(41,128,185,0.06); border-bottom: 1px solid #b8d4ed; }
     .ai-result-title { font-size: 12px; font-weight: 600; color: var(--blue); font-family: 'JetBrains Mono', monospace; display: flex; align-items: center; gap: 6px; }
     .ai-result-actions { display: flex; gap: 6px; }
@@ -369,7 +370,12 @@
             <div class="ai-result-body" id="aiResultBody"></div>
           </div>
 
-          <div class="loading-overlay" id="editorLoading"><div class="spinner"></div></div>
+          <div class="loading-overlay" id="editorLoading">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:10px">
+              <div class="spinner"></div>
+              <div id="loadingMsg" style="font-size:12px;color:var(--text2);text-align:center;max-width:200px">AI işlənir...</div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -543,15 +549,28 @@ async function callAPI(tool, text, options = {}) {
     throw new Error('No auth token');
   }
 
-  const res = await fetch('/api/ai/process', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + authToken,
-      'x-device-fingerprint': getDeviceFingerprint()
-    },
-    body: JSON.stringify({ text, tool, options })
-  });
+  // AbortController for timeout (60s for cold starts on free hosting)
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 60000);
+  
+  let res;
+  try {
+    res = await fetch('/api/ai/process', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + authToken,
+        'x-device-fingerprint': getDeviceFingerprint()
+      },
+      body: JSON.stringify({ text, tool, options }),
+      signal: controller.signal
+    });
+  } catch(fetchErr) {
+    clearTimeout(timeoutId);
+    if (fetchErr.name === 'AbortError') throw new Error('Server cavab vermədi (timeout). Bir az gözləyib yenidən cəhd edin.');
+    throw fetchErr;
+  }
+  clearTimeout(timeoutId);
 
   if (res.status === 401) {
     const data = await res.json();
@@ -619,8 +638,8 @@ async function checkGrammar() {
     } catch(firstErr) {
       // Retry once after 1.5s on server error
       if (firstErr.message !== 'Unauthorized' && firstErr.message !== 'Forbidden') {
-        showToast('Server ilə əlaqə... Yenidən cəhd edilir', 'error');
-        await new Promise(r => setTimeout(r, 1500));
+        showToast('Server işə salınır, bir az gözləyin (10-15 san)...', 'error');
+        await new Promise(r => setTimeout(r, 8000));
         grammarErrors = await attemptCheck();
       } else {
         throw firstErr;
@@ -729,12 +748,29 @@ function applyTon() {
 
 // AI RESULT PANEL
 function showAIResult(title, content) {
+  const originalText = getEditorText().trim();
   document.getElementById('aiResultTitle').innerHTML = `
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-    ${escHtml(title)}`;
-  document.getElementById('aiResultBody').textContent = content;
+    ${escHtml(title)} <span style="font-size:10px;color:var(--text3);font-weight:400;margin-left:6px">— AI təklifi aşağıdadır</span>`;
+  
+  const body = document.getElementById('aiResultBody');
+  body.innerHTML = '';
+  
+  // Show character difference hint
+  const diffHint = document.createElement('div');
+  diffHint.style.cssText = 'font-size:10px;color:var(--text3);margin-bottom:8px;padding:4px 8px;background:rgba(255,255,255,0.04);border-radius:4px;';
+  const charDiff = content.length - originalText.length;
+  diffHint.textContent = charDiff > 0 ? `+${charDiff} hərf əlavə edildi` : charDiff < 0 ? `${charDiff} hərf azaldıldı` : 'Hərf sayı eyni qaldı';
+  body.appendChild(diffHint);
+  
+  const pre = document.createElement('div');
+  pre.style.cssText = 'white-space:pre-wrap;line-height:1.6;';
+  pre.textContent = content;
+  body.appendChild(pre);
+  
   document.getElementById('aiResultPanel').classList.add('visible');
   document.getElementById('aiResultPanel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  showToast(title + ' hazır — nəticəyə baxın', 'success');
 }
 
 function closeAIResult() {
@@ -754,7 +790,7 @@ function applyAIResult() {
 
 function openBiznesModal() {
   if (userPlan !== 'biznes') {
-    showToast('Bu funksiya yalnız Biznes Paketi istifadəçilərinə açıqdır. Paketi yüksəldin.', 'error');
+    openModal('upgradeModal');
     return;
   }
   openModal('biznesModal');
@@ -1041,20 +1077,36 @@ function openDoc(id) {
   clearErrors(); closeAIResult(); updateCounts(); switchView('editor');
   showToast('Açıldı: ' + doc.name, 'success');
 }
+function textToDocxBlob(text) {
+  // Word XML format for proper .docx-like download
+  const paragraphs = text.split('\n').map(line => {
+    const escaped = line.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    return `<w:p><w:r><w:t xml:space="preserve">${escaped || ' '}</w:t></w:r></w:p>`;
+  }).join('');
+  const xml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<?mso-application progid="Word.Document"?>
+<w:wordDocument xmlns:w="http://schemas.microsoft.com/office/word/2003/wordml"
+  xmlns:wx="http://schemas.microsoft.com/office/word/2003/auxHint"
+  w:macrosPresent="no" w:embeddedObjPresent="no" w:ocxPresent="no">
+<w:body>${paragraphs}</w:body></w:wordDocument>`;
+  return new Blob([xml], {type:'application/msword;charset=utf-8'});
+}
+
 function downloadDoc() {
   const text = getEditorText();
   if (!text.trim()) { showToast('Mətn lazımdır', 'error'); return; }
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([text], {type:'text/plain;charset=utf-8'}));
-  a.download = (currentDocName || 'setir') + '.txt';
+  a.href = URL.createObjectURL(textToDocxBlob(text));
+  a.download = (currentDocName || 'setir') + '.doc';
   a.click();
+  showToast('Sənəd .doc formatında endirildi', 'success');
 }
 function downloadDocById(id) {
   const doc = getSavedDocs().find(d => d.id === id);
   if (!doc) return;
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([doc.text], {type:'text/plain;charset=utf-8'}));
-  a.download = doc.name + '.txt'; a.click();
+  a.href = URL.createObjectURL(textToDocxBlob(doc.text));
+  a.download = doc.name + '.doc'; a.click();
 }
 function deleteDoc(id) {
   if (!confirm('Bu sənədi silmək istəyirsiniz?')) return;
@@ -1122,7 +1174,18 @@ function setStatus(type, msg) {
   document.getElementById('statusDot').className = 'status-dot ' + type;
   document.getElementById('statusText').textContent = msg;
 }
-function showLoading(s) { document.getElementById('editorLoading').classList.toggle('active', s); }
+function showLoading(s) { 
+  document.getElementById('editorLoading').classList.toggle('active', s);
+  if (s) {
+    document.getElementById('loadingMsg').textContent = 'AI işlənir...';
+    // After 5s, warn about cold start
+    window._coldStartTimer = setTimeout(() => {
+      document.getElementById('loadingMsg').innerHTML = 'Server işə salınır...<br><span style="font-size:11px;color:var(--text3)">İlk sorğu 15-30 san çəkə bilər</span>';
+    }, 5000);
+  } else {
+    clearTimeout(window._coldStartTimer);
+  }
+}
 function openModal(id) { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 function showToast(msg, type='success') {
@@ -1141,5 +1204,38 @@ document.addEventListener('keydown', e => {
   if ((e.ctrlKey||e.metaKey) && e.key==='Enter') { e.preventDefault(); checkGrammar(); }
 });
 </script>
+
+  <!-- Upgrade Modal -->
+  <div class="modal-overlay" id="upgradeModal" onclick="if(event.target===this)closeModal('upgradeModal')">
+    <div class="modal" style="max-width:420px">
+      <div class="modal-header">
+        <div class="modal-title">✦ Biznes Paketi</div>
+        <button class="modal-close" onclick="closeModal('upgradeModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div style="text-align:center;padding:12px 0 20px">
+          <div style="font-size:36px;margin-bottom:12px">📋</div>
+          <div style="font-size:15px;font-weight:600;color:var(--text1);margin-bottom:8px">Biznes Sənəd Şablonları</div>
+          <div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:20px">
+            Protokol, Əmr, Qərar, Məktub, Arayış və Xidməti Yazı kimi rəsmi sənədlər avtomatik hazırlanır.<br><br>
+            Bu funksiya <strong>Biznes Paketi</strong> abunəçilərinə açıqdır.
+          </div>
+          <div style="background:rgba(255,255,255,0.04);border-radius:10px;padding:16px;margin-bottom:20px;text-align:left">
+            <div style="font-size:12px;color:var(--text3);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px">Biznes Paketi daxildir:</div>
+            <div style="font-size:13px;color:var(--text2);line-height:2">
+              ✓ Bütün biznes sənəd şablonları<br>
+              ✓ Limitsiz AI istifadəsi<br>
+              ✓ Prioritet dəstək<br>
+              ✓ Birdən çox cihaz
+            </div>
+          </div>
+          <a href="/paket" style="display:block;width:100%;padding:11px;background:var(--green);color:#fff;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none;text-align:center;cursor:pointer" onclick="closeModal('upgradeModal')">
+            Paketi Yüksəlt →
+          </a>
+          <div style="font-size:11px;color:var(--text3);margin-top:10px">İstənilən vaxt ləğv edə bilərsiniz</div>
+        </div>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
