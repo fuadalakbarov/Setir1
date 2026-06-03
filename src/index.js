@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const path = require('path');
 const session = require('express-session');
 const passport = require('passport');
@@ -8,7 +9,17 @@ require('dotenv').config();
 const app = express();
 const PUBLIC_DIR = path.join(__dirname, '..', 'public');
 
+// CORS
+app.use(cors({
+  origin: true,
+  credentials: true
+}));
+
 app.use(express.static(PUBLIC_DIR));
+
+// Health check endpoint (for uptime monitors)
+app.get('/health', (req, res) => res.json({ status: 'ok', time: new Date().toISOString() }));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -54,4 +65,22 @@ app.use('/api/ai', aiRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 
-app.listen(3000, () => console.log('Server işləyir: http://localhost:3000'));
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log('Server işləyir: http://localhost:' + PORT);
+  
+  // Self-ping hər 14 dəqiqədə bir — Render free tier yuxuya getməsin
+  const https = require('https');
+  const http = require('http');
+  const SELF_URL = process.env.RENDER_EXTERNAL_URL || 'http://localhost:' + PORT;
+  
+  setInterval(() => {
+    const url = SELF_URL + '/health';
+    const client = url.startsWith('https') ? https : http;
+    client.get(url, (res) => {
+      console.log('Self-ping OK:', res.statusCode);
+    }).on('error', (err) => {
+      console.log('Self-ping xəta:', err.message);
+    });
+  }, 14 * 60 * 1000); // 14 dəqiqə
+});
