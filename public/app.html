@@ -381,7 +381,7 @@
             Səhvlər
             <span class="errors-badge" id="errorsBadge">0</span>
           </div>
-          <button class="btn btn-ghost btn-icon" style="padding:4px 6px;font-size:11px" onclick="clearAllErrors()">✕ Hamısı</button>
+          <button class="btn btn-ghost btn-icon" style="padding:4px 8px;font-size:11px;color:var(--green)" onclick="applyAllFixes()">✓ Hamısını tətbiq et</button>
         </div>
         <div class="errors-list" id="errorsList">
           <div class="errors-empty">
@@ -553,7 +553,7 @@ async function callAPI(tool, text, options = {}) {
     body: JSON.stringify({ text, tool, options })
   });
 
-  if (res.status === 401 || res.status === 403) {
+  if (res.status === 401) {
     const data = await res.json();
     showToast(data.error || 'Sessiyanız bitib. Yenidən daxil olun.', 'error');
     setTimeout(() => window.location.href = '/login', 2000);
@@ -562,6 +562,7 @@ async function callAPI(tool, text, options = {}) {
 
   if (res.status === 403) {
     const data = await res.json();
+    // Plan xətası — login-ə yönləndirmə, sadəcə xəbərdarlıq göstər
     showToast(data.error || 'Bu funksiya sizin paket üçün mövcud deyil.', 'error');
     throw new Error('Forbidden');
   }
@@ -752,6 +753,10 @@ function applyAIResult() {
 }
 
 function openBiznesModal() {
+  if (userPlan !== 'biznes') {
+    showToast('Bu funksiya yalnız Biznes Paketi istifadəçilərinə açıqdır. Paketi yüksəldin.', 'error');
+    return;
+  }
   openModal('biznesModal');
 }
 
@@ -840,19 +845,34 @@ function clearAllErrors() {
 function applyFix(i) {
   const e = errors[i];
   if (!e?.suggestion || e._applied || e._dismissed) return;
+  // Replace ALL highlighted spans for this error index
   document.getElementById('editor').querySelectorAll(`.err-word[data-index="${i}"]`).forEach(el => {
-    const s = document.createElement('span');
-    s.className = 'err-word applied'; s.textContent = e.suggestion;
-    el.replaceWith(s);
-    setTimeout(() => s.replaceWith(document.createTextNode(e.suggestion)), 800);
+    el.replaceWith(document.createTextNode(e.suggestion));
   });
+  errors[i]._applied = true;
   const card = document.getElementById('ecard-' + i);
   if (card) { card.classList.add('resolved'); card.querySelector('.error-card-word').textContent = e.suggestion; }
-  errors[i]._applied = true;
   // Update badge
   const activeCount = errors.filter(e => !e._dismissed && !e._applied).length;
   document.getElementById('errorsBadge').textContent = activeCount;
   showToast(`"${e.word}" → "${e.suggestion}"`, 'success');
+}
+
+function applyAllFixes() {
+  // Apply all non-dismissed, non-applied fixes
+  const toApply = errors.filter(e => !e._dismissed && !e._applied && e.suggestion);
+  if (!toApply.length) { showToast('Tətbiq ediləcək düzəltmə yoxdur', 'error'); return; }
+  toApply.forEach((e, _) => {
+    const i = errors.indexOf(e);
+    document.getElementById('editor').querySelectorAll(`.err-word[data-index="${i}"]`).forEach(el => {
+      el.replaceWith(document.createTextNode(e.suggestion));
+    });
+    errors[i]._applied = true;
+    const card = document.getElementById('ecard-' + i);
+    if (card) card.classList.add('resolved');
+  });
+  document.getElementById('errorsBadge').textContent = '0';
+  showToast(toApply.length + ' düzəltmə tətbiq edildi', 'success');
 }
 
 function clearErrors() {
@@ -903,7 +923,16 @@ function processFile(file) {
   const ext = file.name.split('.').pop().toLowerCase();
   if (ext === 'txt') {
     const r = new FileReader();
-    r.onload = e => { document.getElementById('editor').innerText = e.target.result; updateCounts(); showToast('Fayl yükləndi', 'success'); };
+    r.onload = e => {
+      const editorEl = document.getElementById('editor');
+      editorEl.innerHTML = '';
+      (e.target.result || '').split('\n').forEach(line => {
+        const p = document.createElement('p');
+        if (line.trim()) { p.textContent = line; } else { p.innerHTML = '<br>'; }
+        editorEl.appendChild(p);
+      });
+      updateCounts(); showToast('Fayl yükləndi', 'success');
+    };
     r.readAsText(file);
   } else if (ext === 'pdf') {
     showToast('PDF oxunur...', 'success');
@@ -941,7 +970,17 @@ function processFile(file) {
           if (currentLine.trim()) pageLines.push(currentLine.trim());
           fullText += pageLines.join('\n') + '\n\n';
         }
-        document.getElementById('editor').innerText = fullText.trim() || '[PDF mətni tapılmadı]';
+        const editorEl = document.getElementById('editor');
+        editorEl.innerHTML = '';
+        if (fullText.trim()) {
+          fullText.trim().split('\n').forEach(line => {
+            const p = document.createElement('p');
+            if (line.trim()) { p.textContent = line; } else { p.innerHTML = '<br>'; }
+            editorEl.appendChild(p);
+          });
+        } else {
+          editorEl.innerHTML = '<p>[PDF mətni tapılmadı]</p>';
+        }
       } catch(err) {
         console.error('PDF xətası:', err);
         document.getElementById('editor').innerText = '[PDF oxuna bilmədi: ' + file.name + ']';
