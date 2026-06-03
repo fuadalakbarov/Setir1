@@ -23,8 +23,14 @@ const authMiddleware = async (req, res, next) => {
       return res.status(401).json({ error: 'Sessiyanız sonlandırılıb və ya başqa cihazdan giriş edilib.' });
     }
 
-    if (req.user.plan !== 'biznes' && deviceFingerprint && sessionRes.rows[0].device_fingerprint !== 'google_device' && sessionRes.rows[0].device_fingerprint !== deviceFingerprint) {
+    // google_device sessiyaları üçün fingerprint yoxlamasını keç
+    const storedFp = sessionRes.rows[0].device_fingerprint;
+    if (req.user.plan !== 'biznes' && deviceFingerprint && storedFp !== 'google_device' && storedFp !== deviceFingerprint) {
       return res.status(401).json({ error: 'Bu hesab eyni anda yalnız bir cihazda aktiv ola bilər.' });
+    }
+    // Google sessiyasının fingerprint-ini ilk real çağırışda yenilə
+    if (storedFp === 'google_device' && deviceFingerprint) {
+      await db.query('UPDATE active_sessions SET device_fingerprint = $1 WHERE token = $2', [deviceFingerprint, token]);
     }
 
     await db.query(
