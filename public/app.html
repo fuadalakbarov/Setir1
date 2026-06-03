@@ -352,7 +352,7 @@
           </div>
           <input type="file" id="fileInput" accept=".txt,.doc,.docx,.pdf" onchange="handleFileSelect(event)" style="display:none">
 
-          <div id="editor" contenteditable="true" data-placeholder="Mətnizi bura yazın və ya yuxarıdan fayl yükləyin…" oninput="onEditorInput()" spellcheck="false"></div>
+          <div id="editor" contenteditable="true" data-placeholder="Mətnizi bura yazın və ya yuxarıdan fayl yükləyin…" oninput="onEditorInput()" spellcheck="false" onpaste="handlePaste(event)"></div>
 
           <!-- AI result -->
           <div class="ai-result-panel" id="aiResultPanel">
@@ -381,7 +381,7 @@
             Səhvlər
             <span class="errors-badge" id="errorsBadge">0</span>
           </div>
-          <button class="btn btn-ghost btn-icon" style="padding:4px 6px;font-size:11px" onclick="clearErrors()">✕ Hamı</button>
+          <button class="btn btn-ghost btn-icon" style="padding:4px 6px;font-size:11px" onclick="clearAllErrors()">✕ Hamısı</button>
         </div>
         <div class="errors-list" id="errorsList">
           <div class="errors-empty">
@@ -594,25 +594,39 @@ async function checkGrammar() {
   showLoading(true);
   clearErrors();
 
-  try {
-    // Grammar check — JSON cavab istəyirik, buna görə ayrı bir endpoint yoxdur,
-    // aiController-dəki 'grammar' tool-u istifadə edirik amma JSON parse edirik
+  const attemptCheck = async () => {
     const raw = await callAPI('grammar', text.slice(0, 8000));
-
-    // Backend plain text qaytarır — onu da parse etməyə çalışırıq
-    // Əgər JSON formatında cavab gəlirsə
     let grammarErrors = [];
     try {
-      const cleaned = raw.replace(/```json|```/g, '').trim();
+      const cleaned = raw.replace(/```json[\s\S]*?```/g, m => m.slice(7, -3)).replace(/```/g, '').trim();
       const parsed = JSON.parse(cleaned);
-      grammarErrors = parsed.errors || [];
+      grammarErrors = Array.isArray(parsed.errors) ? parsed.errors : [];
     } catch {
-      // Backend plain text qaytarıbsa — errors panel-də göstər
+      // Backend returned plain text — show in AI result panel
       showAIResult('Qrammatika Yoxlaması', raw);
       setStatus('ok', 'Yoxlama tamamlandı');
       showToast('Qrammatika yoxlaması tamamlandı', 'success');
-      return;
+      return null; // signal: handled
     }
+    return grammarErrors;
+  };
+
+  try {
+    let grammarErrors;
+    try {
+      grammarErrors = await attemptCheck();
+    } catch(firstErr) {
+      // Retry once after 1.5s on server error
+      if (firstErr.message !== 'Unauthorized' && firstErr.message !== 'Forbidden') {
+        showToast('Server ilə əlaqə... Yenidən cəhd edilir', 'error');
+        await new Promise(r => setTimeout(r, 1500));
+        grammarErrors = await attemptCheck();
+      } else {
+        throw firstErr;
+      }
+    }
+
+    if (grammarErrors === null) return; // handled as plain text above
 
     errors = grammarErrors;
     renderErrors();
@@ -622,8 +636,8 @@ async function checkGrammar() {
 
   } catch(err) {
     if (err.message !== 'Unauthorized' && err.message !== 'Forbidden') {
-      setStatus('error', 'Xəta');
-      showToast('Xəta: ' + err.message, 'error');
+      setStatus('error', 'Server xətası');
+      showToast('AI serveri ilə əlaqə xətası. Bir az sonra yenidən cəhd edin.', 'error');
     }
   } finally {
     showLoading(false);
@@ -768,17 +782,24 @@ function renderErrors() {
 
 function highlightErrors() {
   const editor = document.getElementById('editor');
+  // First strip any existing highlights to avoid double-wrapping
   const tmp = document.createElement('div');
   tmp.innerHTML = editor.innerHTML;
   tmp.querySelectorAll('.err-word').forEach(el => el.replaceWith(document.createTextNode(el.innerText)));
   let html = tmp.innerHTML;
+
   errors.forEach((e, i) => {
-    if (!e.word) return;
+    if (!e.word || e._dismissed || e._applied) return;
+    // Escape regex special chars
     const esc = e.word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const re = new RegExp('(?<![\\w\\u0400-\\u04FF])(' + esc + ')(?![\\w\\u0400-\\u04FF])', 'g');
+    // Word boundary that works for Azerbaijani (non-word = not letter/digit)
+    const re = new RegExp('(?<![\\p{L}\\p{N}])(' + esc + ')(?![\\p{L}\\p{N}])', 'gu');
+    let replaced = false;
     html = html.replace(re, (m) => {
+      if (replaced) return m; // only highlight first occurrence
+      replaced = true;
       const sug = e.suggestion ? `<span class="sug-green">${escHtml(e.suggestion)}</span>` : '';
-      return `<span class="err-word" data-index="${i}" onclick="applyFix(${i})">${escHtml(m)}<span class="suggestion-tooltip">→ ${sug || escHtml(e.suggestion||'')}</span></span>`;
+      return `<span class="err-word" data-index="${i}" onclick="applyFix(${i})">${escHtml(m)}<span class="suggestion-tooltip">→ ${sug || escHtml(e.suggestion || '')}</span></span>`;
     });
   });
   editor.innerHTML = html;
@@ -786,15 +807,39 @@ function highlightErrors() {
 
 function dismissError(i) {
   const card = document.getElementById('ecard-' + i);
-  if (card) { card.style.opacity = '0'; card.style.transform = 'translateX(20px)'; card.style.transition = 'all 0.2s'; setTimeout(() => card.remove(), 200); }
+  if (card) {
+    card.style.opacity = '0';
+    card.style.transform = 'translateX(20px)';
+    card.style.transition = 'all 0.2s';
+    setTimeout(() => card.remove(), 200);
+  }
   errors[i]._dismissed = true;
-  document.getElementById('errorsBadge').textContent = errors.filter(e => !e._dismissed).length;
-  document.querySelectorAll(`.err-word[data-index="${i}"]`).forEach(el => el.replaceWith(document.createTextNode(el.innerText)));
+  // Remove highlight from editor
+  document.querySelectorAll(`.err-word[data-index="${i}"]`).forEach(el => {
+    el.replaceWith(document.createTextNode(el.innerText));
+  });
+  // Update badge with active (non-dismissed, non-applied) count
+  const activeCount = errors.filter(e => !e._dismissed && !e._applied).length;
+  document.getElementById('errorsBadge').textContent = activeCount;
+}
+
+function clearAllErrors() {
+  // Animate all cards out
+  document.querySelectorAll('.error-card').forEach((card, idx) => {
+    setTimeout(() => {
+      card.style.opacity = '0';
+      card.style.transform = 'translateX(20px)';
+      card.style.transition = 'all 0.15s';
+    }, idx * 30);
+  });
+  setTimeout(() => {
+    clearErrors();
+  }, errors.length * 30 + 200);
 }
 
 function applyFix(i) {
   const e = errors[i];
-  if (!e?.suggestion) return;
+  if (!e?.suggestion || e._applied || e._dismissed) return;
   document.getElementById('editor').querySelectorAll(`.err-word[data-index="${i}"]`).forEach(el => {
     const s = document.createElement('span');
     s.className = 'err-word applied'; s.textContent = e.suggestion;
@@ -804,6 +849,9 @@ function applyFix(i) {
   const card = document.getElementById('ecard-' + i);
   if (card) { card.classList.add('resolved'); card.querySelector('.error-card-word').textContent = e.suggestion; }
   errors[i]._applied = true;
+  // Update badge
+  const activeCount = errors.filter(e => !e._dismissed && !e._applied).length;
+  document.getElementById('errorsBadge').textContent = activeCount;
   showToast(`"${e.word}" → "${e.suggestion}"`, 'success');
 }
 
@@ -815,8 +863,15 @@ function clearErrors() {
 }
 
 // ═══════════════════════════
-//  EDITOR
+//  PASTE — strip background/color styles
 // ═══════════════════════════
+function handlePaste(e) {
+  e.preventDefault();
+  const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+  document.execCommand('insertText', false, text);
+}
+
+
 function onEditorInput() { updateCounts(); }
 function updateCounts() {
   const t = getEditorText();
@@ -863,8 +918,28 @@ function processFile(file) {
         for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
           const page = await pdf.getPage(pageNum);
           const content = await page.getTextContent();
-          const pageText = content.items.map(item => item.str).join(' ');
-          fullText += pageText + '\n\n';
+          // Intelligently reconstruct text: use transform positions to detect line breaks
+          let pageLines = [];
+          let currentLine = '';
+          let lastY = null;
+          content.items.forEach(item => {
+            const y = item.transform ? Math.round(item.transform[5]) : null;
+            if (lastY !== null && y !== null && Math.abs(y - lastY) > 2) {
+              // New line
+              if (currentLine.trim()) pageLines.push(currentLine.trim());
+              currentLine = item.str;
+            } else {
+              // Same line — only add space if needed
+              if (currentLine && !currentLine.endsWith(' ') && item.str && !item.str.startsWith(' ')) {
+                currentLine += ' ' + item.str;
+              } else {
+                currentLine += item.str;
+              }
+            }
+            lastY = y;
+          });
+          if (currentLine.trim()) pageLines.push(currentLine.trim());
+          fullText += pageLines.join('\n') + '\n\n';
         }
         document.getElementById('editor').innerText = fullText.trim() || '[PDF mətni tapılmadı]';
       } catch(err) {
