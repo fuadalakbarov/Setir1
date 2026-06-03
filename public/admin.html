@@ -1,142 +1,1212 @@
 <!DOCTYPE html>
 <html lang="az">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sətir.az - Admin Panel</title>
-    <style>
-        :root {
-            --primary: #dc2626;
-            --primary-hover: #b91c1c;
-            --bg: #f8fafc;
-            --text: #0f172a;
-            --border: #e2e8f0;
-        }
-        body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 2rem;
-        }
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            background: white;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
-            border: 1px solid var(--border);
-        }
-        h2 { margin-top: 0; color: #1e293b; display: flex; justify-content: space-between; align-items: center; }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1.5rem;
-        }
-        th, td {
-            padding: 0.75rem 1rem;
-            text-align: left;
-            border-bottom: 1px solid var(--border);
-        }
-        th { background: #f1f5f9; color: #475569; font-weight: 600; }
-        tr:hover { background: #f8fafc; }
-        .badge {
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
-        .badge-free { background: #e2e8f0; color: #475569; }
-        .badge-individual { background: #dbeafe; color: #1e40af; }
-        .badge-biznes { background: #fef08a; color: #854d0e; }
-        .btn-back {
-            font-size: 0.95rem;
-            color: #2563eb;
-            text-decoration: none;
-        }
-        .btn-back:hover { text-decoration: underline; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sətir.az</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #f8f6f1; --bg2: #f0ede5;
+      --sidebar-bg: #1a1a2e; --sidebar-text: #c8c0d4; --sidebar-muted: #7a728a;
+      --surface: #ffffff; --surface2: #f4f1ea;
+      --border: #ddd8cc; --border2: #e8e4da;
+      --text: #1c1a16; --text2: #4a4540; --text3: #8a8278;
+      --accent: #c0392b; --accent2: #e74c3c;
+      --green: #27ae60; --green2: #2ecc71; --blue: #2980b9;
+      --shadow: 0 1px 4px rgba(0,0,0,0.08); --shadow2: 0 4px 20px rgba(0,0,0,0.1);
+      --sidebar-w: 260px; --header-h: 56px; --radius: 10px;
+    }
+    body { font-family: 'Source Serif 4', serif; background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+    /* TOPBAR */
+    .topbar { height: var(--header-h); background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 16px; gap: 12px; z-index: 100; box-shadow: var(--shadow); flex-shrink: 0; }
+    .topbar-logo { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 600; color: var(--sidebar-bg); letter-spacing: -0.5px; }
+    .topbar-logo span { color: var(--accent); }
+    .topbar-divider { width: 1px; height: 28px; background: var(--border); margin: 0 4px; }
+    .topbar-docname { flex: 1; font-size: 14px; color: var(--text2); font-style: italic; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .topbar-actions { display: flex; gap: 8px; align-items: center; }
+
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 7px; border: none; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 500; transition: all 0.15s; white-space: nowrap; }
+    .btn-ghost { background: transparent; color: var(--text2); border: 1px solid var(--border); }
+    .btn-ghost:hover { background: var(--bg2); }
+    .btn-primary { background: var(--sidebar-bg); color: #fff; }
+    .btn-primary:hover { background: #2d2b45; }
+    .btn-green { background: var(--green); color: #fff; }
+    .btn-green:hover { background: #219a52; }
+    .btn-icon { padding: 7px 9px; }
+
+    /* LAYOUT */
+    .layout { display: flex; flex: 1; overflow: hidden; }
+
+    /* SIDEBAR */
+    .sidebar { width: var(--sidebar-w); background: var(--sidebar-bg); display: flex; flex-direction: column; transition: width 0.25s cubic-bezier(0.4,0,0.2,1); overflow: hidden; flex-shrink: 0; z-index: 50; }
+    .sidebar.collapsed { width: 52px; }
+    .sidebar.collapsed .sidebar-label, .sidebar.collapsed .sidebar-section-title, .sidebar.collapsed .doc-item-info, .sidebar.collapsed .sidebar-footer-text { display: none; }
+    .sidebar.collapsed .sidebar-item { justify-content: center; padding: 10px; }
+    .sidebar-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 14px 10px; border-bottom: 1px solid rgba(255,255,255,0.07); }
+    .sidebar-brand { font-family: 'Playfair Display', serif; font-size: 18px; color: #fff; font-weight: 600; }
+    .sidebar.collapsed .sidebar-brand { display: none; }
+    .sidebar-toggle { background: none; border: none; cursor: pointer; color: var(--sidebar-muted); padding: 4px; border-radius: 5px; display: flex; align-items: center; transition: color 0.15s, background 0.15s; }
+    .sidebar-toggle:hover { color: #fff; background: rgba(255,255,255,0.08); }
+    .sidebar-content { flex: 1; overflow-y: auto; padding: 8px 0; }
+    .sidebar-content::-webkit-scrollbar { width: 4px; }
+    .sidebar-content::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 2px; }
+    .sidebar-section-title { font-size: 10px; font-weight: 600; letter-spacing: 1.2px; color: var(--sidebar-muted); text-transform: uppercase; padding: 10px 16px 4px; font-family: 'JetBrains Mono', monospace; }
+    .sidebar-item { display: flex; align-items: center; gap: 10px; padding: 9px 14px; cursor: pointer; color: var(--sidebar-text); font-size: 13.5px; transition: background 0.12s, color 0.12s; border-left: 3px solid transparent; user-select: none; }
+    .sidebar-item:hover { background: rgba(255,255,255,0.06); color: #fff; }
+    .sidebar-item.active { background: rgba(255,255,255,0.1); color: #fff; border-left-color: var(--accent2); }
+    .sidebar-item svg { flex-shrink: 0; width: 16px; height: 16px; opacity: 0.75; }
+    .sidebar-item.active svg { opacity: 1; }
+    .doc-list { padding: 4px 0; }
+    .doc-item { display: flex; align-items: flex-start; gap: 8px; padding: 8px 14px 8px 16px; cursor: pointer; border-left: 3px solid transparent; transition: background 0.12s; }
+    .doc-item:hover { background: rgba(255,255,255,0.05); }
+    .doc-item.active { background: rgba(255,255,255,0.08); border-left-color: var(--green); }
+    .doc-item-icon { color: var(--sidebar-muted); flex-shrink: 0; margin-top: 2px; }
+    .doc-item-info { min-width: 0; }
+    .doc-item-name { font-size: 12.5px; color: var(--sidebar-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 170px; }
+    .doc-item-meta { font-size: 10px; color: var(--sidebar-muted); margin-top: 2px; font-family: 'JetBrains Mono', monospace; }
+    .sidebar-footer { border-top: 1px solid rgba(255,255,255,0.07); padding: 10px 14px; }
+    .sidebar-footer-text { font-size: 11px; color: var(--sidebar-muted); }
+
+    /* MAIN */
+    .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+
+    /* TOOLBAR */
+    .toolbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 6px 16px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; flex-shrink: 0; }
+    .toolbar-sep { width: 1px; height: 22px; background: var(--border); }
+
+    /* AI TOOLBAR */
+    .ai-toolbar { background: var(--surface2); border-bottom: 1px solid var(--border); padding: 6px 16px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; flex-shrink: 0; }
+    .ai-toolbar-label { font-size: 10.5px; font-weight: 600; letter-spacing: 0.8px; color: var(--text3); text-transform: uppercase; font-family: 'JetBrains Mono', monospace; margin-right: 4px; }
+    .ai-btn { display: inline-flex; align-items: center; gap: 5px; padding: 5px 11px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; font-family: inherit; font-size: 12px; color: var(--text2); transition: all 0.15s; white-space: nowrap; }
+    .ai-btn:hover { background: var(--bg2); border-color: #bbb; color: var(--text); }
+    .ai-btn.active { background: var(--sidebar-bg); color: #fff; border-color: var(--sidebar-bg); }
+    .ai-btn.biznes-only { border-style: dashed; color: var(--text3); }
+    .ai-btn.biznes-only:hover { border-color: var(--blue); color: var(--blue); background: rgba(41,128,185,0.06); }
+    .ai-sep { width: 1px; height: 20px; background: var(--border); }
+
+    /* CONTENT */
+    .content-area { flex: 1; display: flex; overflow: hidden; }
+    .editor-panel { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; background: var(--bg); }
+    .editor-wrap { flex: 1; overflow-y: auto; padding: 28px 32px; position: relative; }
+    .editor-wrap::-webkit-scrollbar { width: 6px; }
+    .editor-wrap::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    #editor { max-width: 760px; margin: 0 auto; min-height: 380px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px 40px; font-family: 'Source Serif 4', serif; font-size: 16.5px; line-height: 1.85; color: var(--text); outline: none; box-shadow: var(--shadow2); }
+    #editor:focus { border-color: #bbb; box-shadow: 0 4px 24px rgba(0,0,0,0.12); }
+    #editor[data-placeholder]:empty::before { content: attr(data-placeholder); color: var(--text3); font-style: italic; pointer-events: none; }
+
+    /* AI RESULT PANEL */
+    .ai-result-panel { max-width: 760px; margin: 12px auto 0; background: var(--surface); border: 2px solid var(--green); border-radius: var(--radius); overflow: hidden; box-shadow: 0 0 0 4px rgba(39,174,96,0.08), var(--shadow); display: none; }
+    .ai-result-panel.visible { display: block; animation: aiPanelIn 0.3s ease; }
+    @keyframes aiPanelIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+    .ai-result-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; background: rgba(41,128,185,0.06); border-bottom: 1px solid #b8d4ed; }
+    .ai-result-title { font-size: 12px; font-weight: 600; color: var(--blue); font-family: 'JetBrains Mono', monospace; display: flex; align-items: center; gap: 6px; }
+    .ai-result-actions { display: flex; gap: 6px; }
+    .ai-result-body { padding: 16px 20px; font-size: 15px; line-height: 1.8; color: var(--text); white-space: pre-wrap; max-height: 340px; overflow-y: auto; }
+
+    /* ERRORS PANEL */
+    .err-word { color: var(--accent); border-bottom: 2px solid var(--accent); cursor: pointer; position: relative; border-radius: 2px; }
+    .err-word:hover { background: rgba(192,57,43,0.08); }
+    .err-word.applied { color: var(--green); border-bottom-color: var(--green); background: rgba(39,174,96,0.08); }
+    .suggestion-tooltip { position: absolute; background: var(--sidebar-bg); color: #fff; border-radius: 7px; padding: 6px 10px; font-size: 12px; white-space: nowrap; z-index: 200; box-shadow: 0 4px 16px rgba(0,0,0,0.25); pointer-events: none; opacity: 0; transition: opacity 0.15s; top: -34px; left: 0; }
+    .suggestion-tooltip::after { content: ''; position: absolute; top: 100%; left: 12px; border: 5px solid transparent; border-top-color: var(--sidebar-bg); }
+    .err-word:hover .suggestion-tooltip { opacity: 1; }
+    .sug-green { color: var(--green2); font-weight: 600; }
+
+    /* UPLOAD */
+    .upload-zone { max-width: 760px; margin: 0 auto 16px; border: 2px dashed var(--border); border-radius: var(--radius); padding: 18px; text-align: center; cursor: pointer; background: var(--surface2); transition: border-color 0.15s, background 0.15s; }
+    .upload-zone:hover, .upload-zone.drag-over { border-color: var(--blue); background: rgba(41,128,185,0.04); }
+    .upload-zone-text { font-size: 13px; color: var(--text3); }
+    .upload-zone-text strong { color: var(--blue); }
+
+    /* RIGHT PANEL */
+    .errors-panel { width: 300px; flex-shrink: 0; background: var(--surface); border-left: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
+    .errors-header { padding: 12px 16px 10px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .errors-header-title { font-size: 13px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 7px; }
+    .errors-badge { background: var(--accent2); color: #fff; border-radius: 20px; padding: 1px 7px; font-size: 11px; font-family: 'JetBrains Mono', monospace; }
+    .errors-list { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+    .errors-list::-webkit-scrollbar { width: 4px; }
+    .errors-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+    .error-card { background: var(--bg); border: 1px solid var(--border); border-left: 3px solid var(--accent2); border-radius: 8px; padding: 10px 12px; position: relative; cursor: default; animation: slideIn 0.2s ease; }
+    @keyframes slideIn { from { opacity: 0; transform: translateX(12px); } to { opacity: 1; transform: translateX(0); } }
+    .error-card.resolved { border-left-color: var(--green); opacity: 0.6; }
+    .error-card-close { position: absolute; top: 6px; right: 8px; background: none; border: none; cursor: pointer; color: var(--text3); font-size: 14px; padding: 2px; border-radius: 3px; transition: color 0.15s; }
+    .error-card-close:hover { color: var(--accent); }
+    .error-card-word { font-size: 13px; font-weight: 600; color: var(--accent); margin-bottom: 4px; font-family: 'JetBrains Mono', monospace; padding-right: 20px; }
+    .error-card.resolved .error-card-word { color: var(--green); text-decoration: line-through; }
+    .error-card-desc { font-size: 12px; color: var(--text2); line-height: 1.5; margin-bottom: 6px; }
+    .error-card-suggestion { font-size: 12px; color: var(--green); font-family: 'JetBrains Mono', monospace; }
+    .error-card-suggestion::before { content: '→ '; }
+    .error-card-apply { margin-top: 8px; width: 100%; padding: 5px 8px; border-radius: 5px; background: rgba(39,174,96,0.1); border: 1px solid rgba(39,174,96,0.3); color: var(--green); font-size: 11.5px; cursor: pointer; font-family: inherit; transition: background 0.15s; }
+    .error-card-apply:hover { background: rgba(39,174,96,0.18); }
+    .error-card.resolved .error-card-apply { display: none; }
+    .errors-empty { text-align: center; padding: 36px 16px; color: var(--text3); font-size: 13px; font-style: italic; }
+    .errors-empty-icon { font-size: 28px; margin-bottom: 8px; }
+
+    /* TON SELECTOR */
+    .ton-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .ton-chip { padding: 3px 10px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface); font-size: 11.5px; color: var(--text2); cursor: pointer; transition: all 0.12s; font-family: inherit; }
+    .ton-chip:hover { border-color: var(--blue); color: var(--blue); }
+    .ton-chip.selected { background: var(--sidebar-bg); color: #fff; border-color: var(--sidebar-bg); }
+
+    /* HISTORY */
+    .history-view { padding: 28px 32px; overflow-y: auto; flex: 1; }
+    .history-title { font-family: 'Playfair Display', serif; font-size: 26px; margin-bottom: 6px; }
+    .history-subtitle { font-size: 14px; color: var(--text3); margin-bottom: 24px; }
+    .history-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+    .history-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; cursor: pointer; transition: box-shadow 0.15s, transform 0.15s; }
+    .history-card:hover { box-shadow: var(--shadow2); transform: translateY(-1px); }
+    .history-card-type { display: inline-flex; align-items: center; gap: 5px; font-size: 10.5px; font-family: 'JetBrains Mono', monospace; color: var(--text3); background: var(--bg2); padding: 2px 7px; border-radius: 4px; margin-bottom: 10px; }
+    .history-card-name { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .history-card-preview { font-size: 12px; color: var(--text3); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; min-height: 54px; }
+    .history-card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border2); }
+    .history-card-date { font-size: 11px; color: var(--text3); font-family: 'JetBrains Mono', monospace; }
+    .history-card-btn { background: none; border: 1px solid var(--border); border-radius: 5px; padding: 3px 7px; cursor: pointer; font-size: 11px; color: var(--text2); font-family: inherit; transition: all 0.12s; }
+    .history-card-btn:hover { background: var(--bg2); }
+    .history-empty { text-align: center; padding: 60px 20px; color: var(--text3); font-style: italic; }
+
+    /* MODAL */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 1000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+    .modal-overlay.open { opacity: 1; pointer-events: auto; }
+    .modal { background: var(--surface); border-radius: 12px; padding: 28px; width: 440px; max-width: 95vw; box-shadow: 0 8px 40px rgba(0,0,0,0.2); transform: scale(0.95); transition: transform 0.2s; }
+    .modal-overlay.open .modal { transform: scale(1); }
+    .modal-title { font-family: 'Playfair Display', serif; font-size: 20px; margin-bottom: 8px; }
+    .modal-desc { font-size: 13px; color: var(--text3); margin-bottom: 18px; line-height: 1.6; }
+    .modal-input { width: 100%; border: 1px solid var(--border); border-radius: 7px; padding: 9px 12px; font-size: 14px; font-family: inherit; outline: none; background: var(--bg); color: var(--text); margin-bottom: 10px; }
+    .modal-input:focus { border-color: var(--blue); }
+    .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 8px; }
+    .biznes-modal-tools { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0; }
+    .biznes-tool-btn { padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); cursor: pointer; text-align: left; font-family: inherit; transition: all 0.15s; }
+    .biznes-tool-btn:hover { border-color: var(--blue); background: rgba(41,128,185,0.04); }
+    .biznes-tool-btn-name { font-size: 13px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 6px; }
+    .biznes-tool-btn-desc { font-size: 11px; color: var(--text3); margin-top: 3px; }
+
+    /* LOADING */
+    .loading-overlay { position: absolute; inset: 0; background: rgba(255,255,255,0.75); display: flex; align-items: center; justify-content: center; z-index: 50; opacity: 0; pointer-events: none; transition: opacity 0.2s; border-radius: var(--radius); }
+    .loading-overlay.active { opacity: 1; pointer-events: auto; }
+    .spinner { width: 26px; height: 26px; border: 3px solid var(--border); border-top-color: var(--sidebar-bg); border-radius: 50%; animation: spin 0.7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* STATUS */
+    .statusbar { background: var(--surface); border-top: 1px solid var(--border); padding: 5px 20px; display: flex; align-items: center; gap: 16px; font-size: 11.5px; color: var(--text3); font-family: 'JetBrains Mono', monospace; flex-shrink: 0; }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text3); }
+    .status-dot.ok { background: var(--green); }
+    .status-dot.checking { background: var(--blue); animation: pulse 1s infinite; }
+    .status-dot.error { background: var(--accent); }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+    /* VIEWS */
+    .view { display: none; flex-direction: column; flex: 1; overflow: hidden; }
+    .view.active { display: flex; }
+
+    /* TOAST */
+    .toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 2000; display: flex; flex-direction: column; gap: 8px; }
+    .toast { background: var(--sidebar-bg); color: #fff; padding: 10px 16px; border-radius: 8px; font-size: 13px; box-shadow: 0 4px 16px rgba(0,0,0,0.2); animation: toastIn 0.25s ease; display: flex; align-items: center; gap: 8px; }
+    @keyframes toastIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .toast.success::before { content: '✓'; color: var(--green2); }
+    .toast.error::before { content: '✕'; color: var(--accent2); }
+
+    .icon { width: 16px; height: 16px; display: inline-block; vertical-align: middle; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    /* PLAN BADGE */
+    .plan-badge { font-size: 10px; padding: 2px 8px; border-radius: 20px; font-family: 'JetBrains Mono', monospace; font-weight: 600; letter-spacing: 0.5px; }
+    .plan-pulsuz { background: rgba(138,130,120,0.15); color: var(--text3); }
+    .plan-ferdi { background: rgba(41,128,185,0.15); color: var(--blue); }
+    .plan-biznes { background: rgba(39,174,96,0.15); color: var(--green); }
+  </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
 <body>
 
-<div class="container">
-    <h2>
-        <span>🛡️ Sətir.az Admin İdarəetmə Paneli</span>
-        <a href="/app" class="btn-back">← İşçi Panelə Qayıt</a>
-    </h2>
-    <p>Qeydiyyatdan keçmiş istifadəçilərin siyahısı və onların cari paket statusları:</p>
-
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Ad Soyad</th>
-                <th>E-poçt</th>
-                <th>Paket Tipi</th>
-                <th>Qeydiyyat Tarixi</th>
-            </tr>
-        </thead>
-        <tbody id="users-table-body">
-            <tr>
-                <td colspan="5" style="text-align: center; color: #64748b;">İstifadəçilər yüklənir...</td>
-            </tr>
-        </tbody>
-    </table>
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-logo">Sətir<span>.</span>az</div>
+  <div class="topbar-divider"></div>
+  <div class="topbar-docname" id="topbarDocName">Yeni sənəd</div>
+  <div class="topbar-actions">
+    <span id="planBadge" class="plan-badge plan-pulsuz">Pulsuz</span>
+    <button class="btn btn-ghost btn-icon" title="Yeni sənəd" onclick="newDocument()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+    </button>
+    <button class="btn btn-ghost" onclick="openSaveModal()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 12 7 12 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+      Saxla
+    </button>
+    <button class="btn btn-ghost" onclick="downloadDoc()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Endir
+    </button>
+    <button class="btn btn-primary" id="checkBtn" onclick="checkGrammar()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      Yoxla
+    </button>
+  </div>
 </div>
 
+<!-- LAYOUT -->
+<div class="layout">
+  <!-- SIDEBAR -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-brand">Sətir</div>
+      <button class="sidebar-toggle" onclick="toggleSidebar()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="sidebar-content">
+      <div class="sidebar-section-title">Menyu</div>
+      <div class="sidebar-item active" onclick="switchView('editor')" id="nav-editor">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        <span class="sidebar-label">Redaktor</span>
+      </div>
+      <div class="sidebar-item" onclick="switchView('history')" id="nav-history">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <span class="sidebar-label">Tarixçə</span>
+      </div>
+      <div class="sidebar-item" onclick="uploadFile()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <span class="sidebar-label">Fayl yüklə</span>
+      </div>
+
+      <div class="sidebar-section-title" style="margin-top:10px">Son sənədlər</div>
+      <div class="doc-list" id="sidebarDocList"></div>
+    </div>
+    <div class="sidebar-footer">
+      <div class="sidebar-footer-text" id="userInfo">Azərbaycan dili yoxlayıcısı</div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- EDITOR VIEW -->
+    <div class="view active" id="view-editor" style="flex-direction:row">
+      <div class="editor-panel">
+        <!-- Formatting toolbar -->
+        <div class="toolbar">
+          <button class="btn btn-ghost btn-icon" title="Qalın" onclick="formatText('bold')" style="font-weight:700;font-size:13px">B</button>
+          <button class="btn btn-ghost btn-icon" title="Kursiv" onclick="formatText('italic')" style="font-style:italic;font-size:13px">I</button>
+          <button class="btn btn-ghost btn-icon" title="Altı xətt" onclick="formatText('underline')" style="text-decoration:underline;font-size:13px">U</button>
+          <div class="toolbar-sep"></div>
+          <button class="btn btn-ghost btn-icon" title="Sol" onclick="formatText('justifyLeft')">⬅</button>
+          <button class="btn btn-ghost btn-icon" title="Mərkəz" onclick="formatText('justifyCenter')">↔</button>
+          <button class="btn btn-ghost btn-icon" title="Sağ" onclick="formatText('justifyRight')">➡</button>
+          <div class="toolbar-sep"></div>
+          <button class="btn btn-ghost" onclick="clearEditor()" style="color:var(--accent);font-size:12px">Təmizlə</button>
+          <div style="flex:1"></div>
+          <span id="wordCount" style="font-size:11.5px;color:var(--text3);font-family:'JetBrains Mono',monospace">0 söz</span>
+        </div>
+
+        <!-- AI toolbar -->
+        <div class="ai-toolbar">
+          <span class="ai-toolbar-label">AI:</span>
+
+          <button class="ai-btn" onclick="runAI('grammar')" title="Qrammatika yoxla">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M9 11l3 3L22 4"/></svg>
+            Qrammatika
+          </button>
+
+          <button class="ai-btn" onclick="openTonModal()" title="Tonu dəyiş">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            Ton
+          </button>
+
+          <button class="ai-btn" onclick="runAI('improve')" title="Mətni təkmilləşdir">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            Təkmilləşdir
+          </button>
+
+          <button class="ai-btn" onclick="runAI('vocab')" title="Lüğəti zənginləşdir">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            Lüğət
+          </button>
+
+          <button class="ai-btn" onclick="runAI('summary')" title="Xülasə et">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            Xülasə
+          </button>
+
+          <button class="ai-btn" onclick="runAI('rewrite')" title="Yenidən yaz">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.84"/></svg>
+            Yenidən yaz
+          </button>
+
+          <div class="ai-sep"></div>
+
+          <button class="ai-btn biznes-only" onclick="openBiznesModal()" title="Biznes sənəd şablonları">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+            Biznes Sənədlər ✦
+          </button>
+        </div>
+
+        <!-- Editor wrap -->
+        <div class="editor-wrap" id="editorWrap">
+          <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()" ondragover="handleDragOver(event)" ondrop="handleDrop(event)" ondragleave="handleDragLeave(event)">
+            <div class="upload-zone-text">
+              📄 <strong>DOC, DOCX, TXT və ya PDF</strong> yükləyin — faylı bura sürükləyin və ya klikləyin
+            </div>
+          </div>
+          <input type="file" id="fileInput" accept=".txt,.doc,.docx,.pdf" onchange="handleFileSelect(event)" style="display:none">
+
+          <div id="editor" contenteditable="true" data-placeholder="Mətnizi bura yazın və ya yuxarıdan fayl yükləyin…" oninput="onEditorInput()" spellcheck="false" onpaste="handlePaste(event)"></div>
+
+          <!-- AI result -->
+          <div class="ai-result-panel" id="aiResultPanel">
+            <div class="ai-result-header">
+              <div class="ai-result-title" id="aiResultTitle">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                AI Nəticəsi
+              </div>
+              <div class="ai-result-actions">
+                <button class="btn btn-ghost btn-icon" onclick="applyAIResult()" style="font-size:11px;padding:4px 10px;color:var(--green)">✓ Tətbiq et</button>
+                <button class="btn btn-ghost btn-icon" onclick="closeAIResult()" style="font-size:11px;padding:4px 8px">✕</button>
+              </div>
+            </div>
+            <div class="ai-result-body" id="aiResultBody"></div>
+          </div>
+
+          <div class="loading-overlay" id="editorLoading"><div class="spinner"></div></div>
+        </div>
+      </div>
+
+      <!-- Errors panel -->
+      <div class="errors-panel">
+        <div class="errors-header">
+          <div class="errors-header-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            Səhvlər
+            <span class="errors-badge" id="errorsBadge">0</span>
+          </div>
+          <button class="btn btn-ghost btn-icon" style="padding:4px 8px;font-size:11px;color:var(--green)" onclick="applyAllFixes()">✓ Hamısını tətbiq et</button>
+        </div>
+        <div class="errors-list" id="errorsList">
+          <div class="errors-empty">
+            <div class="errors-empty-icon">✅</div>
+            Hələ səhv tapılmayıb.<br>«Yoxla» düyməsinə basın.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HISTORY VIEW -->
+    <div class="view" id="view-history">
+      <div class="history-view">
+        <div class="history-title">Sənəd tarixçəsi</div>
+        <div class="history-subtitle">Saxladığınız sənədlər burada görünür.</div>
+        <div class="history-grid" id="historyGrid">
+          <div class="history-empty">Hələ saxlanılmış sənəd yoxdur.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATUS BAR -->
+    <div class="statusbar">
+      <div style="display:flex;align-items:center;gap:6px">
+        <div class="status-dot" id="statusDot"></div>
+        <span id="statusText">Hazır</span>
+      </div>
+      <div style="flex:1"></div>
+      <div id="charCount">0 hərf</div>
+      <div id="lastSaved" style="display:none">— Son saxlama: <span id="lastSavedTime"></span></div>
+    </div>
+  </div>
+</div>
+
+<!-- SAVE MODAL -->
+<div class="modal-overlay" id="saveModal">
+  <div class="modal">
+    <div class="modal-title">Sənədi saxla</div>
+    <div class="modal-desc">Sənədinizə bir ad verin ki, tarixçədə tapa biləsiniz.</div>
+    <input class="modal-input" id="docNameInput" type="text" placeholder="Sənəd adı…" maxlength="80">
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('saveModal')">Ləğv et</button>
+      <button class="btn btn-green" onclick="saveDocument()">Saxla</button>
+    </div>
+  </div>
+</div>
+
+<!-- TON MODAL -->
+<div class="modal-overlay" id="tonModal">
+  <div class="modal">
+    <div class="modal-title">Ton seçin</div>
+    <div class="modal-desc">Mətni hansı tona uyğun yenidən yazılsın?</div>
+    <div class="ton-row" id="tonChips">
+      <button class="ton-chip selected" onclick="selectTon('Rəsmi')">Rəsmi</button>
+      <button class="ton-chip" onclick="selectTon('Qeyri-rəsmi')">Qeyri-rəsmi</button>
+      <button class="ton-chip" onclick="selectTon('Akademik')">Akademik</button>
+      <button class="ton-chip" onclick="selectTon('Dostane')">Dostane</button>
+      <button class="ton-chip" onclick="selectTon('Peşəkar')">Peşəkar</button>
+      <button class="ton-chip" onclick="selectTon('Sadə')">Sadə</button>
+      <button class="ton-chip" onclick="selectTon('Ciddı')">Ciddi</button>
+      <button class="ton-chip" onclick="selectTon('Həvəsləndirici')">Həvəsləndirici</button>
+    </div>
+    <div class="modal-actions" style="margin-top:16px">
+      <button class="btn btn-ghost" onclick="closeModal('tonModal')">Ləğv et</button>
+      <button class="btn btn-primary" onclick="applyTon()">Tonu tətbiq et</button>
+    </div>
+  </div>
+</div>
+
+<!-- BIZNES MODAL -->
+<div class="modal-overlay" id="biznesModal">
+  <div class="modal" style="width:500px">
+    <div class="modal-title">Biznes Sənəd Şablonları</div>
+    <div class="modal-desc">Mətninizdən istənilən rəsmi sənədi avtomatik hazırlayın. Bu funksiya <strong>Biznes Paketi</strong> istifadəçiləri üçündür.</div>
+    <div class="biznes-modal-tools">
+      <button class="biznes-tool-btn" onclick="runBiznes('protokol')">
+        <div class="biznes-tool-btn-name">📋 Protokol</div>
+        <div class="biznes-tool-btn-desc">İclas protokolu hazırla</div>
+      </button>
+      <button class="biznes-tool-btn" onclick="runBiznes('emr')">
+        <div class="biznes-tool-btn-name">📜 Əmr</div>
+        <div class="biznes-tool-btn-desc">Rəsmi əmr layihəsi</div>
+      </button>
+      <button class="biznes-tool-btn" onclick="runBiznes('qerar')">
+        <div class="biznes-tool-btn-name">⚖️ Qərar</div>
+        <div class="biznes-tool-btn-desc">Rəsmi qərar sənədi</div>
+      </button>
+      <button class="biznes-tool-btn" onclick="runBiznes('mektub')">
+        <div class="biznes-tool-btn-name">✉️ Məktub</div>
+        <div class="biznes-tool-btn-desc">Rəsmi məktub hazırla</div>
+      </button>
+      <button class="biznes-tool-btn" onclick="runBiznes('arayis')">
+        <div class="biznes-tool-btn-name">📄 Arayış</div>
+        <div class="biznes-tool-btn-desc">Rəsmi arayış hazırla</div>
+      </button>
+      <button class="biznes-tool-btn" onclick="runBiznes('xidmeti')">
+        <div class="biznes-tool-btn-name">📝 Xidməti yazı</div>
+        <div class="biznes-tool-btn-desc">Xidməti yazı formatı</div>
+      </button>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('biznesModal')">Bağla</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
 <script>
-    const token = localStorage.getItem('token');
+// ═══════════════════════════
+//  STATE
+// ═══════════════════════════
+let currentDocName = 'Yeni sənəd';
+let currentDocId = null;
+let errors = [];
+let sidebarOpen = true;
+let selectedTon = 'Rəsmi';
+let userPlan = 'pulsuz';
+let authToken = null;
+let lastAIResult = '';
 
-    if (!token) {
-        window.location.href = '/login';
+// ═══════════════════════════
+//  INIT — token + plan
+// ═══════════════════════════
+(function init() {
+  // Token URL-dən və ya localStorage-dən al
+  const params = new URLSearchParams(window.location.search);
+  const urlToken = params.get('token');
+  if (urlToken) {
+    localStorage.setItem('setir_token', urlToken);
+    window.history.replaceState({}, '', '/app');
+  }
+  authToken = localStorage.getItem('setir_token');
+
+  // JWT-dən plan al
+  if (authToken) {
+    try {
+      const payload = JSON.parse(atob(authToken.split('.')[1]));
+      userPlan = payload.plan || 'pulsuz';
+      const name = payload.name || payload.email || '';
+      document.getElementById('userInfo').textContent = name;
+      const badge = document.getElementById('planBadge');
+      badge.textContent = userPlan === 'biznes' ? '✦ Biznes' : userPlan === 'ferdi' ? 'Fərdi' : 'Pulsuz';
+      badge.className = 'plan-badge plan-' + userPlan;
+    } catch(e) {}
+  }
+
+  updateSidebarDocs();
+  updateCounts();
+})();
+
+// ═══════════════════════════
+//  API CALL — backend-ə
+// ═══════════════════════════
+async function callAPI(tool, text, options = {}) {
+  if (!authToken) {
+    showToast('Giriş tələb olunur. Zəhmət olmasa daxil olun.', 'error');
+    setTimeout(() => window.location.href = '/login', 1500);
+    throw new Error('No auth token');
+  }
+
+  const res = await fetch('/api/ai/process', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + authToken,
+      'x-device-fingerprint': getDeviceFingerprint()
+    },
+    body: JSON.stringify({ text, tool, options })
+  });
+
+  if (res.status === 401) {
+    const data = await res.json();
+    showToast(data.error || 'Sessiyanız bitib. Yenidən daxil olun.', 'error');
+    setTimeout(() => window.location.href = '/login', 2000);
+    throw new Error('Unauthorized');
+  }
+
+  if (res.status === 403) {
+    const data = await res.json();
+    // Plan xətası — login-ə yönləndirmə, sadəcə xəbərdarlıq göstər
+    showToast(data.error || 'Bu funksiya sizin paket üçün mövcud deyil.', 'error');
+    throw new Error('Forbidden');
+  }
+
+  const data = await res.json();
+  if (data.error) throw new Error(data.error);
+  return data.result;
+}
+
+function getDeviceFingerprint() {
+  let fp = localStorage.getItem('setir_fp');
+  if (!fp) {
+    fp = Math.random().toString(36).slice(2) + Date.now().toString(36);
+    localStorage.setItem('setir_fp', fp);
+  }
+  return fp;
+}
+
+// ═══════════════════════════
+//  GRAMMAR CHECK
+// ═══════════════════════════
+async function checkGrammar() {
+  const text = getEditorText().trim();
+  if (!text) { showToast('Zəhmət olmasa mətn daxil edin', 'error'); return; }
+
+  const btn = document.getElementById('checkBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner" style="width:14px;height:14px;border-width:2px;border-top-color:#fff"></div> Yoxlanır...';
+  setStatus('checking', 'Yoxlanır…');
+  showLoading(true);
+  clearErrors();
+
+  const attemptCheck = async () => {
+    const raw = await callAPI('grammar', text.slice(0, 8000));
+    let grammarErrors = [];
+    try {
+      const cleaned = raw.replace(/```json[\s\S]*?```/g, m => m.slice(7, -3)).replace(/```/g, '').trim();
+      const parsed = JSON.parse(cleaned);
+      grammarErrors = Array.isArray(parsed.errors) ? parsed.errors : [];
+    } catch {
+      // Backend returned plain text — show in AI result panel
+      showAIResult('Qrammatika Yoxlaması', raw);
+      setStatus('ok', 'Yoxlama tamamlandı');
+      showToast('Qrammatika yoxlaması tamamlandı', 'success');
+      return null; // signal: handled
+    }
+    return grammarErrors;
+  };
+
+  try {
+    let grammarErrors;
+    try {
+      grammarErrors = await attemptCheck();
+    } catch(firstErr) {
+      // Retry once after 1.5s on server error
+      if (firstErr.message !== 'Unauthorized' && firstErr.message !== 'Forbidden') {
+        showToast('Server ilə əlaqə... Yenidən cəhd edilir', 'error');
+        await new Promise(r => setTimeout(r, 1500));
+        grammarErrors = await attemptCheck();
+      } else {
+        throw firstErr;
+      }
     }
 
-    async function fetchUsers() {
-        try {
-            const res = await fetch('/api/admin/users', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            
-            if (!res.ok) {
-                if(res.status === 403) {
-                    alert('Bu səhifəyə giriş icazəniz yoxdur! Yalnız adminlər daxil ola bilər.');
-                }
-                window.location.href = '/app';
-                return;
+    if (grammarErrors === null) return; // handled as plain text above
+
+    errors = grammarErrors;
+    renderErrors();
+    highlightErrors();
+    setStatus(errors.length ? 'error' : 'ok', errors.length ? errors.length + ' səhv tapıldı' : 'Səhv tapılmadı');
+    showToast(errors.length ? errors.length + ' səhv tapıldı' : 'Heç bir səhv tapılmadı!', errors.length ? 'error' : 'success');
+
+  } catch(err) {
+    if (err.message !== 'Unauthorized' && err.message !== 'Forbidden') {
+      setStatus('error', 'Server xətası');
+      showToast('AI serveri ilə əlaqə xətası. Bir az sonra yenidən cəhd edin.', 'error');
+    }
+  } finally {
+    showLoading(false);
+    btn.disabled = false;
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg> Yoxla`;
+  }
+}
+
+// ═══════════════════════════
+//  AI TOOLS
+// ═══════════════════════════
+async function runAI(tool, options = {}) {
+  const text = getEditorText().trim();
+  if (!text) { showToast('Zəhmət olmasa mətn daxil edin', 'error'); return; }
+
+  const toolNames = {
+    grammar: 'Qrammatika Düzəltmə', tone: 'Ton Dəyişdirmə',
+    improve: 'Mətn Təkmilləşdirmə', vocab: 'Lüğət Zənginləşdirmə',
+    summary: 'Xülasə', rewrite: 'Yenidən Yazma',
+    plagiarism: 'Orijinallıq Analizi'
+  };
+
+  setStatus('checking', (toolNames[tool] || tool) + ' işlənir…');
+  showLoading(true);
+  closeAIResult();
+
+  try {
+    const result = await callAPI(tool, text.slice(0, 3000), options);
+    lastAIResult = result;
+    showAIResult(toolNames[tool] || tool, result);
+    setStatus('ok', (toolNames[tool] || tool) + ' tamamlandı');
+  } catch(err) {
+    if (err.message !== 'Unauthorized' && err.message !== 'Forbidden') {
+      setStatus('error', 'Xəta');
+      showToast('Xəta: ' + err.message, 'error');
+    }
+  } finally {
+    showLoading(false);
+  }
+}
+
+async function runBiznes(tool) {
+  const text = getEditorText().trim();
+  if (!text) { showToast('Zəhmət olmasa mətn daxil edin', 'error'); closeModal('biznesModal'); return; }
+  closeModal('biznesModal');
+
+  const names = { protokol:'Protokol', emr:'Əmr', qerar:'Qərar', mektub:'Məktub', arayis:'Arayış', xidmeti:'Xidməti Yazı' };
+
+  setStatus('checking', names[tool] + ' hazırlanır…');
+  showLoading(true);
+  closeAIResult();
+
+  try {
+    const result = await callAPI(tool, text.slice(0, 3000));
+    lastAIResult = result;
+    showAIResult('📋 ' + names[tool], result);
+    setStatus('ok', names[tool] + ' hazırlandı');
+    showToast(names[tool] + ' hazırlandı!', 'success');
+  } catch(err) {
+    if (err.message !== 'Unauthorized' && err.message !== 'Forbidden') {
+      setStatus('error', 'Xəta');
+      showToast('Xəta: ' + err.message, 'error');
+    }
+  } finally {
+    showLoading(false);
+  }
+}
+
+// TON
+function openTonModal() {
+  document.querySelectorAll('.ton-chip').forEach(c => {
+    c.classList.toggle('selected', c.textContent === selectedTon);
+  });
+  openModal('tonModal');
+}
+
+function selectTon(ton) {
+  selectedTon = ton;
+  document.querySelectorAll('.ton-chip').forEach(c => {
+    c.classList.toggle('selected', c.textContent === ton);
+  });
+}
+
+function applyTon() {
+  closeModal('tonModal');
+  runAI('tone', { tone: selectedTon });
+}
+
+// AI RESULT PANEL
+function showAIResult(title, content) {
+  const originalText = getEditorText().trim();
+  document.getElementById('aiResultTitle').innerHTML = `
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    ${escHtml(title)} <span style="font-size:10px;color:var(--text3);font-weight:400;margin-left:6px">— AI təklifi aşağıdadır</span>`;
+  
+  const body = document.getElementById('aiResultBody');
+  body.innerHTML = '';
+  
+  // Show character difference hint
+  const diffHint = document.createElement('div');
+  diffHint.style.cssText = 'font-size:10px;color:var(--text3);margin-bottom:8px;padding:4px 8px;background:rgba(255,255,255,0.04);border-radius:4px;';
+  const charDiff = content.length - originalText.length;
+  diffHint.textContent = charDiff > 0 ? `+${charDiff} hərf əlavə edildi` : charDiff < 0 ? `${charDiff} hərf azaldıldı` : 'Hərf sayı eyni qaldı';
+  body.appendChild(diffHint);
+  
+  const pre = document.createElement('div');
+  pre.style.cssText = 'white-space:pre-wrap;line-height:1.6;';
+  pre.textContent = content;
+  body.appendChild(pre);
+  
+  document.getElementById('aiResultPanel').classList.add('visible');
+  document.getElementById('aiResultPanel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  showToast(title + ' hazır — nəticəyə baxın', 'success');
+}
+
+function closeAIResult() {
+  document.getElementById('aiResultPanel').classList.remove('visible');
+}
+
+function applyAIResult() {
+  if (!lastAIResult) return;
+  if (confirm('AI nəticəsi redaktora tətbiq edilsin? (Cari mətn dəyişdiriləcək)')) {
+    document.getElementById('editor').innerText = lastAIResult;
+    updateCounts();
+    closeAIResult();
+    clearErrors();
+    showToast('AI nəticəsi tətbiq edildi', 'success');
+  }
+}
+
+function openBiznesModal() {
+  if (userPlan !== 'biznes') {
+    openModal('upgradeModal');
+    return;
+  }
+  openModal('biznesModal');
+}
+
+// ═══════════════════════════
+//  ERRORS PANEL
+// ═══════════════════════════
+function renderErrors() {
+  const list = document.getElementById('errorsList');
+  document.getElementById('errorsBadge').textContent = errors.length;
+  if (!errors.length) {
+    list.innerHTML = `<div class="errors-empty"><div class="errors-empty-icon">✅</div>Heç bir səhv tapılmadı.</div>`;
+    return;
+  }
+  const typeLabels = {orfoqrafiya:'Orfoqrafiya','durğu':'Durğu işarəsi',qrammatika:'Qrammatika','böyük hərf':'Böyük hərf',bitişiklik:'Bitişiklik','söz seçimi':'Söz seçimi'};
+  list.innerHTML = errors.map((e, i) => {
+    const typeKey = (e.type||'').toLowerCase();
+    const typeLabel = typeLabels[typeKey] || e.type || 'Hərf işləməsi';
+    return `
+    <div class="error-card" id="ecard-${i}">
+      <button class="error-card-close" onclick="dismissError(${i})">✕</button>
+      <div class="error-card-word">${escHtml(e.word || '')}</div>
+      <div class="error-card-desc"><span style="display:inline-block;font-size:10px;padding:1px 6px;border-radius:10px;background:rgba(231,76,60,0.15);color:#e74c3c;margin-bottom:4px">${escHtml(typeLabel)}</span><br>${escHtml(e.description || '')}</div>
+      <div class="error-card-suggestion">${escHtml(e.suggestion || '')}</div>
+      <button class="error-card-apply" onclick="applyFix(${i})">✓ Düzəltməni tətbiq et</button>
+    </div>`;
+  }).join('');
+}
+
+function highlightErrors() {
+  const editor = document.getElementById('editor');
+  // First strip any existing highlights to avoid double-wrapping
+  const tmp = document.createElement('div');
+  tmp.innerHTML = editor.innerHTML;
+  tmp.querySelectorAll('.err-word').forEach(el => el.replaceWith(document.createTextNode(el.innerText)));
+  let html = tmp.innerHTML;
+
+  errors.forEach((e, i) => {
+    if (!e.word || e._dismissed || e._applied) return;
+    // Escape regex special chars
+    const esc = e.word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    // Word boundary that works for Azerbaijani (non-word = not letter/digit)
+    const re = new RegExp('(?<![\\p{L}\\p{N}])(' + esc + ')(?![\\p{L}\\p{N}])', 'gu');
+    let replaced = false;
+    html = html.replace(re, (m) => {
+      if (replaced) return m; // only highlight first occurrence
+      replaced = true;
+      const sug = e.suggestion ? `<span class="sug-green">${escHtml(e.suggestion)}</span>` : '';
+      return `<span class="err-word" data-index="${i}" onclick="applyFix(${i})">${escHtml(m)}<span class="suggestion-tooltip">→ ${sug || escHtml(e.suggestion || '')}</span></span>`;
+    });
+  });
+  editor.innerHTML = html;
+}
+
+function dismissError(i) {
+  const card = document.getElementById('ecard-' + i);
+  if (card) {
+    card.style.opacity = '0';
+    card.style.transform = 'translateX(20px)';
+    card.style.transition = 'all 0.2s';
+    setTimeout(() => card.remove(), 200);
+  }
+  errors[i]._dismissed = true;
+  // Remove highlight from editor
+  document.querySelectorAll(`.err-word[data-index="${i}"]`).forEach(el => {
+    el.replaceWith(document.createTextNode(el.innerText));
+  });
+  // Update badge with active (non-dismissed, non-applied) count
+  const activeCount = errors.filter(e => !e._dismissed && !e._applied).length;
+  document.getElementById('errorsBadge').textContent = activeCount;
+}
+
+function clearAllErrors() {
+  // Animate all cards out
+  document.querySelectorAll('.error-card').forEach((card, idx) => {
+    setTimeout(() => {
+      card.style.opacity = '0';
+      card.style.transform = 'translateX(20px)';
+      card.style.transition = 'all 0.15s';
+    }, idx * 30);
+  });
+  setTimeout(() => {
+    clearErrors();
+  }, errors.length * 30 + 200);
+}
+
+function applyFix(i) {
+  const e = errors[i];
+  if (!e?.suggestion || e._applied || e._dismissed) return;
+  // Replace ALL highlighted spans for this error index
+  document.getElementById('editor').querySelectorAll(`.err-word[data-index="${i}"]`).forEach(el => {
+    el.replaceWith(document.createTextNode(e.suggestion));
+  });
+  errors[i]._applied = true;
+  const card = document.getElementById('ecard-' + i);
+  if (card) { card.classList.add('resolved'); card.querySelector('.error-card-word').textContent = e.suggestion; }
+  // Update badge
+  const activeCount = errors.filter(e => !e._dismissed && !e._applied).length;
+  document.getElementById('errorsBadge').textContent = activeCount;
+  showToast(`"${e.word}" → "${e.suggestion}"`, 'success');
+}
+
+function applyAllFixes() {
+  // Apply all non-dismissed, non-applied fixes
+  const toApply = errors.filter(e => !e._dismissed && !e._applied && e.suggestion);
+  if (!toApply.length) { showToast('Tətbiq ediləcək düzəltmə yoxdur', 'error'); return; }
+  toApply.forEach((e, _) => {
+    const i = errors.indexOf(e);
+    document.getElementById('editor').querySelectorAll(`.err-word[data-index="${i}"]`).forEach(el => {
+      el.replaceWith(document.createTextNode(e.suggestion));
+    });
+    errors[i]._applied = true;
+    const card = document.getElementById('ecard-' + i);
+    if (card) card.classList.add('resolved');
+  });
+  document.getElementById('errorsBadge').textContent = '0';
+  showToast(toApply.length + ' düzəltmə tətbiq edildi', 'success');
+}
+
+function clearErrors() {
+  errors = [];
+  document.getElementById('errorsBadge').textContent = '0';
+  document.getElementById('errorsList').innerHTML = `<div class="errors-empty"><div class="errors-empty-icon">✅</div>Hələ səhv tapılmayıb.<br>«Yoxla» düyməsinə basın.</div>`;
+  document.getElementById('editor').querySelectorAll('.err-word').forEach(el => el.replaceWith(document.createTextNode(el.innerText)));
+}
+
+// ═══════════════════════════
+//  PASTE — strip background/color styles
+// ═══════════════════════════
+function handlePaste(e) {
+  e.preventDefault();
+  const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+  document.execCommand('insertText', false, text);
+}
+
+
+function onEditorInput() { updateCounts(); }
+function updateCounts() {
+  const t = getEditorText();
+  const w = t.trim() ? t.trim().split(/\s+/).length : 0;
+  document.getElementById('wordCount').textContent = w + ' söz';
+  document.getElementById('charCount').textContent = t.length + ' hərf';
+}
+function getEditorText() { return document.getElementById('editor').innerText || ''; }
+function clearEditor() {
+  if (!getEditorText().trim()) return;
+  if (!confirm('Redaktoru təmizləmək istəyirsiniz?')) return;
+  document.getElementById('editor').innerHTML = '';
+  clearErrors(); closeAIResult(); updateCounts();
+}
+function formatText(cmd) { document.execCommand(cmd, false, null); document.getElementById('editor').focus(); }
+
+// ═══════════════════════════
+//  UPLOAD
+// ═══════════════════════════
+function uploadFile() { document.getElementById('fileInput').click(); }
+function handleDragOver(e) { e.preventDefault(); document.getElementById('uploadZone').classList.add('drag-over'); }
+function handleDragLeave() { document.getElementById('uploadZone').classList.remove('drag-over'); }
+function handleDrop(e) { e.preventDefault(); handleDragLeave(); const f = e.dataTransfer.files[0]; if (f) processFile(f); }
+function handleFileSelect(e) { const f = e.target.files[0]; if (f) processFile(f); e.target.value = ''; }
+function processFile(file) {
+  const name = file.name.replace(/\.[^.]+$/, '');
+  currentDocName = name;
+  document.getElementById('topbarDocName').textContent = name;
+  const ext = file.name.split('.').pop().toLowerCase();
+  if (ext === 'txt') {
+    const r = new FileReader();
+    r.onload = e => {
+      const editorEl = document.getElementById('editor');
+      editorEl.innerHTML = '';
+      (e.target.result || '').split('\n').forEach(line => {
+        const p = document.createElement('p');
+        if (line.trim()) { p.textContent = line; } else { p.innerHTML = '<br>'; }
+        editorEl.appendChild(p);
+      });
+      updateCounts(); showToast('Fayl yükləndi', 'success');
+    };
+    r.readAsText(file);
+  } else if (ext === 'pdf') {
+    showToast('PDF oxunur...', 'success');
+    const r = new FileReader();
+    r.onload = async e => {
+      try {
+        const typedArray = new Uint8Array(e.target.result);
+        const pdfjsLib = window['pdfjs-dist/build/pdf'];
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        const pdf = await pdfjsLib.getDocument({ data: typedArray }).promise;
+        let fullText = '';
+        for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+          const page = await pdf.getPage(pageNum);
+          const content = await page.getTextContent();
+          // Intelligently reconstruct text: use transform positions to detect line breaks
+          let pageLines = [];
+          let currentLine = '';
+          let lastY = null;
+          content.items.forEach(item => {
+            const y = item.transform ? Math.round(item.transform[5]) : null;
+            if (lastY !== null && y !== null && Math.abs(y - lastY) > 2) {
+              // New line
+              if (currentLine.trim()) pageLines.push(currentLine.trim());
+              currentLine = item.str;
+            } else {
+              // Same line — only add space if needed
+              if (currentLine && !currentLine.endsWith(' ') && item.str && !item.str.startsWith(' ')) {
+                currentLine += ' ' + item.str;
+              } else {
+                currentLine += item.str;
+              }
             }
-
-            const users = await res.json();
-            const tbody = document.getElementById('users-table-body');
-            tbody.innerHTML = '';
-
-            if(users.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center;">Heç bir istifadəçi tapılmadı.</td></tr>`;
-                return;
-            }
-
-            users.forEach(user => {
-                const tr = document.createElement('tr');
-                let badgeClass = 'badge-free';
-                if(user.plan === 'fərdi') badgeClass = 'badge-individual';
-                if(user.plan === 'biznes') badgeClass = 'badge-biznes';
-
-                tr.innerHTML = `
-                    <td>${user.id}</td>
-                    <td><b>${user.name || 'Qeyd edilməyib'}</b></td>
-                    <td>${user.email}</td>
-                    <td><span class="badge ${badgeClass}">${user.plan.toUpperCase()}</span></td>
-                    <td>${new Date(user.created_at).toLocaleDateString('az-AZ')}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-
-        } catch (err) {
-            console.error('İstifadəçiləri yükləyərkən xəta:', err);
+            lastY = y;
+          });
+          if (currentLine.trim()) pageLines.push(currentLine.trim());
+          fullText += pageLines.join('\n') + '\n\n';
         }
-    }
+        const editorEl = document.getElementById('editor');
+        editorEl.innerHTML = '';
+        if (fullText.trim()) {
+          fullText.trim().split('\n').forEach(line => {
+            const p = document.createElement('p');
+            if (line.trim()) { p.textContent = line; } else { p.innerHTML = '<br>'; }
+            editorEl.appendChild(p);
+          });
+        } else {
+          editorEl.innerHTML = '<p>[PDF mətni tapılmadı]</p>';
+        }
+      } catch(err) {
+        console.error('PDF xətası:', err);
+        document.getElementById('editor').innerText = '[PDF oxuna bilmədi: ' + file.name + ']';
+        showToast('PDF oxuma xətası', 'error');
+      }
+      updateCounts();
+      showToast('PDF yükləndi', 'success');
+    };
+    r.readAsArrayBuffer(file);
+  } else {
+    const r = new FileReader();
+    r.onload = e => {
+      try {
+        const arr = new Uint8Array(e.target.result);
+        let text = '';
+        for (let i = 0; i < arr.length; i++) { if (arr[i] >= 32 && arr[i] < 127) text += String.fromCharCode(arr[i]); }
+        text = text.replace(/\s{3,}/g, '\n').trim();
+        document.getElementById('editor').innerText = text || '[' + file.name + ']';
+      } catch { document.getElementById('editor').innerText = '[' + file.name + ']'; }
+      updateCounts();
+      showToast('Fayl yükləndi', 'success');
+    };
+    r.readAsArrayBuffer(file);
+  }
+}
 
-    fetchUsers();
+// ═══════════════════════════
+//  SAVE / HISTORY
+// ═══════════════════════════
+function openSaveModal() {
+  document.getElementById('docNameInput').value = currentDocName !== 'Yeni sənəd' ? currentDocName : '';
+  openModal('saveModal');
+  setTimeout(() => document.getElementById('docNameInput').focus(), 100);
+}
+function saveDocument() {
+  const name = document.getElementById('docNameInput').value.trim() || ('Sənəd ' + new Date().toLocaleDateString('az'));
+  const text = getEditorText();
+  if (!text.trim()) { showToast('Sənəd boşdur', 'error'); return; }
+  const docs = getSavedDocs();
+  const doc = { id: currentDocId || Date.now().toString(), name, content: document.getElementById('editor').innerHTML, text, date: new Date().toISOString(), wordCount: text.trim().split(/\s+/).length };
+  const idx = docs.findIndex(d => d.id === doc.id);
+  if (idx >= 0) docs[idx] = doc; else docs.unshift(doc);
+  localStorage.setItem('setir_docs', JSON.stringify(docs.slice(0, 30)));
+  currentDocId = doc.id; currentDocName = name;
+  document.getElementById('topbarDocName').textContent = name;
+  closeModal('saveModal'); updateSidebarDocs();
+  document.getElementById('lastSaved').style.display = '';
+  document.getElementById('lastSavedTime').textContent = new Date().toLocaleTimeString('az', {hour:'2-digit',minute:'2-digit'});
+  showToast('Saxlandı: ' + name, 'success');
+}
+function getSavedDocs() { try { return JSON.parse(localStorage.getItem('setir_docs') || '[]'); } catch { return []; } }
+function openDoc(id) {
+  const doc = getSavedDocs().find(d => d.id === id);
+  if (!doc) return;
+  document.getElementById('editor').innerHTML = doc.content || doc.text;
+  currentDocId = doc.id; currentDocName = doc.name;
+  document.getElementById('topbarDocName').textContent = doc.name;
+  clearErrors(); closeAIResult(); updateCounts(); switchView('editor');
+  showToast('Açıldı: ' + doc.name, 'success');
+}
+function textToDocxBlob(text) {
+  // Word XML format for proper .docx-like download
+  const paragraphs = text.split('\n').map(line => {
+    const escaped = line.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    return `<w:p><w:r><w:t xml:space="preserve">${escaped || ' '}</w:t></w:r></w:p>`;
+  }).join('');
+  const xml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<?mso-application progid="Word.Document"?>
+<w:wordDocument xmlns:w="http://schemas.microsoft.com/office/word/2003/wordml"
+  xmlns:wx="http://schemas.microsoft.com/office/word/2003/auxHint"
+  w:macrosPresent="no" w:embeddedObjPresent="no" w:ocxPresent="no">
+<w:body>${paragraphs}</w:body></w:wordDocument>`;
+  return new Blob([xml], {type:'application/msword;charset=utf-8'});
+}
+
+function downloadDoc() {
+  const text = getEditorText();
+  if (!text.trim()) { showToast('Mətn lazımdır', 'error'); return; }
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(textToDocxBlob(text));
+  a.download = (currentDocName || 'setir') + '.doc';
+  a.click();
+  showToast('Sənəd .doc formatında endirildi', 'success');
+}
+function downloadDocById(id) {
+  const doc = getSavedDocs().find(d => d.id === id);
+  if (!doc) return;
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(textToDocxBlob(doc.text));
+  a.download = doc.name + '.doc'; a.click();
+}
+function deleteDoc(id) {
+  if (!confirm('Bu sənədi silmək istəyirsiniz?')) return;
+  localStorage.setItem('setir_docs', JSON.stringify(getSavedDocs().filter(d => d.id !== id)));
+  renderHistory(); updateSidebarDocs();
+  showToast('Sənəd silindi', 'success');
+}
+function renderHistory() {
+  const docs = getSavedDocs();
+  const grid = document.getElementById('historyGrid');
+  if (!docs.length) { grid.innerHTML = '<div class="history-empty">Hələ saxlanılmış sənəd yoxdur.</div>'; return; }
+  grid.innerHTML = docs.map(doc => {
+    const date = new Date(doc.date).toLocaleDateString('az', {day:'2-digit',month:'short',year:'numeric'});
+    const preview = (doc.text||'').slice(0,120).trim();
+    return `<div class="history-card">
+      <div class="history-card-type">📄 ${doc.wordCount||0} söz</div>
+      <div class="history-card-name" title="${escHtml(doc.name)}">${escHtml(doc.name)}</div>
+      <div class="history-card-preview">${escHtml(preview)}${preview.length>=120?'…':''}</div>
+      <div class="history-card-footer">
+        <div class="history-card-date">${date}</div>
+        <div style="display:flex;gap:4px">
+          <button class="history-card-btn" onclick="openDoc('${doc.id}')">Aç</button>
+          <button class="history-card-btn" onclick="downloadDocById('${doc.id}')">⬇</button>
+          <button class="history-card-btn" onclick="deleteDoc('${doc.id}')" style="color:var(--accent)">✕</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function updateSidebarDocs() {
+  const docs = getSavedDocs().slice(0, 6);
+  const list = document.getElementById('sidebarDocList');
+  if (!docs.length) { list.innerHTML = ''; return; }
+  list.innerHTML = docs.map(doc => {
+    const date = new Date(doc.date).toLocaleDateString('az', {day:'2-digit',month:'short'});
+    return `<div class="doc-item ${doc.id===currentDocId?'active':''}" onclick="openDoc('${doc.id}')">
+      <div class="doc-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+      <div class="doc-item-info"><div class="doc-item-name">${escHtml(doc.name)}</div><div class="doc-item-meta">${date}</div></div>
+    </div>`;
+  }).join('');
+}
+function newDocument() {
+  if (getEditorText().trim() && !confirm('Yeni sənəd açılsın?')) return;
+  document.getElementById('editor').innerHTML = '';
+  currentDocId = null; currentDocName = 'Yeni sənəd';
+  document.getElementById('topbarDocName').textContent = 'Yeni sənəd';
+  clearErrors(); closeAIResult(); updateCounts();
+  document.getElementById('lastSaved').style.display = 'none';
+  switchView('editor');
+}
+
+// ═══════════════════════════
+//  UI
+// ═══════════════════════════
+function toggleSidebar() { sidebarOpen = !sidebarOpen; document.getElementById('sidebar').classList.toggle('collapsed', !sidebarOpen); }
+function switchView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+  document.querySelectorAll('.sidebar-item[id^="nav-"]').forEach(i => i.classList.remove('active'));
+  const nav = document.getElementById('nav-'+name);
+  if (nav) nav.classList.add('active');
+  if (name === 'history') renderHistory();
+}
+function setStatus(type, msg) {
+  document.getElementById('statusDot').className = 'status-dot ' + type;
+  document.getElementById('statusText').textContent = msg;
+}
+function showLoading(s) { document.getElementById('editorLoading').classList.toggle('active', s); }
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function showToast(msg, type='success') {
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = 'toast ' + type; t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => { t.style.opacity='0'; t.style.transition='opacity 0.3s'; setTimeout(()=>t.remove(),300); }, 3000);
+}
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+document.querySelectorAll('.modal-overlay').forEach(el => el.addEventListener('click', e => { if(e.target===el) closeModal(el.id); }));
+document.addEventListener('keydown', e => {
+  if (e.key==='Escape') document.querySelectorAll('.modal-overlay.open').forEach(m => closeModal(m.id));
+  if ((e.ctrlKey||e.metaKey) && e.key==='s') { e.preventDefault(); openSaveModal(); }
+  if ((e.ctrlKey||e.metaKey) && e.key==='Enter') { e.preventDefault(); checkGrammar(); }
+});
 </script>
+
+  <!-- Upgrade Modal -->
+  <div class="modal-overlay" id="upgradeModal" onclick="if(event.target===this)closeModal('upgradeModal')">
+    <div class="modal" style="max-width:420px">
+      <div class="modal-header">
+        <div class="modal-title">✦ Biznes Paketi</div>
+        <button class="modal-close" onclick="closeModal('upgradeModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div style="text-align:center;padding:12px 0 20px">
+          <div style="font-size:36px;margin-bottom:12px">📋</div>
+          <div style="font-size:15px;font-weight:600;color:var(--text1);margin-bottom:8px">Biznes Sənəd Şablonları</div>
+          <div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:20px">
+            Protokol, Əmr, Qərar, Məktub, Arayış və Xidməti Yazı kimi rəsmi sənədlər avtomatik hazırlanır.<br><br>
+            Bu funksiya <strong>Biznes Paketi</strong> abunəçilərinə açıqdır.
+          </div>
+          <div style="background:rgba(255,255,255,0.04);border-radius:10px;padding:16px;margin-bottom:20px;text-align:left">
+            <div style="font-size:12px;color:var(--text3);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px">Biznes Paketi daxildir:</div>
+            <div style="font-size:13px;color:var(--text2);line-height:2">
+              ✓ Bütün biznes sənəd şablonları<br>
+              ✓ Limitsiz AI istifadəsi<br>
+              ✓ Prioritet dəstək<br>
+              ✓ Birdən çox cihaz
+            </div>
+          </div>
+          <a href="/paket" style="display:block;width:100%;padding:11px;background:var(--green);color:#fff;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none;text-align:center;cursor:pointer" onclick="closeModal('upgradeModal')">
+            Paketi Yüksəlt →
+          </a>
+          <div style="font-size:11px;color:var(--text3);margin-top:10px">İstənilən vaxt ləğv edə bilərsiniz</div>
+        </div>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
