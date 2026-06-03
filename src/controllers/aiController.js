@@ -19,21 +19,25 @@ exports.processText = async (req, res) => {
 
   switch(tool) {
     case 'grammar':
-      prompt = `Sən Azərbaycan dili üzrə ekspert redaktorsən. Aşağıdakı mətni çox diqqətlə, söz-söz oxu və BÜTÜN səhvləri tap.
+      prompt = `Sən Azərbaycan dili üzrə ekspert redaktorsən. Aşağıdakı mətni çox diqqətlə, söz-söz oxu və YALNIZ həqiqi səhvləri tap.
 
 Axtarılacaq səhv növləri:
 1. Orfoqrafiya - hərflərin buraxılması, əlavə hərflər, yanlış hərflər (ə/e, ı/i, ö/o, ü/u, ğ/g, ş/s, ç/c)
-2. Durğu işarəsi - vergülün, nöqtənin, sual işarəsinin buraxılması, sözlər arasında vergül olmalıdırsa tap
+2. Durğu işarəsi - vergülün, nöqtənin, sual işarəsinin buraxılması
 3. Qrammatika - şəkilçilərin yanlış işlədilməsi, söz birləşmələrindəki xətalar
 4. Böyük/kiçik hərf - cümlə kiçik hərflə başlayırsa, xüsusi isimlər kiçik yazılıbsa
 5. Bitişik/ayrı yazılış - yanlış bitişik və ya ayrı yazılmış sözlər
-6. Söz seçimi - kontekstə uymayan, yanlış işlədilmiş sözlər
+
+QƏTI QADAĞALAR — bunlara TOXUNMA:
+- "1-ci", "2-ci", "3-cü" kimi sıra sayları TAMAMILƏ DÜZGÜNDÜR, dəyişdirmə
+- Rəqəmlə birləşmiş sözlər (1-ci, 2-li, 10-cu və s.) STANDART Azərbaycan yazılışıdır
+- Düzgün yazılmış sözləri səhv kimi qeyd etmə
+- Əgər söz düzgündürsə, onu errors siyahısına ƏLAVƏ ETMƏ
 
 VACIB QAYDALAR:
-- Hər bir ayrı səhv üçün ayrıca JSON obyekti yarat
-- "word" sahəsindəki mətni MÜTLƏQ orijinal mətndən olduğu kimi kopyala
-- Bir cümlədə 10 səhv varsa, 10 ayrı qeyd yaz
-- Heç bir səhvi buraxma
+- "word" sahəsinə mətndən OLDUĞU KİMİ kopyala (dəyişdirmə)
+- "suggestion" sahəsinə YALNIZ düzgün formu yaz
+- Yalnız həqiqi, açıq-aşkar səhvləri qeyd et
 
 YALNIZ bu JSON formatında cavab ver, əvvəl-sonra heç nə əlavə etmə:
 {"errors": [{"word": "orijinal səhv söz", "suggestion": "düzgün variant", "type": "orfoqrafiya", "description": "izahat"}]}
