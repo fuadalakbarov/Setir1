@@ -1,4 +1,5 @@
 const axios = require('axios');
+const { azerbaycanOrfoqrafiyaYoxla } = require('./spellChecker');
 
 function getGroqKeys() {
   const keys = [];
@@ -19,25 +20,21 @@ function getAvailableKey(keys) {
   const COOLDOWN_MS = 60 * 1000;
   for (const key of keys) {
     const st = keyStatus[key];
-    if (!st || !st.failedAt || (now - st.failedAt) > COOLDOWN_MS) {
-      return key;
-    }
+    if (!st || !st.failedAt || (now - st.failedAt) > COOLDOWN_MS) return key;
   }
   let oldest = keys[0];
   for (const key of keys) {
     const st = keyStatus[key];
     const otherSt = keyStatus[oldest];
     if (!st || !st.failedAt) return key;
-    if (!otherSt || !otherSt.failedAt || st.failedAt < otherSt.failedAt) {
-      oldest = key;
-    }
+    if (!otherSt || !otherSt.failedAt || st.failedAt < otherSt.failedAt) oldest = key;
   }
   return oldest;
 }
 
 function markKeyFailed(key) {
   keyStatus[key] = { failedAt: Date.now() };
-  console.warn(`Groq key məhdudlaşdırıldı, növbəti keye keçilir...`);
+  console.warn('Groq key məhdudlaşdırıldı, növbəti keye keçilir...');
 }
 
 function markKeySuccess(key) {
@@ -101,6 +98,51 @@ async function callAnthropic(systemPrompt, userPrompt) {
   return response.data.content[0].text;
 }
 
+// ── QRAMMATİKA: ÖZ KODUMUZ + AI BİRLİKDƏ ──────────────────
+async function grammarCheck(text) {
+  // 1. Öz kodumuzla fonetik səhvləri tap
+  const localResult = azerbaycanOrfoqrafiyaYoxla(text);
+
+  // 2. AI-dan qalan qrammatik səhvləri tap (şəkilçi, sintaksis və s.)
+  const system = "Sən Azərbaycan dili üzrə ekspert redaktorsən. YALNIZ JSON cavab ver.";
+  const prompt = `Aşağıdakı mətndə YALNIZ bu növ səhvləri tap (fonetik/hərfi səhvlərə BAXMA, onlar artıq ayrıca yoxlanılıb):
+1. Şəkilçilərin yanlış ahəngə uyğunsuzluğu (məs: evdə yerinə evda)
+2. Durğu işarəsi çatışmazlığı
+3. Böyük/kiçik hərf səhvləri (cümlə kiçik hərflə başlayırsa)
+4. Sözlərin yanlış bitişik/ayrı yazılması
+
+YALNIZ bu JSON formatında cavab ver:
+{"errors": [{"word": "səhv söz", "suggestion": "düzgün variant", "type": "qrammatika", "description": "izahat"}]}
+Əgər bu növ səhv yoxdursa: {"errors": []}
+
+Mətn: ${text}`;
+
+  const messages = [
+    { role: 'system', content: system },
+    { role: 'user', content: prompt }
+  ];
+
+  let aiErrors = [];
+  try {
+    const aiResponse = await callGroq(messages, getGroqKeys().length);
+    const cleaned = aiResponse.replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(cleaned);
+    aiErrors = parsed.errors || [];
+  } catch (e) {
+    // AI xətası olsa da öz nəticəmiz var
+    console.warn('AI grammar check xətası:', e.message);
+  }
+
+  // 3. İki nəticəni birləşdir, dublikatları sil
+  const localWords = new Set(localResult.errors.map(e => e.word.toLowerCase()));
+  const uniqueAiErrors = aiErrors.filter(e => !localWords.has((e.word || '').toLowerCase()));
+
+  return {
+    errors: [...localResult.errors, ...uniqueAiErrors]
+  };
+}
+
+// ── ANA CONTROLLER ─────────────────────────────────────────
 exports.processText = async (req, res) => {
   const { text, tool, options } = req.body;
 
@@ -113,46 +155,22 @@ exports.processText = async (req, res) => {
     return res.status(403).json({ error: 'Bu modul yalnız Biznes Paketi istifadəçilərinə açıqdır.' });
   }
 
-  const system = "Sən Azərbaycan dili üzrə ixtisaslaşmış süni intellekt köməkçisisən. MÜTLƏQ Azərbaycan ədəbi dilində yaz. ə,ğ,ı,ö,ü,ş,ç hərflərini düzgün işlət. Heç bir giriş ifadəsi yazma. Birbaşa nəticəni qaytar.";
+  // QRAMMATİKA: AI-sız öz kodumuz
+  if (tool === 'grammar') {
+    try {
+      const result = await grammarCheck(text);
+      return res.json({ result: JSON.stringify(result) });
+    } catch (err) {
+      console.error('Grammar xəta:', err.message);
+      return res.status(500).json({ error: 'Qrammatika yoxlama xətası.' });
+    }
+  }
 
+  const system = "Sən Azərbaycan dili üzrə ixtisaslaşmış süni intellekt köməkçisisən. MÜTLƏQ Azərbaycan ədəbi dilində yaz. ə,ğ,ı,ö,ü,ş,ç hərflərini düzgün işlət. Heç bir giriş ifadəsi yazma. Birbaşa nəticəni qaytar.";
   const o = options || {};
   let prompt = '';
 
   switch(tool) {
-    case 'grammar':
-      prompt = `Sən Azərbaycan dili üzrə ekspert redaktorsən. Aşağıdakı mətni söz-söz oxu və BÜTÜN səhvləri tap.
-
-ƏN VACIB — FONETİK SƏHVLƏR (mütləq tut):
-Azərbaycan ədəbi dilində ə, ö, ü, ı, ğ, ş, ç hərfləri düzgün işlədilməlidir.
-Aşağıdakı kimi yazılmış sözlər MÜTLƏQ səhvdir:
-- "e" yerinə "ə" yazılmalıdır: "vermeli"→"verməli", "vermelidir"→"verməlidir", "oxumalidir"→"oxumalıdır", "mekteb"→"məktəb", "mektebe"→"məktəbə", "gedecek"→"gedəcək", "olmelidir"→"ölməlidir"
-- "a" yerinə "ə" yazılmalıdır: "ovlad"→"övlad", "ovladinizin"→"övladınızın", "naql"→"nəql"
-- "u" yerinə "ü" yazılmalıdır: "numune"→"nümunə", "gun"→"gün"
-- Şəkilçilərdə səsuyumu: "-lar/-lər", "-da/-də", "-dan/-dən", "-ni/-nı/-nu/-nü"
-
-DİGƏR SƏHV NÖVLƏRİ:
-- Orfoqrafiya: hərf buraxılması, artıq hərf
-- Durğu işarəsi: vergül, nöqtə, sual işarəsi
-- Böyük/kiçik hərf
-- Bitişik/ayrı yazılış
-
-TOXUNMA:
-- "1-ci", "2-ci", "3-cü" kimi rəqəmli sıra sayları düzgündür
-- Şəxs adları, yer adları, xüsusi terminlər
-- Artıq düzgün yazılmış sözlər
-
-QAYDALAR:
-- "word" sahəsinə mətndən OLDUĞU KİMİ kopyala
-- "suggestion" sahəsinə yalnız düzgün formu yaz
-- Hər həqiqi səhvi mütləq qeyd et, buraxma
-
-YALNIZ bu JSON formatında cavab ver, əvvəl-sonra heç nə əlavə etmə:
-{"errors": [{"word": "orijinal səhv söz", "suggestion": "düzgün variant", "type": "orfoqrafiya", "description": "izahat"}]}
-Səhv yoxdursa: {"errors": []}
-
-Mətn:
-${text}`;
-      break;
     case 'tone':
       prompt = `Aşağıdakı mətni "${o.tone || 'Rəsmi'}" tonuna uyğunlaşdır. Yalnız yenidən yazılmış mətni qaytar:\n\n${text}`;
       break;
@@ -204,11 +222,9 @@ ${text}`;
   } catch (err) {
     if (err.message === 'GROQ_ALL_KEYS_LIMITED') {
       try {
-        console.log('Groq limitə çatdı, Anthropic API-yə keçilir...');
         const result = await callAnthropic(system, prompt);
         return res.json({ result });
       } catch (anthropicErr) {
-        console.error('Anthropic xətası:', anthropicErr.response?.data || anthropicErr.message);
         return res.status(429).json({
           error: 'AI serveri müvəqqəti olaraq həddindən artıq yüklənib. Bir neçə dəqiqə sonra yenidən cəhd edin.'
         });
