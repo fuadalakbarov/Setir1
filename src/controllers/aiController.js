@@ -1,14 +1,8 @@
 const axios = require('axios');
 
-// ─── KEY ROTATION SİSTEMİ ──────────────────────────────────────────────────
-// .env faylında GROQ_API_KEY_1, GROQ_API_KEY_2, ... kimi əlavə edin
-// Minimum 1 key lazımdır (GROQ_API_KEY və ya GROQ_API_KEY_1)
-
 function getGroqKeys() {
   const keys = [];
-  // Köhnə tək key dəstəyi
   if (process.env.GROQ_API_KEY) keys.push(process.env.GROQ_API_KEY);
-  // Çoxlu key dəstəyi: GROQ_API_KEY_1, GROQ_API_KEY_2, ...
   let i = 1;
   while (process.env[`GROQ_API_KEY_${i}`]) {
     const k = process.env[`GROQ_API_KEY_${i}`];
@@ -18,21 +12,17 @@ function getGroqKeys() {
   return keys;
 }
 
-// Hər key üçün status: { failedAt: timestamp | null }
 const keyStatus = {};
 
 function getAvailableKey(keys) {
   const now = Date.now();
-  const COOLDOWN_MS = 60 * 1000; // 60 saniyə sonra yenidən cəhd et
-
+  const COOLDOWN_MS = 60 * 1000;
   for (const key of keys) {
     const st = keyStatus[key];
     if (!st || !st.failedAt || (now - st.failedAt) > COOLDOWN_MS) {
       return key;
     }
   }
-
-  // Bütün keylər limitdədir — ən köhnə uğursuzluğu olan keyi qaytar
   let oldest = keys[0];
   for (const key of keys) {
     const st = keyStatus[key];
@@ -54,71 +44,43 @@ function markKeySuccess(key) {
   if (keyStatus[key]) keyStatus[key].failedAt = null;
 }
 
-// ─── GROQ API ÇAĞIRIŞI (rotation ilə) ─────────────────────────────────────
 async function callGroq(messages, maxRetries) {
   const keys = getGroqKeys();
   if (keys.length === 0) throw new Error('Heç bir Groq API key tapılmadı');
-
   const tried = new Set();
-
   for (let attempt = 0; attempt < Math.max(keys.length, maxRetries || 1); attempt++) {
-    const key = getAvailableKey(keys.filter(k => !tried.has(k)).length > 0
-      ? keys.filter(k => !tried.has(k))
-      : keys
-    );
-
+    const available = keys.filter(k => !tried.has(k));
+    const key = getAvailableKey(available.length > 0 ? available : keys);
     tried.add(key);
-
     try {
       const response = await axios.post(
         'https://api.groq.com/openai/v1/chat/completions',
+        { model: 'llama-3.3-70b-versatile', max_tokens: 4000, temperature: 0.1, messages },
         {
-          model: 'llama-3.3-70b-versatile',
-          max_tokens: 4000,
-          temperature: 0.1,
-          messages
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${key}`
-          },
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
           timeout: 30000
         }
       );
-
       markKeySuccess(key);
       return response.data.choices[0].message.content;
-
     } catch (err) {
       const status = err.response?.status;
       const isRateLimit = status === 429 || status === 503 ||
-        (err.response?.data?.error?.type === 'tokens' ||
-         err.response?.data?.error?.code === 'rate_limit_exceeded');
-
+        err.response?.data?.error?.type === 'tokens' ||
+        err.response?.data?.error?.code === 'rate_limit_exceeded';
       if (isRateLimit) {
         markKeyFailed(key);
-        // Bütün keyləri sınadıqsa dayandır
-        if (tried.size >= keys.length) {
-          throw new Error('GROQ_ALL_KEYS_LIMITED');
-        }
-        continue; // Növbəti keylə cəhd et
+        if (tried.size >= keys.length) throw new Error('GROQ_ALL_KEYS_LIMITED');
+        continue;
       }
-
-      // Digər xətalarda birbaşa at
       throw err;
     }
   }
-
   throw new Error('GROQ_ALL_KEYS_LIMITED');
 }
 
-// ─── ANTHROPIC FALLBACK ────────────────────────────────────────────────────
 async function callAnthropic(systemPrompt, userPrompt) {
-  if (!process.env.ANTHROPIC_API_KEY) {
-    throw new Error('Anthropic API key yoxdur');
-  }
-
+  if (!process.env.ANTHROPIC_API_KEY) throw new Error('Anthropic API key yoxdur');
   const response = await axios.post(
     'https://api.anthropic.com/v1/messages',
     {
@@ -136,11 +98,9 @@ async function callAnthropic(systemPrompt, userPrompt) {
       timeout: 30000
     }
   );
-
   return response.data.content[0].text;
 }
 
-// ─── ANA CONTROLLER ────────────────────────────────────────────────────────
 exports.processText = async (req, res) => {
   const { text, tool, options } = req.body;
 
@@ -160,7 +120,38 @@ exports.processText = async (req, res) => {
 
   switch(tool) {
     case 'grammar':
-      prompt = `Sən Azərbaycan dili üzrə ekspert redaktorsən. Aşağıdakı mətni çox diqqətlə, söz-söz oxu və YALNIZ həqiqi səhvləri tap.\n\nAxtarılacaq səhv növləri:\n1. Orfoqrafiya - hərflərin buraxılması, əlavə hərflər, yanlış hərflər (ə/e, ı/i, ö/o, ü/u, ğ/g, ş/s, ç/c)\n2. Durğu işarəsi - vergülün, nöqtənin, sual işarəsinin buraxılması\n3. Qrammatika - şəkilçilərin yanlış işlədilməsi, söz birləşmələrindəki xətalar\n4. Böyük/kiçik hərf - cümlə kiçik hərflə başlayırsa, xüsusi isimlər kiçik yazılıbsa\n5. Bitişik/ayrı yazılış - yanlış bitişik və ya ayrı yazılmış sözlər\n\nQƏTİ QADAĞALAR — bunlara TOXUNMA:\n- "1-ci", "2-ci", "3-cü" kimi sıra sayları TAMAMILƏ DÜZGÜNDÜR, dəyişdirmə\n- Rəqəmlə birləşmiş sözlər (1-ci, 2-li, 10-cu və s.) STANDART Azərbaycan yazılışıdır\n- Düzgün yazılmış sözləri səhv kimi qeyd etmə\n- Əgər söz düzgündürsə, onu errors siyahısına ƏLAVƏ ETMƏ\n- "nümunə", "numune" hər ikisi mövcud sözdür — TOXUNMA\n- Şəxs adları, yer adları, terminlər, qısaltmalar — TOXUNMA\n- Şübhəli hallarda errors siyahısına ƏLAVƏ ETMƏ — yalnız 100% açıq-aşkar səhvlər\n- Yanlış mənfi göstərici verməkdənsə, heç nə göstərməmək daha yaxşıdır\n\nVACİB QAYDALAR:\n- "word" sahəsinə mətndən OLDUĞU KİMİ kopyala (dəyişdirmə)\n- "suggestion" sahəsinə YALNIZ düzgün formu yaz\n- Yalnız həqiqi, açıq-aşkar səhvləri qeyd et\n\nYALNIZ bu JSON formatında cavab ver, əvvəl-sonra heç nə əlavə etmə:\n{"errors": [{"word": "orijinal səhv söz", "suggestion": "düzgün variant", "type": "orfoqrafiya", "description": "izahat"}]}\nSəhv yoxdursa: {"errors": []}\n\nMətn:\n${text}`;
+      prompt = `Sən Azərbaycan dili üzrə ekspert redaktorsən. Aşağıdakı mətni söz-söz oxu və BÜTÜN səhvləri tap.
+
+ƏN VACIB — FONETİK SƏHVLƏR (mütləq tut):
+Azərbaycan ədəbi dilində ə, ö, ü, ı, ğ, ş, ç hərfləri düzgün işlədilməlidir.
+Aşağıdakı kimi yazılmış sözlər MÜTLƏQ səhvdir:
+- "e" yerinə "ə" yazılmalıdır: "vermeli"→"verməli", "vermelidir"→"verməlidir", "oxumalidir"→"oxumalıdır", "mekteb"→"məktəb", "mektebe"→"məktəbə", "gedecek"→"gedəcək", "olmelidir"→"ölməlidir"
+- "a" yerinə "ə" yazılmalıdır: "ovlad"→"övlad", "ovladinizin"→"övladınızın", "naql"→"nəql"
+- "u" yerinə "ü" yazılmalıdır: "numune"→"nümunə", "gun"→"gün"
+- Şəkilçilərdə səsuyumu: "-lar/-lər", "-da/-də", "-dan/-dən", "-ni/-nı/-nu/-nü"
+
+DİGƏR SƏHV NÖVLƏRİ:
+- Orfoqrafiya: hərf buraxılması, artıq hərf
+- Durğu işarəsi: vergül, nöqtə, sual işarəsi
+- Böyük/kiçik hərf
+- Bitişik/ayrı yazılış
+
+TOXUNMA:
+- "1-ci", "2-ci", "3-cü" kimi rəqəmli sıra sayları düzgündür
+- Şəxs adları, yer adları, xüsusi terminlər
+- Artıq düzgün yazılmış sözlər
+
+QAYDALAR:
+- "word" sahəsinə mətndən OLDUĞU KİMİ kopyala
+- "suggestion" sahəsinə yalnız düzgün formu yaz
+- Hər həqiqi səhvi mütləq qeyd et, buraxma
+
+YALNIZ bu JSON formatında cavab ver, əvvəl-sonra heç nə əlavə etmə:
+{"errors": [{"word": "orijinal səhv söz", "suggestion": "düzgün variant", "type": "orfoqrafiya", "description": "izahat"}]}
+Səhv yoxdursa: {"errors": []}
+
+Mətn:
+${text}`;
       break;
     case 'tone':
       prompt = `Aşağıdakı mətni "${o.tone || 'Rəsmi'}" tonuna uyğunlaşdır. Yalnız yenidən yazılmış mətni qaytar:\n\n${text}`;
@@ -208,15 +199,10 @@ exports.processText = async (req, res) => {
   ];
 
   try {
-    // 1. Groq key rotation ilə cəhd et
     const result = await callGroq(messages, getGroqKeys().length);
     return res.json({ result });
-
   } catch (err) {
-    const isAllLimited = err.message === 'GROQ_ALL_KEYS_LIMITED';
-
-    if (isAllLimited) {
-      // 2. Anthropic fallback
+    if (err.message === 'GROQ_ALL_KEYS_LIMITED') {
       try {
         console.log('Groq limitə çatdı, Anthropic API-yə keçilir...');
         const result = await callAnthropic(system, prompt);
@@ -228,7 +214,6 @@ exports.processText = async (req, res) => {
         });
       }
     }
-
     console.error('AI Xəta:', err.response?.data || err.message);
     res.status(500).json({ error: 'AI serveri ilə əlaqə xətası.' });
   }
