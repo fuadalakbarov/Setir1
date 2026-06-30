@@ -369,7 +369,7 @@ function checkText(text) {
   loadDictionary();
   if (!text || !DICTIONARY.size) return { errors: [] };
 
-  const wordRegex = /\d+[-–](?:ci|cı|cu|cü|inci|ıncı|uncu|üncü|li|lı|lu|lü|lik|lıq|luq|lük|dən|dan|də|da|ə|a|ı|i|u|ü)\b|[a-zA-ZəƏşŞğĞçÇıIüÜöÖ]+(?:[-–'][a-zA-ZəƏşŞğĞçÇıIüÜöÖ]+)*/g;
+  const wordRegex = /[a-zA-Z0-9əƏşŞğĞçÇıIüÜöÖ]+(?:[-–'][a-zA-Z0-9əƏşŞğĞçÇıIüÜöÖ]+)*/g;
   const errors = [];
   let match;
 
