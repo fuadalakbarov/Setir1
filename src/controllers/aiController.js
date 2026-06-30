@@ -56,7 +56,7 @@ async function callGroq(messages, maxRetries) {
     try {
       const response = await axios.post(
         'https://api.groq.com/openai/v1/chat/completions',
-        { model: 'llama-3.3-70b-versatile', max_tokens: 4000, temperature: 0.1, messages },
+        { model: 'openai/gpt-oss-120b', max_tokens: 4000, temperature: 0.1, messages },
         {
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
           timeout: 30000
