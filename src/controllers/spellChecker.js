@@ -200,6 +200,32 @@ function morphologicalCheck(word) {
   return false;
 }
 
+// Dar saitin düşməsi: "sinif"+"in"="sinfin", "şəkil"+"i"="şəkli", "ağız"+"ı"="ağzı"
+// Kökün son samiti ilə əvvəlki samit arasında bir sait əlavə edib lüğətdə yoxlayır
+function vowelElisionCheck(word) {
+  const MIN_ROOT = 2;
+  for (const { len, suffixes } of SUFFIXES_BY_LEN) {
+    if (word.length - len < MIN_ROOT) continue;
+    for (const suf of suffixes) {
+      if (word.endsWith(suf)) {
+        const root = word.slice(0, word.length - len);
+        if (root.length < MIN_ROOT + 1) continue;
+        const lastTwo = root.slice(-2);
+        const consonants = !/[aıouəeöüi]/.test(lastTwo);
+        if (consonants) {
+          const VOWELS = ['ı','i','u','ü','a','ə','o','ö'];
+          const base = root.slice(0, -1);
+          const lastConsonant = root.slice(-1);
+          for (const v of VOWELS) {
+            if (DICTIONARY.has(base + v + lastConsonant)) return true;
+          }
+        }
+      }
+    }
+  }
+  return false;
+}
+
 // ─── SÖZ YOXLAMA ─────────────────────────────────────────────────────────────
 function isCorrect(word) {
   loadDictionary();
@@ -224,6 +250,10 @@ function isCorrect(word) {
 
   // 5. Böyük hərf — xüsusi isim (şəxs adı, yer adı)
   if (word[0] === word[0].toUpperCase() && word[0] !== word[0].toLowerCase()) return true;
+
+  // 5.5 Dar saitin düşməsi morfologiyası AZ-hərf şərtindən asılı olmayaraq keçərlidir
+  // (sinif→sinfin, şəkil→şəkli, ağız→ağzı kimi sözlərdə əlavə hərf olmaya bilər)
+  if (vowelElisionCheck(lower)) return true;
 
   // 6. Morfoloji analiz — suffixləri strip edib kök lüğətdə?
   // ŞƏRT: Əgər sözdə heç bir Azərbaycan xüsusi hərfi yoxdursa (ə,ş,ğ,ç,ı,ö,ü),
@@ -339,7 +369,7 @@ function checkText(text) {
   loadDictionary();
   if (!text || !DICTIONARY.size) return { errors: [] };
 
-  const wordRegex = /[a-zA-ZəƏşŞğĞçÇıIüÜöÖ]+(?:[-–'][a-zA-ZəƏşŞğĞçÇıIüÜöÖ]+)*/g;
+  const wordRegex = /[a-zA-Z0-9əƏşŞğĞçÇıIüÜöÖ]+(?:[-–'][a-zA-Z0-9əƏşŞğĞçÇıIüÜöÖ]+)*/g;
   const errors = [];
   let match;
 
