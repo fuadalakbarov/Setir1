@@ -18,7 +18,33 @@ pool.on('error', (err) => {
   process.exit(-1);
 });
 
+// Server başlayanda cədvəllər yoxdursa avtomatik yaradılır
+async function initSchema() {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS users (
+      id SERIAL PRIMARY KEY,
+      name VARCHAR(100),
+      email VARCHAR(100) UNIQUE NOT NULL,
+      password_hash VARCHAR(255) NOT NULL,
+      plan VARCHAR(20) DEFAULT 'pulsuz',
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS active_sessions (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+      token VARCHAR(500) NOT NULL,
+      device_fingerprint VARCHAR(255) NOT NULL,
+      ip_address VARCHAR(45),
+      last_active TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
+  console.log('Verilənlər bazası sxemi yoxlanıldı/quruldu.');
+}
+
 module.exports = {
   query: (text, params) => pool.query(text, params),
-  pool
+  pool,
+  initSchema
 };
