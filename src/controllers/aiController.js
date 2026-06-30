@@ -81,13 +81,13 @@ async function callGroq(messages, maxRetries) {
 }
 
 // ─── ANTHROPIC FALLBACK ────────────────────────────────────────────────────
-async function callAnthropic(systemPrompt, userPrompt) {
+async function callAnthropic(systemPrompt, userPrompt, maxTokens = 4000) {
   if (!process.env.ANTHROPIC_API_KEY) throw new Error('Anthropic API key yoxdur');
   const response = await axios.post(
     'https://api.anthropic.com/v1/messages',
     {
       model: 'claude-haiku-4-5-20251001',
-      max_tokens: 4000,
+      max_tokens: maxTokens,
       system: systemPrompt,
       messages: [{ role: 'user', content: userPrompt }]
     },
@@ -127,7 +127,7 @@ exports.processText = async (req, res) => {
 
   switch(tool) {
     case 'grammar':
-      prompt = `Sən Azərbaycan dili üzrə ekspert redaktorsən. Aşağıdakı mətni çox diqqətlə oxu və YALNIZ həqiqi, açıq-aşkar səhvləri tap.\n\nTapılacaq səhv növləri:\n1. Durğu işarəsi - vergülün, nöqtənin buraxılması\n2. Qrammatika - şəkilçilərin yanlış işlədilməsi\n3. Böyük/kiçik hərf - cümlə kiçik hərflə başlayırsa\n4. Ahəng qanunu pozuntusu\n\nQƏTİ QADAĞALAR:\n- "1-ci", "2-ci", "3-cü" kimi sıra sayları DÜZGÜNDÜR\n- Düzgün yazılmış sözlərə TOXUNMA\n- Şübhəli hallarda ƏLAVƏ ETMƏ\n\nYALNIZ bu JSON formatında cavab ver:\n{"errors": [{"word": "səhv söz", "suggestion": "düzgün variant", "type": "qrammatika", "description": "izahat"}]}\nSəhv yoxdursa: {"errors": []}\n\nMətn:\n${text}`;
+      prompt = `Sən Azərbaycan dili üzrə ekspert redaktorsən. Aşağıdakı mətni çox diqqətlə oxu və YALNIZ həqiqi, açıq-aşkar səhvləri tap.\n\nTapılacaq səhv növləri:\n1. Durğu işarəsi - vergülün, nöqtənin buraxılması\n2. Qrammatika - şəkilçilərin yanlış işlədilməsi\n3. Böyük/kiçik hərf - cümlə kiçik hərflə başlayırsa\n4. Ahəng qanunu pozuntusu\n\nQƏTİ QADAĞALAR:\n- "1-ci", "2-ci", "3-cü" kimi sıra sayları DÜZGÜNDÜR\n- Düzgün yazılmış sözlərə TOXUNMA\n- Şübhəli hallarda ƏLAVƏ ETMƏ\n\nVACİB: "description" sahəsini MAKSIMUM 5-6 söz ilə, çox qısa yaz (məs: "ə hərfi düşüb", "diakritik işarə yoxdur"). Uzun izahat YAZMA.\n\nYALNIZ bu JSON formatında, başqa heç nə yazmadan cavab ver:\n{"errors": [{"word": "səhv söz", "suggestion": "düzgün variant", "type": "qrammatika", "description": "qısa izah"}]}\nSəhv yoxdursa: {"errors": []}\n\nMətn:\n${text}`;
       break;
     case 'tone':
       prompt = `Aşağıdakı mətni "${o.tone || 'Rəsmi'}" tonuna uyğunlaşdır. Yalnız yenidən yazılmış mətni qaytar:\n\n${text}`;
@@ -178,7 +178,7 @@ exports.processText = async (req, res) => {
   // modellərindən qat-qat yaxşı bilir, ona görə əvvəlcə Claude-a müraciət edirik
   if (tool === 'grammar' && process.env.ANTHROPIC_API_KEY) {
     try {
-      const result = await callAnthropic(system, prompt);
+      const result = await callAnthropic(system, prompt, 8000);
       return res.json({ result });
     } catch (anthropicErr) {
       console.error('Anthropic (grammar) xətası, Groq-a keçilir:', anthropicErr.response?.data || anthropicErr.message);
