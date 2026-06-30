@@ -116,16 +116,9 @@ exports.processText = async (req, res) => {
     return res.status(403).json({ error: 'Bu modul yalnız Biznes Paketi istifadəçilərinə açıqdır.' });
   }
 
-  // ─── QRAMMATİKA: öz lüğətimizlə (AI-sız, limitsiz) ───────────────────────
-  if (tool === 'grammar') {
-    try {
-      const { errors } = checkTextForAI(text);
-      return res.json({ result: JSON.stringify({ errors }) });
-    } catch (e) {
-      console.error('SpellChecker xəta:', e.message);
-      // Xəta olarsa AI-a fallback
-    }
-  }
+  // ─── QRAMMATİKA: əvvəlcə AI (tam lüğət əhatəsi), uğursuz olarsa öz lüğətimiz ──
+  // (lokal lüğət yalnız ~15 min söz əhatə edir, ona görə tanımadığı düzgün
+  // sözləri də səhv kimi göstərə bilərdi — AI bütün Azərbaycan lüğətini bilir)
 
   const system = "Sən Azərbaycan dili üzrə ixtisaslaşmış süni intellekt köməkçisisən. MÜTLƏQ Azərbaycan ədəbi dilində yaz. ə,ğ,ı,ö,ü,ş,ç hərflərini düzgün işlət. Heç bir giriş ifadəsi yazma. Birbaşa nəticəni qaytar.";
 
@@ -181,6 +174,18 @@ exports.processText = async (req, res) => {
     { role: 'user', content: prompt }
   ];
 
+  // ─── QRAMMATİKA üçün: Claude Azərbaycan dilini Groq-un open-source
+  // modellərindən qat-qat yaxşı bilir, ona görə əvvəlcə Claude-a müraciət edirik
+  if (tool === 'grammar' && process.env.ANTHROPIC_API_KEY) {
+    try {
+      const result = await callAnthropic(system, prompt);
+      return res.json({ result });
+    } catch (anthropicErr) {
+      console.error('Anthropic (grammar) xətası, Groq-a keçilir:', anthropicErr.response?.data || anthropicErr.message);
+      // aşağıdakı ümumi axına davam edir (Groq, sonra lokal)
+    }
+  }
+
   try {
     const result = await callGroq(messages, getGroqKeys().length);
     return res.json({ result });
@@ -192,9 +197,25 @@ exports.processText = async (req, res) => {
         return res.json({ result });
       } catch (anthropicErr) {
         console.error('Anthropic xətası:', anthropicErr.response?.data || anthropicErr.message);
+        if (tool === 'grammar') {
+          try {
+            const { errors } = checkTextForAI(text);
+            return res.json({ result: JSON.stringify({ errors }) });
+          } catch (localErr) {
+            console.error('Lokal SpellChecker xəta:', localErr.message);
+          }
+        }
         return res.status(429).json({
           error: 'AI serveri müvəqqəti olaraq həddindən artıq yüklənib. Bir neçə dəqiqə sonra yenidən cəhd edin.'
         });
+      }
+    }
+    if (tool === 'grammar') {
+      try {
+        const { errors } = checkTextForAI(text);
+        return res.json({ result: JSON.stringify({ errors }) });
+      } catch (localErr) {
+        console.error('Lokal SpellChecker xəta:', localErr.message);
       }
     }
     console.error('AI Xəta:', err.response?.data || err.message);
